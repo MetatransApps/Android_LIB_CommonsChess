@@ -1,0 +1,9 @@
+rootProject.name = "Android_LIB_CommonsChess"
+
+include ':app'
+include ':Android_LIB_Commons'
+include ':Android_LIB_CommonsAds'
+
+project(':Android_LIB_Commons').projectDir = new File('./../Android_LIB_Commons/app')
+project(':Android_LIB_CommonsAds').projectDir = new File('./../Android_LIB_CommonsAds/app')
+

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="menu_about_bagatur">За Багатур</string>
+    <string name="menu_edit_board">Редактиране</string>
+
+    <string name="player_type_human">Човек</string>
+    <string name="player_type_computer">Компютър</string>
+    
+    <string name="promotion">Повишение</string>
+    <string name="queen">Царица</string>
+    <string name="rook">Топ</string>
+    <string name="bishop">Офицер</string>
+    <string name="knight">Кон</string>
+    
+    <string name="game_status_white_wins">Белите Печелят</string>
+    <string name="game_status_black_wins">Черните Печелят</string>
+    <string name="game_status_draw">Реми</string>
+    <string name="game_status_inmoves1">в</string>
+    <string name="game_status_inmoves2">хода</string>
+    
+    <string name="menu_rules">Правила За Местене</string>
+    <string name="menu_rules_desc">Избор На Правила За Местене</string>
+    <string name="menu_rules_allrules">Всички Шах Правила</string>
+    <string name="menu_rules_allrules_desc">В сила са всички правила на играта Шах</string>
+    
+    <string name="menu_pieces_scheme">Фигури</string>
+    <string name="pieces_scheme">Избор На Фигури</string>    
+    <string name="pieces_scheme_ascii_droid_sans_fallback_1">Класически \"droid sans fallback\"</string>
+    <string name="pieces_scheme_ascii_droid_sans_fallback_2">Прозрачни</string>
+    <string name="pieces_scheme_ascii_arial_unicode_ms">Класически \"arial unicode ms\"</string>
+    <string name="pieces_scheme_ascii_code2000">Класически \"code 2000\"</string>
+    <string name="pieces_scheme_ascii_dejavu_sans">Класически \"dejavu sans\"</string>
+    <string name="pieces_scheme_ascii_freeserif">Класически \"free serif\"</string>
+    <string name="pieces_scheme_ascii_segoe_ui_symbol">Класически \"segoe ui symbol\"</string>
+    <string name="pieces_scheme_ascii_y_oz_font">Класически \"y oz font\"</string>
+    <string name="pieces_scheme_custom1">Призраци</string>
+    <string name="pieces_scheme_custom2">Модерни</string>
+    <string name="pieces_scheme_custom3">Светла Глина</string>
+    <string name="pieces_scheme_custom4">Конструктор</string>
+    <string name="pieces_scheme_custom5">Тъмна Глина</string>
+    <string name="pieces_scheme_custom6">Конструктор (ЧБ)</string>
+    <string name="pieces_scheme_custom7">Тъмна Глина (ЧБ)</string>
+    <string name="pieces_scheme_custom8">Светла Глина (ЧБ)</string>
+    
+    <string name="menu_difficulty_desc_notavailable">Тази възможност не е достъпна при текущите правила за местене на фигури</string>
+
+    <string name="menu_animation_mode">Режим на Анимация</string>
+    <string name="menu_animation_none">Без</string>
+    <string name="menu_animation_super_slow">Много бавно</string>
+    <string name="menu_animation_slow">Бавно</string>
+    <string name="menu_animation_normal">Средно</string>
+    <string name="menu_animation_fast">Бързо</string>
+    <string name="menu_animation_super_fast">Много бързо</string>
+
+</resources>

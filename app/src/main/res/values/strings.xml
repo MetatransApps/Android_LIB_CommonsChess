@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="menu_about_bagatur">About Bagatur</string>
+    <string name="menu_edit_board">Edit Board</string>
+
+    <string name="player_type_human">Human</string>
+    <string name="player_type_computer">Computer</string>
+    
+    <string name="promotion">Promotion</string>
+    <string name="queen">Queen</string>
+    <string name="rook">Rook</string>
+    <string name="bishop">Bishop</string>
+    <string name="knight">Knight</string>
+	
+    <string name="game_status_white_wins">White Wins</string>
+    <string name="game_status_black_wins">Black Wins</string>
+    <string name="game_status_draw">Draw</string>
+    <string name="game_status_inmoves1">in</string>
+    <string name="game_status_inmoves2">moves</string>
+  	
+    
+    <string name="menu_rules">Rules</string>
+    <string name="menu_rules_desc">Moving Rules Selection</string>
+    <string name="menu_rules_allrules">All Chess Rules</string>
+    <string name="menu_rules_allrules_desc">All rules of chess are applied</string>
+    
+    <string name="menu_pieces_scheme">Pieces</string>
+    <string name="pieces_scheme">Pieces Selection</string>
+    <string name="pieces_scheme_ascii_droid_sans_fallback_1">Classic \"droid sans fallback\"</string>
+    <string name="pieces_scheme_ascii_droid_sans_fallback_2">Transparent</string>
+    <string name="pieces_scheme_ascii_arial_unicode_ms">Classic \"arial unicode ms\"</string>
+    <string name="pieces_scheme_ascii_code2000">Classic \"code 2000\"</string>
+    <string name="pieces_scheme_ascii_dejavu_sans">Classic \"dejavu sans\"</string>
+    <string name="pieces_scheme_ascii_freeserif">Classic \"free serif\"</string>
+    <string name="pieces_scheme_ascii_segoe_ui_symbol">Classic \"segoe ui symbol\"</string>
+    <string name="pieces_scheme_ascii_y_oz_font">Classic \"y oz font\"</string>
+    
+    <string name="pieces_scheme_custom1">Gosts</string>
+    <string name="pieces_scheme_custom2">Modern</string>
+    <string name="pieces_scheme_custom3">Light Clay</string>
+    <string name="pieces_scheme_custom4">Blocks</string>
+    <string name="pieces_scheme_custom5">Dark Clay</string>
+    <string name="pieces_scheme_custom6">Blocks (BW)</string>
+    <string name="pieces_scheme_custom7">Dark Clay (BW)</string>
+    <string name="pieces_scheme_custom8">Light Clay (BW)</string>
+    
+    <string name="menu_difficulty_desc_notavailable">This option is not available under the current moving rules</string>
+    
+    <string name="menu_animation_mode">Animation Mode</string>
+    <string name="menu_animation_none">None</string>
+    <string name="menu_animation_super_slow">Super slow</string>
+    <string name="menu_animation_slow">Slow</string>
+    <string name="menu_animation_normal">Normal</string>
+    <string name="menu_animation_fast">Fast</string>
+    <string name="menu_animation_super_fast">Super fast</string>
+    
+</resources>

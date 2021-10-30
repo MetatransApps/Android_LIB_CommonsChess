@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="menu_about_bagatur">Sobre Bagatur</string>
+    <string name="menu_edit_board">Edición</string>
+
+    <string name="player_type_human">Hombre</string>
+    <string name="player_type_computer">Ordenador</string>
+        
+    <string name="promotion">subir</string>
+    <string name="queen">reina</string>
+    <string name="rook">grajo</string>
+    <string name="bishop">oficial</string>
+    <string name="knight">caballo</string>
+    
+    <string name="game_status_white_wins">Las blancas ganan</string>
+    <string name="game_status_black_wins">negro es victorioso</string>
+    <string name="game_status_draw">Remy</string>
+    <string name="game_status_inmoves1">en</string>
+    <string name="game_status_inmoves2">curso</string>
+    
+    <string name="menu_rules">Reglas para Mudanzas</string>
+    <string name="menu_rules_desc">Reglas de selección para Mudanzas</string>
+    <string name="menu_rules_allrules">Todas las reglas del ajedrez</string>
+    <string name="menu_rules_allrules_desc">Están en vigor todas las reglas del juego de ajedrez</string>
+    
+    <string name="menu_pieces_scheme">Cifras</string>
+    <string name="pieces_scheme">Seleccione Cifras</string>
+    <string name="pieces_scheme_ascii_droid_sans_fallback_1">Clásico \"droid sans fallback\"</string>
+    <string name="pieces_scheme_ascii_droid_sans_fallback_2">Transparente</string>
+    <string name="pieces_scheme_ascii_arial_unicode_ms">Clásico \"arial unicode ms\"</string>
+    <string name="pieces_scheme_ascii_code2000">Clásico \"code 2000\"</string>
+    <string name="pieces_scheme_ascii_dejavu_sans">Clásico \"dejavu sans\"</string>
+    <string name="pieces_scheme_ascii_freeserif">Clásico \"free serif\"</string>
+    <string name="pieces_scheme_ascii_segoe_ui_symbol">Clásico \"segoe ui symbol\"</string>
+    <string name="pieces_scheme_ascii_y_oz_font">Clásico \"y oz font\"</string>
+    
+    <string name="pieces_scheme_custom1">fantasmas</string>
+    <string name="pieces_scheme_custom2">moderno</string>
+    <string name="pieces_scheme_custom3">Refleluz</string>
+    <string name="pieces_scheme_custom4">constructor</string>
+    <string name="pieces_scheme_custom5">Arcilla oscuro</string>
+    <string name="pieces_scheme_custom6">Constructor (BW)</string>
+    <string name="pieces_scheme_custom7">Arcilla oscuro (BW)</string>
+    <string name="pieces_scheme_custom8">Refleluz (BW)</string>
+    
+    <string name="menu_difficulty_desc_notavailable">Esta opción no estará disponible bajo las reglas actuales para mover las piezas</string>
+
+    <string name="menu_animation_mode">Modo de Animación</string>
+    <string name="menu_animation_none">Ninguna</string>
+    <string name="menu_animation_super_slow">Super lenta</string>
+    <string name="menu_animation_slow">Lenta</string>
+    <string name="menu_animation_normal">Normal</string>
+    <string name="menu_animation_fast">Rápida</string>
+    <string name="menu_animation_super_fast">Super rápida</string>
+
+</resources>

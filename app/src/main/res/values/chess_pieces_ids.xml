@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- item name="piece_ascii1_king_w" type="drawable"/>
+    <item name="piece_ascii1_queen_w" type="drawable"/>
+    <item name="piece_ascii1_rook_w" type="drawable"/>
+    <item name="piece_ascii1_bishop_w" type="drawable"/>
+    <item name="piece_ascii1_knight_w" type="drawable"/>
+    <item name="piece_ascii1_pawn_w" type="drawable"/>
+    <item name="piece_ascii1_king_b" type="drawable"/>
+    <item name="piece_ascii1_queen_b" type="drawable"/>
+    <item name="piece_ascii1_rook_b" type="drawable"/>
+    <item name="piece_ascii1_bishop_b" type="drawable"/>
+    <item name="piece_ascii1_knight_b" type="drawable"/>
+    <item name="piece_ascii1_pawn_b" type="drawable"/-->
+
+    <item name="piece_ascii2_king_w" type="drawable"/>
+    <item name="piece_ascii2_queen_w" type="drawable"/>
+    <item name="piece_ascii2_rook_w" type="drawable"/>
+    <item name="piece_ascii2_bishop_w" type="drawable"/>
+    <item name="piece_ascii2_knight_w" type="drawable"/>
+    <item name="piece_ascii2_pawn_w" type="drawable"/>
+    <item name="piece_ascii2_king_b" type="drawable"/>
+    <item name="piece_ascii2_queen_b" type="drawable"/>
+    <item name="piece_ascii2_rook_b" type="drawable"/>
+    <item name="piece_ascii2_bishop_b" type="drawable"/>
+    <item name="piece_ascii2_knight_b" type="drawable"/>
+    <item name="piece_ascii2_pawn_b" type="drawable"/>
+    
+    <item name="ic_pieces_ascii_droid_sans_fallback_1" type="drawable"/>
+    <item name="ic_pieces_ascii_droid_sans_fallback_2" type="drawable"/>
+    <item name="ic_pieces_ascii_dejavu_sans" type="drawable"/>
+    <item name="ic_pieces_ascii_code2000" type="drawable"/>
+    <item name="ic_pieces_ascii_arial_unicode_ms" type="drawable"/>
+    <item name="ic_pieces_ascii_freeserif" type="drawable"/>
+    <item name="ic_pieces_ascii_segoe_ui_symbol" type="drawable"/>
+    <item name="ic_pieces_ascii_y_oz_font" type="drawable"/>
+    <item name="ic_pieces_blocks" type="drawable"/>
+    <item name="ic_pieces_blocks_bw" type="drawable"/>
+    <item name="ic_pieces_claydark" type="drawable"/>
+    <item name="ic_pieces_claydark_bw" type="drawable"/>
+    <item name="ic_pieces_claylight" type="drawable"/>
+    <item name="ic_pieces_claylight_bw" type="drawable"/>
+    <item name="ic_pieces_classic" type="drawable"/>
+    <item name="ic_pieces_gosts" type="drawable"/>
+    
+    <item name="ic_promotion_queen_w" type="drawable"/>
+    <item name="ic_promotion_rook_w" type="drawable"/>
+    <item name="ic_promotion_bishop_w" type="drawable"/>
+    <item name="ic_promotion_knight_w" type="drawable"/>
+	
+    <item name="ic_promotion_queen_b" type="drawable"/>
+    <item name="ic_promotion_rook_b" type="drawable"/>
+    <item name="ic_promotion_bishop_b" type="drawable"/>
+    <item name="ic_promotion_knight_b" type="drawable"/>
+
+    <item name="ic_colours_bluedove" type="drawable"/>
+    <item name="ic_colours_bluepetrol" type="drawable"/>
+    <item name="ic_colours_brown" type="drawable"/>
+    <item name="ic_colours_gray" type="drawable"/>
+    <item name="ic_colours_greencool" type="drawable"/>
+    <item name="ic_colours_greenwarm" type="drawable"/>
+    <item name="ic_colours_redcool" type="drawable"/>
+    <item name="ic_colours_redwarm" type="drawable"/>
+    <item name="ic_colours_violetmauve" type="drawable"/>
+    
+</resources>

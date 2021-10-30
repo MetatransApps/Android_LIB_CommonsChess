@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="menu_about_bagatur">Для Багатура</string>
+    <string name="menu_edit_board">Редактирование</string>
+
+    <string name="player_type_human">Человек</string>
+    <string name="player_type_computer">Компьютер</string>
+        
+    <string name="promotion">Подниматься</string>
+    <string name="queen">Ферзь (королева)</string>
+    <string name="rook">Ладья (турá)</string>
+    <string name="bishop">Слон (офицер)</string>
+    <string name="knight">Конь</string>
+    
+    <string name="game_status_white_wins">Белые побед</string>
+    <string name="game_status_black_wins">Черные победили</string>
+    <string name="game_status_draw">Реми</string>
+    <string name="game_status_inmoves1">в</string>
+    <string name="game_status_inmoves2">ходы</string>
+    
+    <string name="menu_rules">Правила для Перемещения</string>
+    <string name="menu_rules_desc">Выберите Правила для Перемещение</string>
+    <string name="menu_rules_allrules">Все Шахматы Правила</string>
+    <string name="menu_rules_allrules_desc">Находятся в силу все правила игры в шахматы</string>
+    
+    <string name="menu_pieces_scheme">Шт</string>
+    <string name="pieces_scheme">Выберите Шт</string>
+    <string name="pieces_scheme_ascii_droid_sans_fallback_1">Классический \"droid sans fallback\"</string>
+    <string name="pieces_scheme_ascii_droid_sans_fallback_2">Прозрачный</string>
+    <string name="pieces_scheme_ascii_arial_unicode_ms">Классический \"arial unicode ms\"</string>
+    <string name="pieces_scheme_ascii_code2000">Классический \"code 2000\"</string>
+    <string name="pieces_scheme_ascii_dejavu_sans">Классический \"dejavu sans\"</string>
+    <string name="pieces_scheme_ascii_freeserif">Классический \"free serif\"</string>
+    <string name="pieces_scheme_ascii_segoe_ui_symbol">Классический \"segoe ui symbol\"</string>
+    <string name="pieces_scheme_ascii_y_oz_font">Классический \"y oz font\"</string>
+    <string name="pieces_scheme_custom1">Призраки</string>
+    <string name="pieces_scheme_custom2">Модерн</string>
+    <string name="pieces_scheme_custom3">Свет Клей</string>
+    <string name="pieces_scheme_custom4">Конструктор</string>
+    <string name="pieces_scheme_custom5">Темный Клей</string>
+    <string name="pieces_scheme_custom6">Конструктор (ЧБ)</string>
+    <string name="pieces_scheme_custom7">Темный Клей (ЧБ)</string>
+    <string name="pieces_scheme_custom8">Свет Клей (ЧБ)</string>
+    
+    <string name="menu_difficulty_desc_notavailable">Эта опция не доступна в нынешних Правила для Перемещения</string>
+
+    <string name="menu_animation_mode">Режим Анимации</string>
+    <string name="menu_animation_none">Без</string>
+    <string name="menu_animation_super_slow">Очень медленно</string>
+    <string name="menu_animation_slow">Медленно</string>
+    <string name="menu_animation_normal">В среднем</string>
+    <string name="menu_animation_fast">Быстро</string>
+    <string name="menu_animation_super_fast">Очень быстро</string>
+
+</resources>
