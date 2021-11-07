@@ -3,9 +3,9 @@ package org.metatrans.commons.chess.main.views;
 
 import java.util.Set;
 
-import com.chessartforkids.model.FieldSelection;
-import com.chessartforkids.model.Move;
-import com.chessartforkids.model.MovingPiece;
+import org.metatrans.commons.chess.model.FieldSelection;
+import org.metatrans.commons.chess.model.Move;
+import org.metatrans.commons.chess.model.MovingPiece;
 
 
 
@@ -35,7 +35,8 @@ public interface IBoardVisualization {
 	public void validSelection_Permanent_Border(int letter, int digit);
 	public void markingSelection_Permanent_Square(int letter, int digit);
 	public void markingSelection_Permanent_Border(int letter, int digit);
-	
+
+	public void makeMovingPiece_OnInvalidSquare();
 	public void makeMovingPieceSelections();
 	public void makeMovablePiecesSelections();
 	public Set<FieldSelection>[][] getSelections();
@@ -49,7 +50,10 @@ public interface IBoardVisualization {
 	public void lock();
 	public void unlock();
 	public boolean isLocked();
-	public void startMoveAnimation(Move move, MovingPiece movingPiece);
+	public void startMoveAnimation(final Move move);
 	public void endMoveAnimation();
-	public boolean hasAnimation();
+
+	public int hasAnimation();
+
+	public void invalidate();
 }

@@ -6,11 +6,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.metatrans.commons.chess.GlobalConstants;
-
-import com.chessartforkids.model.FieldSelection;
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.IPlayer;
-import com.chessartforkids.model.Player;
+import org.metatrans.commons.chess.model.FieldSelection;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.IPlayer;
+import org.metatrans.commons.chess.model.Player;
 
 import bagaturchess.bitboard.impl.Constants;
 

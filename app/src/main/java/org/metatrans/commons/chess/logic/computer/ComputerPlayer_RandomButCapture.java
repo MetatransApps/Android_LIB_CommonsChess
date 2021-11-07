@@ -3,8 +3,7 @@ package org.metatrans.commons.chess.logic.computer;
 
 import org.metatrans.commons.chess.logic.BoardUtils;
 import org.metatrans.commons.chess.logic.IBoardManager;
-
-import com.chessartforkids.model.Move;
+import org.metatrans.commons.chess.model.Move;
 
 
 public class ComputerPlayer_RandomButCapture extends ComputerPlayer_BaseImpl {

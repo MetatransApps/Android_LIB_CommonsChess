@@ -6,7 +6,7 @@ import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.chessartforkids.model.Move;
+import org.metatrans.commons.chess.model.Move;
 
 
 public class ComputerMoveResult implements RunnableFuture<Move> {
@@ -51,10 +51,15 @@ public class ComputerMoveResult implements RunnableFuture<Move> {
 
 	@Override
 	public void run() {
+
 		try {
+
 			computerMove = computerPlayer.think();
+
 		} catch (Exception e) {
+
 			e.printStackTrace();
+
 			cancelled = true;
 		}
 	}

@@ -1,12 +1,11 @@
 package org.metatrans.commons.chess.logic.computer;
 
 
-import com.chessartforkids.model.Move;
+import org.metatrans.commons.chess.model.Move;
 
 
 public interface IComputer {
-	
-	//public IPlayer getPlayer();
+
 	public int getColour();
 	
 	public Move think();

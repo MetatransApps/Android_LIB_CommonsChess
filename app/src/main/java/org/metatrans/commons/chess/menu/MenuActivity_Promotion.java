@@ -8,11 +8,6 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
-import com.chessartforkids.model.FieldSelection;
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.Move;
-import com.chessartforkids.model.MovingPiece;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +22,10 @@ import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.BoardUtils;
 import org.metatrans.commons.chess.logic.GameDataUtils;
+import org.metatrans.commons.chess.model.FieldSelection;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.Move;
+import org.metatrans.commons.chess.model.MovingPiece;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
 import org.metatrans.commons.ui.list.ListAdapter_IdT;
@@ -184,7 +183,8 @@ public class MenuActivity_Promotion extends MenuActivity_BasePieces implements G
 				GameData gamedata = ((GameData) Application_Base.getInstance().getGameData());
 
 				gamedata.getMoves().add(move);
-				gamedata.getSearchInfos().add(gamedata.getLastSearchInfo());//Add the last search info in order to make it visible on the panel after the move
+				gamedata.setCurrentMoveIndex(gamedata.getMoves().size() - 1);
+				gamedata.save();
 
 				gamedata.setMovingPiece(null);
 

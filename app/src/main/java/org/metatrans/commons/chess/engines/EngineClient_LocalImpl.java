@@ -55,7 +55,9 @@ public class EngineClient_LocalImpl implements IEngineClient {
 	
 	
 	public static IEngineClient getSingleton(IBitBoard initialBoard) {
+
 		synchronized (EngineClient_LocalImpl.class) {
+
 			if (singleton == null) {
 				
 				singleton = new EngineClient_LocalImpl(initialBoard);
@@ -183,8 +185,7 @@ public class EngineClient_LocalImpl implements IEngineClient {
 			Go go = new Go(ChannelManager.getChannel(), "go infinite");
 			ITimeController timeController = TimeControllerFactory.createTimeController(new TimeConfigImpl(), bitboardForSetup.getColourToMove(), go);
 			search.negamax(bitboardForSetup, currentMediator, timeController, go);
-			//search.negamax(bitboardForSetup, getCurrentMediator(), 1, ISearch.MAX_DEPTH, true, null);
-			
+
 			System.out.println("EngineClient_LocalImpl: startThinking OK");
 			
 		} else {
@@ -193,19 +194,12 @@ public class EngineClient_LocalImpl implements IEngineClient {
 			
 			System.out.println("EngineClient_LocalImpl: Openning book move used");
 		}
-		
-		//Wait the actual search to start
-		/*try {
-			Thread.sleep(300);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}*/
-		
 	}
 	
 	
 	@Override
 	public synchronized ISearchInfo stopThinkingWithResult() throws Exception {
+
 		System.out.println("EngineClient_LocalImpl: stopThinkingWithResult");
 		
 		if (getCurrentMediator() != null) {//TODO: Durty fix

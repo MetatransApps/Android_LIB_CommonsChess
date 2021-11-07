@@ -1,9 +1,8 @@
 package org.metatrans.commons.chess.logic;
 
 
+import org.metatrans.commons.chess.model.BoardData;
 import org.metatrans.commons.storage.ObjectUtils;
-
-import com.chessartforkids.model.BoardData;
 
 
 public class BoardUtils implements BoardConstants {

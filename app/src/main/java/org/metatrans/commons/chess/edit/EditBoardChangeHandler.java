@@ -1,10 +1,9 @@
 package org.metatrans.commons.chess.edit;
 
 
+import org.metatrans.commons.chess.model.EditBoardData;
 import org.metatrans.commons.chess.utils.BoardUtils;
 import org.metatrans.commons.chess.utils.MessageUtils;
-
-import com.chessartforkids.model.EditBoardData;
 
 import android.app.Activity;
 

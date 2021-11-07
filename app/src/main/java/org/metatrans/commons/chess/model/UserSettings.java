@@ -1,4 +1,4 @@
-package com.chessartforkids.model;
+package org.metatrans.commons.chess.model;
 
 
 import java.io.IOException;
@@ -20,32 +20,27 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 	
 	private static final long serialVersionUID = -6559817027983771505L;
 	
-	
-	private static final String DEFAULT_PLAYER_NAME_WHITE = "     Human     ";
-	private static final String DEFAULT_PLAYER_NAME_BLACK = "     Human     ";
-	private static final String DEFAULT_COMPUTER_PLAYER_NAME_WHITE = "    Computer    ";
-	private static final String DEFAULT_COMPUTER_PLAYER_NAME_BLACK = "    Computer    ";
-	
-	public String playerNameWhite = DEFAULT_PLAYER_NAME_WHITE;
-	public String playerNameBlack = DEFAULT_PLAYER_NAME_BLACK;
-	public String computerNameWhite = DEFAULT_COMPUTER_PLAYER_NAME_WHITE;
-	public String computerNameBlack = DEFAULT_COMPUTER_PLAYER_NAME_BLACK;
-	
-	//public int boardManagerID 	= IConfigurationRule.BOARD_MANAGER_ID_FREESTYLE_IN_SERIES;
-	//public int computerModeID 	= IConfigurationDifficulty.MODE_COMPUTER_RANDOM_BUT_CAPTURE;
+
 	public int boardManagerID 	= IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES;
 	public int computerModeID 	= IConfigurationDifficulty.MODE_COMPUTER_ENGINE_1SEC;
+
 	public int playerTypeWhite 	= PLAYER_TYPE_HUMAN;
 	public int playerTypeBlack 	= PLAYER_TYPE_COMPUTER;
-	//public int uiColoursID 		= IConfigurationColours.CFG_COLOUR_GRAY;
-	public int uiPiecesID 		= IConfigurationPieces.CFG_PIECES_CUSTOM_2;//IConfigurationPieces.CFG_PIECES_ASCII_droid_sans_fallback_1;
+
+	public int uiPiecesID 		= IConfigurationPieces.CFG_PIECES_CUSTOM_2;
+
 	public boolean infoEnabled 	= true;
 	public boolean rotatedboard	= false;
-	
+
+	public boolean auto_player_enabled_white = false;
+	public boolean auto_player_enabled_black = true;
+
+
 	public int moveAnimationID = Config_Animation_Base.ID_NORMAL;
 	
 	
 	public UserSettings() {
+
 		fixFields("constructor");
 	}
 	
@@ -68,12 +63,6 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 	}
 	
 	
-	public void save() {
-		//Save it
-		//System.out.println("Saved user settings: " + this);
-	}
-	
-	
 	@Override
 	public String toString() {
 		return "boardManagerID=" + boardManagerID + ", computerModeID=" + computerModeID
@@ -82,12 +71,25 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 	
 	
 	protected void fixFields(String op) {
+
 		if (uiColoursID == 0) {
+
 			uiColoursID 		= IConfigurationColours.CFG_COLOUR_GRAY;
+
 	    	System.out.println("UserSettings: " + op + " - updating colour id");
 	    }
+
 		if (moveAnimationID == 0) {
+
 			moveAnimationID = Config_Animation_Base.ID_NORMAL;
+		}
+
+		if (!auto_player_enabled_black) {
+
+			if (!auto_player_enabled_white) {
+
+				auto_player_enabled_black = true;
+			}
 		}
 	}
 }

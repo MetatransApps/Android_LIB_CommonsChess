@@ -5,10 +5,9 @@ import android.view.ViewGroup;
 
 import org.metatrans.commons.Activity_Base;
 import org.metatrans.commons.app.Application_Base;
+import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.ui.images.IBitmapCache;
-
-import com.chessartforkids.model.UserSettings;
 
 
 public abstract class MenuActivity_Base extends Activity_Base {

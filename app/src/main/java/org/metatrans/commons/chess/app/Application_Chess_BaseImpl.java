@@ -1,11 +1,6 @@
 package org.metatrans.commons.chess.app;
 
 
-import com.chessartforkids.model.EditBoardData;
-import com.chessartforkids.model.FieldSelection;
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.UserSettings;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +23,10 @@ import org.metatrans.commons.chess.cfg.rules.ConfigurationUtils_Bagatur_AllRules
 import org.metatrans.commons.chess.engines.EngineClient_LocalImpl;
 import org.metatrans.commons.chess.events.Events;
 import org.metatrans.commons.chess.logic.GameDataUtils;
+import org.metatrans.commons.chess.model.EditBoardData;
+import org.metatrans.commons.chess.model.FieldSelection;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
 import org.metatrans.commons.events.EventsManager_Base;
@@ -211,7 +210,7 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 
 	@Override
-	protected UserSettings_Base createUserSettingsObject() {
+	public UserSettings_Base createUserSettingsObject() {
 		return new UserSettings();
 	}
 }

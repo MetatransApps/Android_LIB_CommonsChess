@@ -1,11 +1,9 @@
 package org.metatrans.commons.chess.logic.computer;
 
 
-import org.metatrans.commons.chess.logic.IBoardManager;
 import org.metatrans.commons.chess.main.MainActivity;
-import org.metatrans.commons.chess.main.controllers.GameController;
-
-import com.chessartforkids.model.Move;
+import org.metatrans.commons.chess.model.Move;
+import org.metatrans.commons.chess.model.SearchInfo;
 
 import android.os.Handler;
 
@@ -15,17 +13,13 @@ public class ComputerMove implements Runnable {
 
 	private MainActivity mainActivity;
 	private IComputer computerPlayer;
-	private IBoardManager boardManager;
-	private GameController gameController;
 	private Handler uiHandler;
 	private ComputerMoveResult thinkJob;
 	
 	
-	public ComputerMove(IComputer _computerPlayer, MainActivity _mainActivity, IBoardManager _boardManager, GameController _gameController, Handler _uiHandler) {
+	public ComputerMove(IComputer _computerPlayer, MainActivity _mainActivity, Handler _uiHandler) {
 		mainActivity = _mainActivity;
 		computerPlayer = _computerPlayer;
-		boardManager = _boardManager;
-		gameController = _gameController;
 		uiHandler = _uiHandler;
 		
 		init();
@@ -41,17 +35,6 @@ public class ComputerMove implements Runnable {
 	private void init() {
 		
 		mainActivity.getMainView().getBoardView().lock();
-		
-		uiHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					mainActivity.keepScreenOn();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 		
 		uiHandler.post(new Runnable() {
 			@Override
@@ -85,7 +68,9 @@ public class ComputerMove implements Runnable {
 		public void run() {
 			
 			if (!started) {
+
 				mainActivity.executeJob(thinkJob);
+
 				started = true;
 			}
 			
@@ -96,13 +81,15 @@ public class ComputerMove implements Runnable {
 					computerPlayer.stopCurrentJob();
 					
 					uiHandler.post(new Runnable() {
+
 						@Override
 						public void run() {
+
 							try {
+
 								mainActivity.getMainView().getPanelsView().redraw();
+
 								mainActivity.getMainView().getBoardView().unlock();
-								
-								mainActivity.keepScreenOff();
 								
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -113,43 +100,44 @@ public class ComputerMove implements Runnable {
 				} else if (thinkJob.isDone()) {
 					
 					computerPlayer.stopCurrentJob();
-					
-					mainActivity.getMainView().getBoardView().clearSelections();
-					
+
 					try {
+
 						final Move computerMove = thinkJob.get();
-						
-						uiHandler.post(new Runnable() {
+
+						uiHandler.post( new Runnable() {
+
 							@Override
 							public void run() {
 								
 								try {
-									
-									gameController.updateUI(computerMove);								
-		
-									mainActivity.getMainView().getBoardView().unlock();
-									
-									mainActivity.keepScreenOff();
-									
-									mainActivity.getBoardManager().createMovingPiece(computerMove.fromLetter, computerMove.fromDigit, computerMove.fromLetter, computerMove.fromDigit, computerMove.pieceID);
-									
-									mainActivity.getMainView().getBoardView().startMoveAnimation(computerMove, mainActivity.getBoardManager().getMovingPiece());
-									
+
+									SearchInfo last_search_info = null;
+
+									if (computerPlayer instanceof ComputerPlayer_Engine) {
+
+										last_search_info = ((ComputerPlayer_Engine) computerPlayer).getLastSearchInfo();
+									}
+
+									mainActivity.getGameController().acceptNewMove(computerMove, last_search_info);
+
 								} catch (Exception e) {
+
 									e.printStackTrace();
 								}
 							}
 						});
-						
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+
 					} catch (Exception e) {
+
 						e.printStackTrace();
 					}
+
 				} else {
 					
 					try {
 						Thread.sleep(17);
+
 					} catch (InterruptedException e) {}
 					
 					mainActivity.executeJob(this);
@@ -157,6 +145,7 @@ public class ComputerMove implements Runnable {
 			
 			
 			} catch (Exception e) {
+
 				e.printStackTrace();
 			}
 		}

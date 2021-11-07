@@ -7,8 +7,7 @@ import android.view.View.OnTouchListener;
 
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
-
-import com.chessartforkids.model.EditBoardData;
+import org.metatrans.commons.chess.model.EditBoardData;
 
 
 public class EditBoard_Board_OnTouchListener implements OnTouchListener {

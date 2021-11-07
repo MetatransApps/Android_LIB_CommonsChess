@@ -2,8 +2,7 @@ package org.metatrans.commons.chess.logic.computer;
 
 
 import org.metatrans.commons.chess.logic.BoardManager_NativeBoard;
-
-import com.chessartforkids.model.Move;
+import org.metatrans.commons.chess.model.Move;
 
 import bagaturchess.bitboard.api.IBitBoard;
 

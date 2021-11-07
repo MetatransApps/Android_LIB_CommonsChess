@@ -1,4 +1,4 @@
-package com.chessartforkids.model;
+package org.metatrans.commons.chess.model;
 
 
 import java.io.Serializable;
@@ -13,6 +13,7 @@ public class Move implements Serializable, BoardConstants {
 	
 	
 	public Move() {
+
 		promotedPieceID = ID_PIECE_NONE;
 		capturedPieceID = ID_PIECE_NONE;
 		isPromotion = false;

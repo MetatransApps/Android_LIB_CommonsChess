@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import org.metatrans.commons.chess.main.MainActivity;
-import org.metatrans.commons.ui.utils.DrawingUtils;
 
 
 public class MessageView extends View {
@@ -55,7 +54,7 @@ public class MessageView extends View {
 	
 	private void initializeDimensions() {
 		
-		MainView main = getMainActivity().getMainView();
+		MainView_WithMovesNavigation main = getMainActivity().getMainView();
 		//System.out.println("Main view = " + main);
 		
 		if (main != null) {

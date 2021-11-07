@@ -8,9 +8,8 @@ import org.metatrans.commons.cfg.difficulty.IConfigurationDifficulty;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_RandomButCaptureAndDefense;
 import org.metatrans.commons.chess.logic.computer.IComputer;
-
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.Move;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.Move;
 
 import bagaturchess.bitboard.api.IBitBoard;
 import bagaturchess.bitboard.impl.Constants;
@@ -26,16 +25,14 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 	private BaseMoveList buff_moves = new BaseMoveList(333);
 	
 	
-	public BoardManager_NativeBoard(GameData gamedata, IBitBoard _board, boolean touchMoveList) {
+	public BoardManager_NativeBoard(GameData gamedata, IBitBoard _board) {
 		
-		super(gamedata, touchMoveList);
+		super(gamedata);
 		
 		board = _board;
 		
 		int currentMoveIndex = gamedata.getCurrentMoveIndex();
 		List<Move> moves = gamedata.getMoves();
-		if (touchMoveList) gamedata.setMoves(new ArrayList<Move>());
-		
 		for (int i = 0; i <= currentMoveIndex; i++) {
 			move(moves.get(i));
 		}
@@ -47,22 +44,26 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 	
 	
 	private void handleMovingPiece(GameData gamedata) {
+
 		if (gamedata.getMovingPiece() != null) {
-			
-			if (gamedata.getMovingPiece().dragging) {
+
+			//stopHidingPiece(gamedata.getMovingPiece().initial_letter, gamedata.getMovingPiece().initial_digit);
+
+			/*if (gamedata.getMovingPiece().dragging) {
+
 				movingPiece.dragging = false;
 				//throw new IllegalStateException("Piece is dragging");
-			}
+			}*/
 			
 			//FIXME: DURTY FIX: the piece should exists on that square
-			if (getPiece(movingPiece.initial_letter, movingPiece.initial_digit) == ID_PIECE_NONE) {
+			/*if (getPiece(movingPiece.initial_letter, movingPiece.initial_digit) == ID_PIECE_NONE) {
 
 				clearMovingPiece();
 				gamedata.setMovingPiece(null);
 				
-			} else {
+			} else {*/
 				movingPiece.moves = selectToFields(movingPiece.initial_letter, movingPiece.initial_digit);
-			}
+			//}
 		}
 	}
 	
@@ -91,9 +92,11 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 	
 	
 	public int[][] getBoard_Full() {
+
 		int[][] pieces = getPiecesArray();
 		
 		for (int boardLetter=0; boardLetter < 8; boardLetter++) {
+
 			for (int boardDigit=0; boardDigit < 8; boardDigit++) {
 				
 				//!!! SWITCH digit and letter in native method signature
@@ -269,6 +272,7 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 	
 	@Override
 	public void move(Move move) {
+
 		board.makeMoveForward(move.nativemove);
 		
 		super.move(move);
@@ -277,7 +281,10 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 	
 	@Override
 	public void unmove(Move move) {
+
 		board.makeMoveBackward(move.nativemove);
+
+		super.unmove(move);
 	}
 	
 	

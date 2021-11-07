@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="fen_share">Сподели FEN</string>
+    <string name="fen_copy">Копирай FEN</string>
+    <string name="fen_paste">Постави FEN</string>
+
     <string name="menu_about_bagatur">За Багатур</string>
     <string name="menu_edit_board">Редактиране</string>
 

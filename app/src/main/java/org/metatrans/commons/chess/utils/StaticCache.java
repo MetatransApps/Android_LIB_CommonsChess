@@ -1,10 +1,13 @@
 package org.metatrans.commons.chess.utils;
 
 
+import static org.metatrans.commons.chess.GlobalConstants.PLAYER_TYPE_COMPUTER;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.difficulty.IConfigurationDifficulty;
 import org.metatrans.commons.chess.cfg.rules.IConfigurationRule;
 import org.metatrans.commons.chess.logic.BoardConstants;
@@ -12,11 +15,10 @@ import org.metatrans.commons.chess.logic.BoardManager_AllRules;
 import org.metatrans.commons.chess.logic.GameDataUtils;
 import org.metatrans.commons.chess.logic.IBoardManager;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_BaseImpl;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.Move;
+import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.storage.ObjectUtils;
-
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.Move;
-import com.chessartforkids.model.UserSettings;
 
 
 public class StaticCache {
@@ -28,7 +30,7 @@ public class StaticCache {
 	private static boolean initialized;
 	
 	
-	public static void initBoardManagersClasses_AllRulesOnly(final GameData gamedata, final UserSettings userSettings) {
+	public static void initBoardManagersClasses_AllRulesOnly() {
 		
 		synchronized (StaticCache.class) {
 			
@@ -40,7 +42,7 @@ public class StaticCache {
 				
 				System.out.println("Creating board manager: ...");
 	
-				initClasses_AllRules(gamedata, userSettings);
+				initClasses_AllRules();
 				
 				System.out.println("Creating board manager: done");
 				
@@ -62,8 +64,11 @@ public class StaticCache {
 	}
 	
 	
-	public static void initBoardManagersClasses(final GameData gamedata, final UserSettings userSettings) {
-		
+	public static void initBoardManagersClasses() {
+
+		GameData gamedata = (GameData) Application_Base.getInstance().getGameData();
+		UserSettings userSettings = (UserSettings) Application_Base.getInstance().getUserSettings();
+
 		synchronized (StaticCache.class) {
 			
 			if (initialized) {
@@ -75,7 +80,7 @@ public class StaticCache {
 				
 				System.out.println("Creating all board managers: ...");
 	
-				initClasses_AllRules(gamedata, userSettings);
+				initClasses_AllRules();
 				
 				System.out.println("Creating all board managers: done");
 				
@@ -97,11 +102,9 @@ public class StaticCache {
 	}
 
 
-	private static void initClasses_AllRules(final GameData gamedata, final UserSettings userSettings) throws IOException, ClassNotFoundException {
-		GameData newdata = (GameData) ObjectUtils.copyObject(gamedata);
-		if (newdata == null || newdata.getBoardManagerID() != IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES) {
-			newdata = createGameDataForNewGame(userSettings, IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES, IConfigurationDifficulty.MODE_COMPUTER_POSITIONAL_EVALUATION);
-		}
+	private static void initClasses_AllRules() throws IOException, ClassNotFoundException {
+
+		GameData newdata = createGameDataForNewGame(IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES, IConfigurationDifficulty.MODE_COMPUTER_POSITIONAL_EVALUATION);
 		newdata.setBoardManagerID(IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES);
 		cached_manager_allrules = new BoardManager_AllRules(newdata);
 		waitInitialization(cached_manager_allrules);
@@ -128,8 +131,8 @@ public class StaticCache {
 	}
 	
 	
-	private static GameData createGameDataForNewGame(UserSettings settings, int boardManagerID, int computerModeID) {
-		GameData data = GameDataUtils.createGameDataForNewGame(settings.playerTypeWhite, settings.playerTypeBlack, boardManagerID, computerModeID);
+	private static GameData createGameDataForNewGame(int boardManagerID, int computerModeID) {
+		GameData data = GameDataUtils.createGameDataForNewGame(PLAYER_TYPE_COMPUTER, PLAYER_TYPE_COMPUTER, boardManagerID, computerModeID);
 		return data;
 	}
 }

@@ -6,13 +6,12 @@ import android.content.Context;
 
 import java.util.List;
 
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.events.Event_Base;
 import org.metatrans.commons.events.EventsData_Base;
 import org.metatrans.commons.events.api.IEvent_Base;
 import org.metatrans.commons.events.api.IEventsManager;
-
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.UserSettings;
 
 
 public class Events {

@@ -8,9 +8,8 @@ import org.metatrans.commons.chess.main.views.IBoardViewActivity;
 import org.metatrans.commons.chess.main.views.IBoardVisualization;
 import org.metatrans.commons.chess.main.views.IPanelsVisualization;
 import org.metatrans.commons.chess.menu.MenuActivity_Promotion;
-
-import com.chessartforkids.model.Move;
-import com.chessartforkids.model.MovingPiece;
+import org.metatrans.commons.chess.model.Move;
+import org.metatrans.commons.chess.model.MovingPiece;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -23,11 +22,11 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 	
 	
 	private IBoardVisualization boardVisualization;
+
 	private IPanelsVisualization panelsVisualization;
+
 	private IBoardViewActivity activity;
-	
-	//private boolean promotionFlag = false;
-	
+
 	
 	public OnTouchListener_Board(IBoardVisualization _boardVisualization, IBoardViewActivity _activity) {
 		this(_boardVisualization, null, _activity);
@@ -46,12 +45,7 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 		
 		//System.out.println("BOARD: onTouch");
 		
-		/*if (boardVisualization == null
-				|| panelsVisualization == null) {
-			return true;
-		}*/
-		
-		if (boardVisualization.hasAnimation()) {
+		if (boardVisualization.hasAnimation() != -1) {
 			return true;
 		}
 		
@@ -144,43 +138,56 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 
 				movingPiece.x = (int) x;
 				movingPiece.y = (int) y;
-				
+
 				if (letter == movingPiece.initial_letter
 						&& digit == movingPiece.initial_digit) {
 					
 					//Re-selection of the same moving piece
-					
-					if (!movingPiece.dragging) {
-						activity.getBoardManager().startHidingPiece(letter, digit);
-						movingPiece.dragging = true;
-					}
-					
+					movingPiece.dragging = true;
+
 				} else {
-					
-					//Selection of other piece
-					
+
+					//Target square clicked
+					//May be selection of other piece?
+
+					//overField(letter, digit);
+
 					int pieceID = activity.getBoardManager().getPiece(letter, digit);
-					if (activity.getBoardManager().isReSelectionAllowed(movingPiece.pieceID, pieceID)) {
-						
-						pieceDeSelected();
-						
-						pieceSelected(x, y, letter, digit, pieceID);
-						movingPiece = activity.getBoardManager().getMovingPiece();
+
+					if (pieceID != ID_PIECE_NONE) {
+
+						//selection of other piece
+						if (activity.getBoardManager().isReSelectionAllowed(movingPiece.pieceID, pieceID)) {
+
+							movingPiece.dragging = false;
+
+							pieceDeSelected();
+
+							pieceSelected(x, y, letter, digit, pieceID);
+
+						} else {
+
+							boardVisualization.makeMovingPiece_OnInvalidSquare();
+						}
+					} else {
+
+						boardVisualization.makeMovingPiece_OnInvalidSquare();
 					}
 				}
 
 			} else {
 				
 				int pieceID = activity.getBoardManager().getPiece(letter, digit);
+
 				if (pieceID != ID_PIECE_NONE) {
 					
 					if (activity.getBoardManager().isSelectionAllowed(pieceID)) {
 						
 						//Selection of piece
 						pieceSelected(x, y, letter, digit, pieceID);
-						movingPiece = activity.getBoardManager().getMovingPiece();
 						
 					} else {
+
 						//selection of piece of side, which is not on move
 						boardVisualization.invalidSelection_Temp_Square(letter, digit);
 					}
@@ -195,6 +202,7 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 			overField(letter, digit);
 			
 		} else {
+
 			//if (true) throw new IllegalStateException();
 			System.out.println("processEvent_DOWN is outside the board");
 		}
@@ -206,18 +214,25 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 		MovingPiece movingPiece = activity.getBoardManager().getMovingPiece();
 		
 		float x = event.getX();
+
 		float y = event.getY();
 
 		int letter = boardVisualization.getLetter(x);
+
 		int digit =  boardVisualization.getDigit(y);
 
 		if (movingPiece != null) {
+
 			movingPiece.x = (int) x;
+
 			movingPiece.y = (int) y;
 		}
 		
 		if (letter >= 0 && letter < 8 && digit >= 0 && digit < 8) {
+
 			overField(letter, digit);
+
+			boardVisualization.makeMovingPiece_OnInvalidSquare();
 		}
 	}
 	
@@ -238,14 +253,14 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 			overField(letter, digit);
 			
 			if (movingPiece != null) {
-				
+
+
+				//Re-selection of the same piece
 				if (letter == movingPiece.initial_letter && digit == movingPiece.initial_digit) {
-					
-					if (movingPiece.dragging) {
-						activity.getBoardManager().stopHidingPiece(movingPiece.initial_letter, movingPiece.initial_digit);
-						movingPiece.dragging = false;
-					}
-					
+
+					//activity.getBoardManager().stopHidingPiece(movingPiece.initial_letter, movingPiece.initial_digit);
+					//TODO: re-create moving piece or use the existing one?
+
 				} else {
 					
 					Move move = null;
@@ -259,45 +274,40 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 					if (move != null) {
 						
 						//Moving piece to the final destination
-						
+
 						movingPiece.capturedPID = activity.getBoardManager().getPiece(letter, digit);
 						
 						if (activity.getBoardManager().isPromotion(movingPiece.pieceID, digit)) {
 							
 							movingPiece.promotion_letter = letter;
 							movingPiece.promotion_digit = digit;
-							
-							//activity.showDialog(0);
-							
-							Intent i = new Intent(((Activity)activity).getApplicationContext(), getPromotionActivityClass());
-							//i.putExtra("new_variable_name","value");
+
+							Intent i = new Intent( ((Activity) activity).getApplicationContext(), getPromotionActivityClass());
+
 							((Activity)activity).startActivity(i);
 							
 						} else {
-							boardVisualization.startMoveAnimation(move, activity.getBoardManager().getMovingPiece());
+
+							//Will call start animation code a bit later in the stack
+							activity.getGameController().acceptNewMove(move, null);
+
 						}
+
 					} else {
 						
 						//Not valid move
 						boardVisualization.invalidSelection_Temp_Square(letter, digit);
-						
-						if (movingPiece.dragging) {
-							activity.getBoardManager().stopHidingPiece(movingPiece.initial_letter, movingPiece.initial_digit);
-							movingPiece.dragging = false;
-						}
+
 					}
 				}
 			}
 			
 		} else {
+
 			if (movingPiece != null) {
 				
 				//Dropped out of the board
-				
-				if (movingPiece.dragging) {
-					activity.getBoardManager().stopHidingPiece(movingPiece.initial_letter, movingPiece.initial_digit);
-					movingPiece.dragging = false;
-				}
+
 			}
 		}
 	}
@@ -308,101 +318,9 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 	}
 	
 	
-	/*@Override
-	public void onClick(DialogInterface dialog, int which) {
-		
-		MovingPiece movingPiece = activity.getBoardManager().getMovingPiece();
-		int colour = BoardUtils.getColour(movingPiece.pieceID);
-		
-		int promotedPieceID = -1;
-		switch (which) {
-			case 0: //queen
-				promotedPieceID = (colour == COLOUR_PIECE_WHITE) ? ID_PIECE_W_QUEEN : ID_PIECE_B_QUEEN;
-				break;
-			case 1: //rook
-				promotedPieceID = (colour == COLOUR_PIECE_WHITE) ? ID_PIECE_W_ROOK : ID_PIECE_B_ROOK;
-				break;
-			case 2: //bishop
-				promotedPieceID = (colour == COLOUR_PIECE_WHITE) ? ID_PIECE_W_BISHOP : ID_PIECE_B_BISHOP;
-				break;
-			case 3: //knight
-				promotedPieceID = (colour == COLOUR_PIECE_WHITE) ? ID_PIECE_W_KNIGHT : ID_PIECE_B_KNIGHT;
-				break;
-			default:
-				throw new IllegalStateException("which=" + which);
-		}
-		
-		Move move = null;
-		for (Move cur: movingPiece.moves) {
-			if (movingPiece.promotion_letter == cur.toLetter
-					&& movingPiece.promotion_digit == cur.toDigit
-					&& promotedPieceID == cur.promotedPieceID) {
-				move = cur;
-				break;
-			}
-		}
-		
-		//System.out.println("MOVE: " + move);
-		
-		activity.getBoardManager().move(move);
-		activity.getBoardManager().clearMovingPiece();
-		
-		pieceMoved(move);
-		
-		boardVisualization.setData(activity.getBoardManager().getBoard_WithoutHided());
-		panelsVisualization.setCapturedPieces(activity.getBoardManager().getCaptured_W(), activity.getBoardManager().getCaptured_B(), activity.getBoardManager().getCapturedSize_W(), activity.getBoardManager().getCapturedSize_B());
-		boardVisualization.redraw();
-		panelsVisualization.redraw();
-		
-		promotionFlag = true;
-	}*/
-	
-	
-	/*
-	@Override
-	public void onDismiss(DialogInterface dialog) {
-		
-		if (promotionFlag) {
-			//Promoting piece type is selected and reflected on the board
-			promotionFlag = false;
-			
-			//System.out.println("PROM: " + false);
-		} else {
-			
-			//Nothing selected: the changes must be reverted
-			MovingPiece movingPiece = activity.getBoardManager().getMovingPiece();
-			
-			if (movingPiece != null) {
-				
-				if (movingPiece.dragging) {
-					activity.getBoardManager().stopHidingPiece(movingPiece.initial_letter, movingPiece.initial_digit);
-					movingPiece.dragging = false;
-				}
-			}
-			
-			boardVisualization.setData(activity.getBoardManager().getBoard_WithoutHided());
-			panelsVisualization.setCapturedPieces(activity.getBoardManager().getCaptured_W(), activity.getBoardManager().getCaptured_B(), activity.getBoardManager().getCapturedSize_W(), activity.getBoardManager().getCapturedSize_B());
-			panelsVisualization.redraw();
-			
-			//System.out.println("PROM: " + true);
-		}
-		
-		boardVisualization.redraw();
-	}*/
-	
-	
 	private void pieceSelected(float x, float y, int letter, int digit, int pieceID) {
 		
-		//System.out.println("ACTION SELECTED: " + pieceID); 
-		
-		
 		activity.getBoardManager().createMovingPiece(x, y, letter, digit, pieceID);
-		MovingPiece movingPiece = activity.getBoardManager().getMovingPiece();
-		
-		if (!movingPiece.dragging) {
-			activity.getBoardManager().startHidingPiece(letter, digit);
-			movingPiece.dragging = true;
-		}
 		
 		boardVisualization.clearSelections();
 		
@@ -411,8 +329,9 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 	
 	
 	private void pieceDeSelected() {
+
 		//System.out.println("ACTION DESELECTED: " + visualization.getMovingPiece().pieceID);
-		
+
 		activity.getBoardManager().clearMovingPiece();
 		
 		boardVisualization.clearSelections();
@@ -422,6 +341,7 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 	private void overField(int letter, int digit) {
 		
 		if (!(letter >= 0 && letter < 8 && digit >= 0 && digit < 8)) {
+
 			throw new IllegalStateException();
 		}
 		
@@ -430,20 +350,27 @@ public class OnTouchListener_Board implements OnTouchListener, BoardConstants /*
 		if (movingPiece != null) {
 			
 			Move move = null;
+
 			for (Move cur: movingPiece.moves) {
+
 				if (letter == cur.toLetter && digit == cur.toDigit) {
+
 					move = cur;
+
 					break;
 				}
 			}
 			
 			if (move != null) {
-				boardVisualization.validSelection_Temp_Square(letter, digit);	
+
+				boardVisualization.validSelection_Temp_Square(letter, digit);
+
 			} else {
 
 				boardVisualization.invalidSelection_Temp_Square(letter, digit);
 				
 				if (movingPiece.moves.size() == 0) {
+
 					boardVisualization.makeMovablePiecesSelections();
 				}
 			}

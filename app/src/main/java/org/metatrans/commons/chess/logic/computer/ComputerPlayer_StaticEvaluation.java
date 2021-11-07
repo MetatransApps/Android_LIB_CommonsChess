@@ -2,8 +2,7 @@ package org.metatrans.commons.chess.logic.computer;
 
 
 import org.metatrans.commons.chess.logic.BoardManager_NativeBoard;
-
-import com.chessartforkids.model.Move;
+import org.metatrans.commons.chess.model.Move;
 
 import bagaturchess.bitboard.api.IBitBoard;
 import bagaturchess.bitboard.impl.Constants;
@@ -32,9 +31,9 @@ public class ComputerPlayer_StaticEvaluation extends ComputerPlayer_BaseImpl {
 	public int getMoveScores(Move move) {
 		
 		board_computer.revert();
-		
-		for (Move history: getBoardManager().getGameData().getMoves()) {
-			board_computer.makeMoveForward(history.nativemove);
+
+		for (int i = 0; i <= getBoardManager().getGameData().getCurrentMoveIndex(); i++) {
+			board_computer.makeMoveForward(getBoardManager().getGameData().getMoves().get(i).nativemove);
 		}
 		
 		int native_move = move.nativemove;

@@ -6,19 +6,11 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.Gravity;
 import android.view.Menu;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
-import com.chessartforkids.model.FieldSelection;
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.IPlayer;
-import com.chessartforkids.model.Move;
-import com.chessartforkids.model.UserSettings;
-
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -46,12 +38,15 @@ import org.metatrans.commons.chess.main.controllers.time.TimeController_Increasi
 import org.metatrans.commons.chess.main.views.IBoardViewActivity;
 import org.metatrans.commons.chess.main.views.IBoardVisualization;
 import org.metatrans.commons.chess.main.views.IPanelsVisualization;
-import org.metatrans.commons.chess.main.views.MainView;
+import org.metatrans.commons.chess.main.views.MainView_WithMovesNavigation;
+import org.metatrans.commons.chess.model.FieldSelection;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.IPlayer;
+import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
 import org.metatrans.commons.ui.images.IBitmapCache;
-
-import bagaturchess.bitboard.impl.Constants;
+import org.metatrans.commons.ui.utils.DebugUtils;
 
 
 public abstract class MainActivity extends Activity_Base_Ads_Banner implements BoardConstants, GlobalConstants, IBoardViewActivity {
@@ -64,18 +59,15 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 	protected GameController gameController;
 
-
 	private ITimeController timeController;
-	
-	private OnTouchListener_Main boardEventProcessor;
+
 	
 	private ExecutorService executor;
 
 	private Handler uiHandler;
+
 	
-	private long timestamp_resume = 0;	
-	
-	private static Toast toast;
+	private long timestamp_resume = 0;
 	
 	
 	@Override
@@ -84,107 +76,14 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		System.out.println("MainActivity.onCreate: savedInstanceState=" + savedInstanceState);
 
 		super.onCreate(savedInstanceState);
-		
-		handleIntent(getIntent());
-	}
 
-	
-	@Override
-	public void onNewIntent(Intent intent){
+		executor = Executors.newCachedThreadPool();
 
-		System.out.println("MainActivity.onNewIntent: intent=" + intent);
-
-		super.onNewIntent(intent);
-		
-		setIntent(intent);
-		
-		handleIntent(intent);
-	}
-
-
-	private void handleIntent(Intent intent) {
-
-		try {
-			
-			System.out.println("MainActivity.handleIntent: intent=" + intent);
-			
-			if (executor == null) executor = Executors.newCachedThreadPool();
-
-			if (uiHandler == null) uiHandler = new Handler(Looper.getMainLooper());
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-		String action = intent.getStringExtra("myaction");
-			
-		if (action != null && action.equals("new")) {
-			
-			System.out.println("MainActivity.handleIntent: with extra 'myaction=new'");
-			
-			//Prevent executing again the action e.g. on screen rotation
-			intent.removeExtra("myaction");
-
-			Events.handleGameEvents_OnExit(this, getGameData(), getUserSettings());
-
-			createNewGame(Constants.INITIAL_BOARD);
-		}
-		
-		CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
-		
-		if (text != null) {
-			
-			System.out.println("MainActivity.handleIntent: Imported FEN is " + text);
-			
-			try {
-				
-				GameData gameData = GameDataUtils.createGameDataForNewGame(getUserSettings().playerTypeWhite, getUserSettings().playerTypeBlack, getUserSettings().boardManagerID, getUserSettings().computerModeID, text.toString().trim());
-
-				Application_Base.getInstance().storeGameData(gameData);
-
-
-				setContentView(getMainLayout());
-
-				ViewGroup frame = findViewById(getMainLayoutID());
-
-				MainView mainview = new MainView(this, null);
-
-				mainview.setId(MAIN_VIEW_ID);
-
-				frame.addView(mainview);
-
-
-				manager = new BoardManager_AllRules((GameData) Application_Base.getInstance().getGameData());
-
-				gameController = new GameController(this, manager, mainview);
-
-				createTimeController();
-				
-			} catch (Exception e) {
-				
-				showToast("MainActivity.handleIntent: Not valid FEN format: '" + text + "'");
-				
-				e.printStackTrace();
-			}
-		}
+		uiHandler = new Handler(Looper.getMainLooper());
 	}
 
 
 	public abstract Class getMainMenuClass();
-
-	
-	public void showToast(String info) {
-		
-		if (toast != null) {
-			toast.cancel();
-		}
-		
-        toast = Toast.makeText(this, info, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.BOTTOM | Gravity.FILL_HORIZONTAL, 0, 0);
-        
-        toast.show();
-        
-	}
 
 
 	@Override
@@ -205,51 +104,23 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		
 		System.out.println("MainActivity: onDestroy");
 
-		clear();
+		manager = null;
+
+		gameController = null;
+
+		List<Runnable> rejected = executor.shutdownNow();
+
+		System.out.println("MainActivity: shutting down executor -> rejected " + rejected.size() + " jobs.");
+
+		executor = null;
+
+		uiHandler.removeCallbacksAndMessages(null);
+
+		uiHandler = null;
 		
 		super.onDestroy();
 		
 		System.gc();
-	}
-	
-	
-	private void clear() {
-		
-		manager = null;
-		
-		gameController = null;
-		
-		boardEventProcessor = null;
-		
-		List<Runnable> rejected = executor.shutdownNow();
-
-		System.out.println("MainActivity: shutting down executor -> rejected " + rejected.size() + " jobs.");
-		
-		executor = null;
-		
-		uiHandler.removeCallbacksAndMessages(null);
-		
-		uiHandler = null;
-	}
-	
-	
-	private void initMainView() {
-
-		setContentView(getMainLayout());
-
-		ViewGroup frame = findViewById(getMainLayoutID());
-
-		MainView mainview = new MainView(this, null);
-
-		mainview.setId(MAIN_VIEW_ID);
-
-		frame.addView(mainview);
-
-		setBackgroundPoster(getMainLayoutID(), 77);
-		
-		boardEventProcessor = new OnTouchListener_Main(this);
-		
-		mainview.setOnTouchListener((OnTouchListener) boardEventProcessor);
 	}
 	
 	
@@ -265,34 +136,28 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		int mainlayout = left_handed ? R.layout.main_horizontal : R.layout.main_vertical;
 		return mainlayout;
 	}
-	
-	
+
+
 	public void createNewGame(String fen) {
-		
+
 		try {
-			
+
 			if (gameController != null) {
 				gameController.stopThinking();
 				gameController.setTimeController(null);
 			}
-			
-			
+
+
 			if (timeController == null) {
 				//throw new IllegalStateException();
 				//May be null if the game is finished
 			} else {
 				timeController.pauseAll();
 				timeController.destroy();
-				timeController = null;	
+				timeController = null;
 			}
-			
-			
-			if (toast != null) {
-				toast.cancel();
-				toast = null;
-			}
-			
-			
+
+
 			if (uiHandler != null) uiHandler.removeCallbacksAndMessages(null);
 
 
@@ -303,11 +168,11 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 			Set<FieldSelection>[][] selections = GameDataUtils.createEmptySelections();
 
 			StorageUtils_BoardSelections.writeStore(this, selections);
-			
-			
+
+
 			//Reload game
-			createBoardManager(gameData);
-			
+			recreateControllersAndViews();
+
 			//Redraw
 			if (getMainView() != null) {
 				getMainView().getBoardView().clearSelections();
@@ -316,23 +181,23 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 						getBoardManager().getCaptured_B(),
 						getBoardManager().getCapturedSize_W(),
 						getBoardManager().getCapturedSize_B());
-				
-				getMainView().getBoardView().redraw();		
+
+				getMainView().getBoardView().redraw();
 				getMainView().getPanelsView().redraw();
 			}
-			
+
 			//Resume controller
 			gameController.resumeGame();
-			
-			
+
+
 			Events.handleGameEvents_OnStart(this, gameData);
-			
+
 			Events.register(this,
-					Events.create(IEvent.MENU_OPERATION, IEvent.MENU_OPERATION_NEW_GAME, 
+					Events.create(IEvent.MENU_OPERATION, IEvent.MENU_OPERATION_NEW_GAME,
 					"MENU_OPERATION", "NEW_GAME" ));
 
 			Application_Base_Ads.getInstance().openInterstitial();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -354,10 +219,23 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	@Override
 	protected void onPause() {
 		
-		System.out.println("MainActivity: onPause");
+		System.out.println("MainActivity: onPause: The game has " + manager.getGameData().getMoves().size() +" moves");
+
+		if (gameController != null) {
+			gameController.stopThinking();
+			gameController.setTimeController(null);
+		}
 
 
-		getGameData().save();
+		if (timeController == null) {
+			//throw new IllegalStateException();
+			//May be null if the game is finished
+		} else {
+			timeController.destroy();
+			timeController = null;
+		}
+
+		Application_Base.getInstance().storeGameData(manager.getGameData());
 
 		getUserSettings().save();
 
@@ -370,59 +248,140 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		}
 		
 		Events.updateLastMainScreenInteraction(this, System.currentTimeMillis());
-		
-		//waitInitialization();
-		
-		//dumpGameData(getGameData());
-		
-		if (gameController != null) {
-			gameController.stopThinking();
-			gameController.setTimeController(null);
-		}
-		
-		
-		if (timeController == null) {
-			//throw new IllegalStateException();
-			//May be null if the game is finished
-		} else {
-			timeController.destroy();
-			timeController = null;	
-		}
-		
-		
-		if (toast != null) {
-			toast.cancel();
-			toast = null;
-		}
-		
-		if (uiHandler != null) uiHandler.removeCallbacksAndMessages(null);
-		
+
 		super.onPause();
-		
+
 		CachesBitmap.clearAll();
-		
+
 		System.gc();
+	}
+
+
+	protected IBoardManager createBoardManager(GameData gamedata) {
+
+		if (gamedata.getBoardManagerID() == IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES) {
+
+			return new BoardManager_AllRules(gamedata);
+
+		} else {
+
+			throw new IllegalStateException("boardManagerID=" + gamedata.getBoardManagerID());
+		}
+	}
+
+
+	public void recreateControllersAndViews() {
+
+		System.out.println("MainActivity: recreateControllersAndViews: called");
+
+		GameData gameData;
+
+		try {
+
+			gameData = (GameData) Application_Base.getInstance().getGameData();
+
+			manager = createBoardManager(gameData);
+
+		} catch (Exception e) {
+
+			if (Application_Base.getInstance().isTestMode()) {
+
+				throw e;
+			}
+
+			e.printStackTrace();
+
+			//In case of incompatible change of GameData class and failed deserialization or BoardManager creation, we lose the current game and create new one
+			Application_Base.getInstance().recreateGameDataObject();
+
+			gameData = (GameData) Application_Base.getInstance().getGameData();
+
+			manager = createBoardManager(gameData);
+		}
+
+
+		setContentView(getMainLayout());
+
+		ViewGroup frame = findViewById(getMainLayoutID());
+
+		MainView_WithMovesNavigation mainview = createMainView();
+
+		mainview.setId(MAIN_VIEW_ID);
+
+		frame.addView(mainview);
+
+		mainview.setOnTouchListener(new OnTouchListener_Main(this));
+
+		setBackgroundPoster(getMainLayoutID(), 77);
+
+
+		gameController = new GameController(this);
+
+		IBoardVisualization boardview = getBoard();
+		boardview.setData(getBoardManager().getBoard_Full());
+
+		Set<FieldSelection>[][] selections = StorageUtils_BoardSelections.readStorage(this);
+
+		if (selections != null) {
+
+			try {
+				for (int i = 0; i < selections.length; i++) {
+					Set<FieldSelection>[] cur = selections[i];
+					for (int j = 0; j < cur.length; j++) {
+						Set<FieldSelection> selectionsList = cur[j];
+						Iterator<FieldSelection> iterator = selectionsList.iterator();
+						while (iterator.hasNext()) {
+							FieldSelection selection = iterator.next();
+						}
+					}
+				}
+			} catch (Exception e) {
+
+				if (Application_Base.getInstance().isTestMode()) {
+
+					throw e;
+				}
+
+				e.printStackTrace();
+
+				//In case of incompatible change of FieldSelection class and failed deserialization, we lose the current selections and create new one
+				selections = GameDataUtils.createEmptySelections();
+
+				StorageUtils_BoardSelections.writeStore(this, selections);
+			}
+
+
+			boardview.setSelections(selections);
+		}
+
+		boardview.redraw();
+
+		IPanelsVisualization panelsview = getPanels();
+		panelsview.setCapturedPieces(getBoardManager().getCaptured_W(), getBoardManager().getCaptured_B(), getBoardManager().getCapturedSize_W(), getBoardManager().getCapturedSize_B());
+		panelsview.redraw();
+	}
+
+
+	protected MainView_WithMovesNavigation createMainView() {
+		return new MainView_WithMovesNavigation(this, null, true);
 	}
 
 
 	@Override
 	protected void onResume() {
-		
+
 		System.out.println("MainActivity: onResume");
+
 
 		System.gc();
 		
 		timestamp_resume = System.currentTimeMillis();
 
-		createBoardManager(getGameData());
 
-		initMainView();
-
-		initBoardAndPanelsViews(StorageUtils_BoardSelections.readStorage(this));
+		recreateControllersAndViews();
 
 
 		super.onResume();
-
 
 		int gameStatus = getBoardManager().getGameStatus();
 		
@@ -436,52 +395,43 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 			gameController.resumeGame();
 
 		} else {
-			
-			if (getGameData().getMoves().size() - 1 >= 0) {
-				
-				Move lastmove = getGameData().getMoves().get(getGameData().getMoves().size() - 1);
-				
-				if (lastmove.isPromotion) {
-					
-					getMainView().getBoardView().clearSelections();					
-					
-					//Update UI
-					getMainView().getBoardView().markingSelection_Permanent_Border(lastmove.fromLetter, lastmove.fromDigit);
-					getMainView().getBoardView().markingSelection_Permanent_Border(lastmove.toLetter, lastmove.toDigit);
-					getMainView().getBoardView().redraw();		
-					getMainView().getPanelsView().redraw();					
-				}	
-			}
-			
-			String gameStatusText = null;
-			switch(gameStatus) {
-				case GlobalConstants.GAME_STATUS_WHITE_WINS:
-					gameStatusText = getString(R.string.game_status_white_wins);
-					getMainView().getBoardView().whiteWinsSelection();
-					break;
-				case GlobalConstants.GAME_STATUS_BLACK_WINS:
-					gameStatusText = getString(R.string.game_status_black_wins);
-					getMainView().getBoardView().blackWinsSelection();
-					break;
-				case GlobalConstants.GAME_STATUS_DRAW:
-					gameStatusText = getString(R.string.game_status_draw);
-					break;
-				default:
-					throw new IllegalStateException("game states = " + gameStatus);
-			}
-			
-			gameStatusText += " ";//"\r\n";
-			gameStatusText += getString(R.string.game_status_inmoves1);
-			gameStatusText += " " + ((getBoardManager().getGameData().getMoves().size() / 2) + 1);
-			gameStatusText += " " + getString(R.string.game_status_inmoves2);
-			
-			getBoardManager().getGameData().getBoarddata().gameResultText = gameStatusText;
-			
-			CachesBitmap.clearAll();
-			
-			//Achievements
-			Events.handleGameEvents_OnFinish(this, getBoardManager().getGameData(), getUserSettings(), getBoardManager().getGameStatus());
+
+			updateViewWithGameResult(gameStatus);
 		}
+	}
+
+
+	public void updateViewWithGameResult(int gameStatus) {
+
+		String gameStatusText = null;
+
+		switch(gameStatus) {
+
+			case GlobalConstants.GAME_STATUS_WHITE_WINS:
+				gameStatusText = getString(R.string.game_status_white_wins);
+				getMainView().getBoardView().whiteWinsSelection();
+				break;
+			case GlobalConstants.GAME_STATUS_BLACK_WINS:
+				gameStatusText = getString(R.string.game_status_black_wins);
+				getMainView().getBoardView().blackWinsSelection();
+				break;
+			case GlobalConstants.GAME_STATUS_DRAW:
+				gameStatusText = getString(R.string.game_status_draw);
+				break;
+			default:
+				throw new IllegalStateException("game states = " + gameStatus);
+		}
+
+		gameStatusText += " ";//"\r\n";
+		gameStatusText += getString(R.string.game_status_inmoves1);
+		gameStatusText += " " + ((getBoardManager().getGameData().getMoves().size() / 2) + 1);
+		gameStatusText += " " + getString(R.string.game_status_inmoves2);
+
+		//getBoardManager().getGameData().getBoarddata().gameResultText = gameStatusText;
+		getBoard().setTopMessageText(gameStatusText);
+
+		//Achievements
+		Events.handleGameEvents_OnFinish(this, getBoardManager().getGameData(), getUserSettings(), getBoardManager().getGameStatus());
 	}
 
 
@@ -497,9 +447,9 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 
 
-	public synchronized MainView getMainView() {
+	public synchronized MainView_WithMovesNavigation getMainView() {
 
-		MainView mainview = findViewById(MAIN_VIEW_ID);
+		MainView_WithMovesNavigation mainview = findViewById(MAIN_VIEW_ID);
 
 		return mainview;
 	}
@@ -553,19 +503,6 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	public IPanelsVisualization getPanels() {
 
 		return getMainView().getPanelsView();	
-	}
-	
-	
-	private synchronized void initBoardAndPanelsViews(Set<FieldSelection>[][] selections) {
-		
-		IBoardVisualization boardview = getBoard();
-		boardview.setData(getBoardManager().getBoard_Full()); 
-		if (selections != null) boardview.setSelections(selections);
-		boardview.redraw();
-		
-		IPanelsVisualization panelsview = getPanels();
-		panelsview.setCapturedPieces(getBoardManager().getCaptured_W(), getBoardManager().getCaptured_B(), getBoardManager().getCapturedSize_W(), getBoardManager().getCapturedSize_B());
-		panelsview.redraw();
 	}
 	
 	
@@ -633,25 +570,6 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 	
 	
-	protected void createBoardManager(GameData gamedata) {
-		
-		manager = null;
-
-		if (gamedata.getBoardManagerID() == IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES) {
-
-			manager = new BoardManager_AllRules(gamedata);
-
-		} else {
-
-			throw new IllegalStateException("boardManagerID=" + gamedata.getBoardManagerID());
-		}
-		
-		MainView mainview = findViewById(MAIN_VIEW_ID);
-
-		gameController = new GameController(this, manager, mainview);
-	}
-	
-	
 	public GameController getGameController() {
 
 		return gameController;
@@ -689,21 +607,5 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 	public UserSettings getUserSettings() {
 		return (UserSettings) Application_Chess_BaseImpl.getInstance().getUserSettings();
-	}
-
-
-	public void keepScreenOn() {
-		getMainView().getBoardView().setKeepScreenOn(true);
-		getMainView().getPanelsView().setKeepScreenOn(true);
-		getMainView().setKeepScreenOn(true);
-		//getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-	}
-	
-	
-	public void keepScreenOff() {
-		getMainView().getBoardView().setKeepScreenOn(false);
-		getMainView().getPanelsView().setKeepScreenOn(false);
-		getMainView().setKeepScreenOn(false);
-		//getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 }

@@ -15,11 +15,6 @@ public class RunAPIMediator implements ISearchMediator {
 	private ISearchStopper stopper;
 	private volatile ISearchInfo lastinfo;
 	private RunAPIBestMoveSender sender;
-	
-	
-	public RunAPIBestMoveSender getSender() {
-		return sender;
-	}
 
 
 	public RunAPIMediator(IRunAPIStatus _status, int millis) {
@@ -45,45 +40,53 @@ public class RunAPIMediator implements ISearchMediator {
 		
 		status.sendInfoLine(info);
 	}
-	
+
+
 	@Override
 	public void dump(String msg) {
 		System.out.println(msg);
 	}
-	
+
+
 	@Override
 	public void dump(Throwable t) {
 		t.printStackTrace();
 	}
-	
-	@Override
-	public void changedMinor(ISearchInfo info) {
-		//Do nothing
-	}
-	
-	@Override
-	public ISearchInfo getLastInfo() {
-		return lastinfo;
-	}
 
-	@Override
-	public void registerInfoObject(ISearchInfo info) {
-		//Do nothing
-	}
-	
-	@Override
-	public void send(String msg) {
-		throw new UnsupportedOperationException();
-	}
-	
+
 	@Override
 	public BestMoveSender getBestMoveSender() {
 		return sender;
 	}
 
+
+	@Override
+	public void changedMinor(ISearchInfo info) {
+		//Do nothing
+	}
+
+
+	@Override
+	public ISearchInfo getLastInfo() {
+		return lastinfo;
+	}
+
+
+	@Override
+	public void registerInfoObject(ISearchInfo info) {
+		//Do nothing
+	}
+
+
 	@Override
 	public void startIteration(int iteration) {
 		//Do nothing
+	}
+
+
+	@Override
+	public void send(String msg) {
+		throw new UnsupportedOperationException();
 	}
 
 

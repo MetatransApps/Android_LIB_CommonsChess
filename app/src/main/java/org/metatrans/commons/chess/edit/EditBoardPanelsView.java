@@ -14,14 +14,13 @@ import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.main.views.BaseView;
+import org.metatrans.commons.chess.model.EditBoardData;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.ui.ButtonAreaClick_Image;
 import org.metatrans.commons.ui.ButtonAreaSwitch;
 import org.metatrans.commons.ui.ButtonAreaSwitch_Image;
 import org.metatrans.commons.ui.utils.BitmapUtils;
 import org.metatrans.commons.ui.utils.DrawingUtils;
-
-import com.chessartforkids.model.EditBoardData;
 
 
 public class EditBoardPanelsView extends BaseView {

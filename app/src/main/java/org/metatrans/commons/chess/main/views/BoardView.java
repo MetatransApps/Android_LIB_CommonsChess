@@ -10,11 +10,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.View;
 
-import com.chessartforkids.model.FieldSelection;
-import com.chessartforkids.model.Move;
-import com.chessartforkids.model.MovingPiece;
-import com.chessartforkids.model.UserSettings;
-
 import java.util.Iterator;
 import java.util.Set;
 
@@ -28,6 +23,10 @@ import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.BoardUtils;
 import org.metatrans.commons.chess.logic.GameDataUtils;
 import org.metatrans.commons.chess.logic.IBoardManager;
+import org.metatrans.commons.chess.model.FieldSelection;
+import org.metatrans.commons.chess.model.Move;
+import org.metatrans.commons.chess.model.MovingPiece;
+import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.engagement.leaderboards.View_Achievements_And_Leaderboards_Base;
 import org.metatrans.commons.ui.ButtonAreaClick_Image;
@@ -436,8 +435,8 @@ public class BoardView extends BaseView implements BoardConstants,
 	protected void onDraw(Canvas canvas) {
 		
 		super.onDraw(canvas);
-		
-		
+
+
 		for (int letter = 0; letter < 8; letter++) {
 			for (int digit = 0; digit < 8; digit++) {
 
@@ -506,30 +505,42 @@ public class BoardView extends BaseView implements BoardConstants,
 		text_rank_6.draw(canvas);
 		text_rank_7.draw(canvas);
 		text_rank_8.draw(canvas);
-		
-		
-		// Draw moving piece, if any
-		MovingPiece movingPiece = getMovingPiece();
-		if (movingPiece != null) {
-			if (movingPiece.dragging) {
-				drawPiece(canvas, paint_movingPiece, movingPiece.x, movingPiece.y, movingPiece.pieceID, false);
-			}
-		}
-		
-		if (animation != null){
+
+
+		//If there is an animation than draw it.
+		if (animation != null) {
 			
 			drawPiece(canvas, paint_movingPiece, animation.movingPiece.x, animation.movingPiece.y, animation.movingPiece.pieceID, true);
+
 			animation.updateCoordinates();
 			
 			if (animation.isDone()) {
-				
+
 				animationHandler.animationIsDone(animation);
-				
-				setData(getBoardManager().getBoard_WithoutHided());
-				
+
 				endMoveAnimation();
 			}
 			
+			invalidate();
+
+		} else {
+
+			// Draw moving piece, if any
+			MovingPiece movingPiece = getMovingPiece();
+
+			if (movingPiece != null) {
+
+				if (movingPiece.dragging) {
+
+					if (movingPiece.over_invalid_square_selection != null) {
+
+						drawSquareSelection(canvas, getX(getLetter(movingPiece.x)), getY(getDigit(movingPiece.y)), movingPiece.over_invalid_square_selection.colour);
+					}
+
+					drawPiece(canvas, paint_movingPiece, movingPiece.x, movingPiece.y, movingPiece.pieceID, false);
+				}
+			}
+
 			invalidate();
 		}
 		
@@ -574,7 +585,7 @@ public class BoardView extends BaseView implements BoardConstants,
 	
 	
 	private void drawPiece(Canvas canvas, Paint paint_piece, float x, float y, int pieceID, boolean infield) {
-		
+
 		//Obtain piece bitmap
 		int imageResID = getActivity().getUIConfiguration().getPiecesConfiguration().getBitmapResID(pieceID);
 		Bitmap bitmap = CachesBitmap.getSingletonPiecesBoard((int) getSquareSize()).getBitmap((Context) getActivity(), imageResID);
@@ -589,58 +600,6 @@ public class BoardView extends BaseView implements BoardConstants,
 		} else {
 			DrawingUtils.drawInCenter(canvas, paint_piece, getSquareSize(), x, y, bitmap);
 		}
-	}
-	
-	
-	@Override
-	public void startMoveAnimation(final Move move, final MovingPiece movingPiece) {
-		
-		animation = new MoveAnimation(move, movingPiece, getAnimationDenominator());
-		
-		getBoardManager().clearMovingPiece();
-		getBoardManager().startHidingPiece(move.fromLetter, move.fromDigit);
-		setData(getBoardManager().getBoard_WithoutHided());
-	}
-
-
-	private int getAnimationDenominator() {
-		int animationID = ((UserSettings)Application_Base.getInstance().getUserSettings()).moveAnimationID;
-		int denominator = 0;
-		switch(animationID) {
-			case Config_Animation_Base.ID_NONE:
-				denominator = 1;
-				break;
-			case Config_Animation_Base.ID_SUPER_SLOW:
-				denominator = 200;
-				break;
-			case Config_Animation_Base.ID_SLOW:
-				denominator = 100;
-				break;
-			case Config_Animation_Base.ID_NORMAL:
-				denominator = 45;
-				break;
-			case Config_Animation_Base.ID_FAST:
-				denominator = 25;
-				break;
-			case Config_Animation_Base.ID_SUPER_FAST:
-				denominator = 10;
-				break;
-			default:
-				throw new IllegalStateException("denominator=" + denominator);
-		}
-		return denominator;
-	}
-	
-	
-	@Override
-	public void endMoveAnimation() {
-		animation = null;
-	}
-	
-	
-	@Override
-	public boolean hasAnimation() {
-		return animation != null;
 	}
 	
 	
@@ -665,53 +624,8 @@ public class BoardView extends BaseView implements BoardConstants,
 		Paint paint = default_paint;//new Paint();
 		paint.setColor(colour);
 		canvas.drawRect((int)x, (int)y, (int)(x + getSquareSize()), (int)(y + getSquareSize()), paint);
-
-		// TODO: Asyc timer for remark of the field
-		// http://www.vogella.com/articles/AndroidServices/article.html
 	}
-	
-	
-	/*
-	private void drawBorderSelection(Canvas canvas, float left, float top, float squaresize,
-			int colour) {
 
-		Paint frame = default_paint;//new Paint();
-		frame.setColor(colour);
-
-		//canvas.drawLine(left, top, left + squareSize, top, frame);
-		canvas.drawLine(left, top + 1, left + squaresize, top + 1, frame);
-		canvas.drawLine(left, top + 2, left + squaresize, top + 2, frame);
-		canvas.drawLine(left, top + 3, left + squaresize, top + 3, frame);
-		//canvas.drawLine(left, top + 4, left + squareSize, top + 4, frame);
-		
-		canvas.drawLine(left + squaresize, top, left + squaresize, top
-				+ squaresize, frame);
-		canvas.drawLine(left + squaresize - 1, top, left + squaresize - 1, top
-				+ squaresize, frame);
-		canvas.drawLine(left + squaresize - 2, top, left + squaresize - 2, top
-				+ squaresize, frame);
-		//canvas.drawLine(left + squareSize - 3, top, left + squareSize - 3, top
-		//		+ squareSize, frame);
-		
-		
-		canvas.drawLine(left + squaresize, top + squaresize, left, top
-				+ squaresize, frame);
-		canvas.drawLine(left + squaresize, top + squaresize - 1, left, top
-				+ squaresize - 1, frame);
-		canvas.drawLine(left + squaresize, top + squaresize - 2, left, top
-				+ squaresize - 2, frame);
-		//canvas.drawLine(left + squareSize, top + squareSize - 3, left, top
-		//		+ squareSize - 3, frame);
-		
-		
-		//canvas.drawLine(left, top + squareSize, left, top, frame);
-		canvas.drawLine(left + 1, top + squaresize, left + 1, top, frame);
-		canvas.drawLine(left + 2, top + squaresize, left + 2, top, frame);
-		canvas.drawLine(left + 3, top + squaresize, left + 3, top, frame);
-		//canvas.drawLine(left + 4, top + squareSize, left + 4, top, frame);
-		
-	}
-	*/
 	
 	private void drawBorderSelection1(Canvas canvas, int left, int top, float squaresize, int colour) {
 
@@ -754,15 +668,18 @@ public class BoardView extends BaseView implements BoardConstants,
 		//canvas.drawLine(left + 4, top + (int)squareSize - 1, left + 4, top + 1, frame);
 		
 	}
-	
+
+
 	private MovingPiece getMovingPiece() {
 		return getBoardManager().getMovingPiece();
 	}
-	
+
+
 	private IBoardManager getBoardManager() {
 		return ((IBoardViewActivity)getContext()).getBoardManager();
 	}
-	
+
+
 	@Override
 	public int getLetter(float x) {
 		if (isRotatedBoard()) {
@@ -773,6 +690,7 @@ public class BoardView extends BaseView implements BoardConstants,
 			return (int) Math.floor(result);
 		}
 	}
+
 
 	@Override
 	public int getDigit(float y) {
@@ -785,6 +703,7 @@ public class BoardView extends BaseView implements BoardConstants,
 		}
 	}
 
+
 	public void clearSelections() {
 		for (int i = 0; i < selections.length; i++) {
 			Set<FieldSelection>[] cur = selections[i];
@@ -794,38 +713,96 @@ public class BoardView extends BaseView implements BoardConstants,
 		}
 	}
 
+
+	public void makeMovingPiece_OnInvalidSquare() {
+
+		MovingPiece movingPiece = getMovingPiece();
+
+		if (movingPiece != null) {
+
+			boolean over_correct_square = false;
+
+			int current_letter = getLetter(movingPiece.x);
+
+			int current_digit =  getDigit(movingPiece.y);
+
+			if (current_letter == movingPiece.initial_letter && current_digit == movingPiece.initial_digit) {
+
+				over_correct_square = true;
+			}
+
+			if (!over_correct_square) {
+
+				if (movingPiece.moves.size() > 0) {
+
+					if (getBoardManager().selectPossibleFields()) {
+
+						for (Move move : movingPiece.moves) {
+
+							if (current_letter == move.toLetter && current_digit == move.toDigit) {
+
+								over_correct_square = true;
+
+								break;
+							}
+						}
+					}
+
+				} else {
+
+					over_correct_square = false;
+				}
+			}
+
+			if (!over_correct_square) {
+
+				FieldSelection selection = new FieldSelection();
+				selection.priority = 1;
+				selection.colour = getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_InvalidSelection();
+				selection.shape = FieldSelection.SHAPE_SQUARE;
+				selection.appearace = FieldSelection.APPEARANCE_PERMANENT;
+
+				movingPiece.over_invalid_square_selection = selection;
+			}
+
+			redraw();
+		}
+	}
+
+
 	public void makeMovingPieceSelections() {
 		
 		MovingPiece movingPiece = getMovingPiece();
 		
 		if (movingPiece != null) {
-			makeMovingPieceSelections(movingPiece);
+
+			if (movingPiece.moves.size() > 0) {
+
+				validSelection_Permanent(movingPiece.initial_letter, movingPiece.initial_digit);
+
+				if (getBoardManager().selectPossibleFields()) {
+
+					for (Move move: movingPiece.moves) {
+
+						validSelection_Permanent_Border(move.toLetter, move.toDigit);
+					}
+				}
+
+			} else {
+
+				invalidSelection_Permanent_Square(movingPiece.initial_letter, movingPiece.initial_digit);
+
+				makeMovablePiecesSelections();
+			}
+
+			redraw();
 		}
 	}
 
-	
-	private void makeMovingPieceSelections(MovingPiece movingPiece) {
-		
-		if (movingPiece.moves.size() > 0) {
-			
-			validSelection_Permanent(movingPiece.initial_letter, movingPiece.initial_digit);
-			
-			if (getBoardManager().selectPossibleFields()) {
-				for (Move move: movingPiece.moves) {
-					validSelection_Permanent_Border(move.toLetter, move.toDigit);
-				}
-			}	
-		} else {
-			invalidSelection_Permanent_Square(movingPiece.initial_letter, movingPiece.initial_digit);
-			
-			makeMovablePiecesSelections();
-		}
-		
-		redraw();
-	}
 
 	@Override
 	public void makeMovablePiecesSelections() {
+
 		int[][] result = getBoardManager().getMovablePieces();
 		
 		for (int letter = 0; letter < 8; letter++) {
@@ -836,7 +813,8 @@ public class BoardView extends BaseView implements BoardConstants,
 			}
 		}
 	}
-	
+
+
 	@Override
 	public void invalidSelection_Temp_Square(int letter, int digit) {
 
@@ -846,6 +824,7 @@ public class BoardView extends BaseView implements BoardConstants,
 		selection.appearace = FieldSelection.APPEARANCE_TEMP;
 		addSelection(letter, digit, selection);
 	}
+
 
 	@Override
 	public void validSelection_Temp(int letter, int digit) {
@@ -857,6 +836,7 @@ public class BoardView extends BaseView implements BoardConstants,
 		addSelection(letter, digit, selection);
 	}
 
+
 	@Override
 	public void validSelection_Temp_Square(int letter, int digit) {
 
@@ -866,6 +846,7 @@ public class BoardView extends BaseView implements BoardConstants,
 		selection.appearace = FieldSelection.APPEARANCE_TEMP;
 		addSelection(letter, digit, selection);
 	}
+
 
 	@Override
 	public void validSelection_Permanent_Square(int letter, int digit) {
@@ -877,6 +858,7 @@ public class BoardView extends BaseView implements BoardConstants,
 		addSelection(letter, digit, selection);
 	}
 
+
 	@Override
 	public void validSelection_Permanent_Border(int letter, int digit) {
 
@@ -886,6 +868,7 @@ public class BoardView extends BaseView implements BoardConstants,
 		selection.appearace = FieldSelection.APPEARANCE_PERMANENT;
 		addSelection(letter, digit, selection);
 	}
+
 
 	@Override
 	public void validSelection_Permanent(int letter, int digit) {
@@ -897,7 +880,8 @@ public class BoardView extends BaseView implements BoardConstants,
 		selection.appearace = FieldSelection.APPEARANCE_PERMANENT;
 		addSelection(letter, digit, selection);
 	}
-	
+
+
 	@Override
 	public void invalidSelection_Permanent_Square(int letter, int digit) {
 
@@ -909,6 +893,7 @@ public class BoardView extends BaseView implements BoardConstants,
 		addSelection(letter, digit, selection);
 	}
 
+
 	@Override
 	public void invalidSelection_Permanent_Border(int letter, int digit) {
 
@@ -919,6 +904,7 @@ public class BoardView extends BaseView implements BoardConstants,
 		selection.appearace = FieldSelection.APPEARANCE_PERMANENT;
 		addSelection(letter, digit, selection);
 	}
+
 
 	@Override
 	public void markingSelection_Permanent_Square(int letter, int digit) {
@@ -945,20 +931,23 @@ public class BoardView extends BaseView implements BoardConstants,
 	@Override
 	public void addSelection(int letter, int digit, FieldSelection selection) {
 
-		if (selections[letter][digit] != null) {
-			// throw new IllegalStateException("Illegal selection: letter=" +
-			// letter + ", digit=" + digit + ", " + selections[letter][digit]);
-			// System.out.println("DOUBLE SELECTION -> " + "letter=" + letter +
-			// ", digit=" + digit + ", " + selections[letter][digit]);
-		}
-
 		selections[letter][digit].add(selection);
 	}
 
+
 	@Override
 	public void clearSelections(int letter, int digit) {
+
+		MovingPiece movingPiece = getMovingPiece();
+
+		if (movingPiece != null) {
+
+			movingPiece.over_invalid_square_selection = null;
+		}
+
 		selections[letter][digit].clear();
 	}
+
 
 	@Override
 	public void setData(int[][] _pieces) {
@@ -979,11 +968,13 @@ public class BoardView extends BaseView implements BoardConstants,
 		return selections;
 	}
 
+
 	public void setSelections(Set<FieldSelection>[][] selections) {
 		this.selections = selections;
 	}
-	
-	public void selectMovingPiece() {
+
+
+	/*public void selectMovingPiece() {
 		MovingPiece movingPiece = getMovingPiece();
 		if (movingPiece != null) {
 			validSelection_Permanent(movingPiece.initial_letter, movingPiece.initial_digit);
@@ -993,7 +984,7 @@ public class BoardView extends BaseView implements BoardConstants,
 				}
 			}
 		}
-	}
+	}*/
 
 
 	@Override
@@ -1038,8 +1029,90 @@ public class BoardView extends BaseView implements BoardConstants,
 	private boolean isRotatedBoard() {
 		return ((UserSettings)Application_Base.getInstance().getUserSettings()).rotatedboard;
 	}
-	
-	
+
+
+	@Override
+	public void startMoveAnimation(final Move move) {
+
+		float start_x = getX(move.fromLetter);
+		float start_y = getY(move.fromDigit);
+
+		if (getBoardManager().getMovingPiece() == null) {
+
+			//If this is a computer move, we have to create moving piece in order to fit into the current implementation model
+			getBoardManager().createMovingPiece(start_x, start_y, move.fromLetter, move.fromDigit, move.pieceID);
+
+		} else {
+
+			//When human player moves there is an exiting MovingPiece object already created
+			getBoardManager().startHidingPiece(move.fromLetter, move.fromDigit, true);
+		}
+
+		MovingPiece movingPiece = getBoardManager().getMovingPiece();
+
+		animation = new MoveAnimation(move, movingPiece, getAnimationDenominator());
+
+		setData(getBoardManager().getBoard_WithoutHided());
+	}
+
+
+	@Override
+	public void endMoveAnimation() {
+
+		//getBoardManager().stopHidingPiece(animation.move.fromLetter, animation.move.fromDigit);
+
+		getActivity().getBoardManager().clearMovingPiece();
+
+		animation = null;
+
+		setData(getBoardManager().getBoard_WithoutHided());
+
+		unlock();
+	}
+
+
+	@Override
+	public int hasAnimation() {
+
+		if (animation == null) {
+
+			return -1;
+		}
+
+		return BoardUtils.getColour(animation.movingPiece.pieceID);
+	}
+
+
+	private int getAnimationDenominator() {
+
+		int animationID = ((UserSettings)Application_Base.getInstance().getUserSettings()).moveAnimationID;
+		int denominator = 0;
+		switch(animationID) {
+			case Config_Animation_Base.ID_NONE:
+				denominator = 1;
+				break;
+			case Config_Animation_Base.ID_SUPER_SLOW:
+				denominator = 200;
+				break;
+			case Config_Animation_Base.ID_SLOW:
+				denominator = 100;
+				break;
+			case Config_Animation_Base.ID_NORMAL:
+				denominator = 45;
+				break;
+			case Config_Animation_Base.ID_FAST:
+				denominator = 25;
+				break;
+			case Config_Animation_Base.ID_SUPER_FAST:
+				denominator = 10;
+				break;
+			default:
+				throw new IllegalStateException("denominator=" + denominator);
+		}
+		return denominator;
+	}
+
+
 	public class MoveAnimation {
 		
 		
@@ -1079,7 +1152,7 @@ public class BoardView extends BaseView implements BoardConstants,
 	}
 	
 	
-	public static interface IAnimationHandler {
+	public interface IAnimationHandler {
 
 		void animationIsDone(MoveAnimation animation);
 		
@@ -1090,13 +1163,24 @@ public class BoardView extends BaseView implements BoardConstants,
 
 		@Override
 		public void animationIsDone(MoveAnimation animation) {
-			
-			getActivity().getGameController().pieceMoved(animation.move);
-			
-			getActivity().getMainView().getPanelsView().setCapturedPieces(getBoardManager().getCaptured_W(),
-					getBoardManager().getCaptured_B(),
-					getBoardManager().getCapturedSize_W(),
-					getBoardManager().getCapturedSize_B());
+
+			getBoardManager().move(animation.move);
+
+			int gameStatus = getActivity().getBoardManager().getGameStatus();
+
+			if (gameStatus == GlobalConstants.GAME_STATUS_NONE) {
+
+				getActivity().getGameController().updateUI_AfterAcceptedMove(animation.move);
+
+				getActivity().getGameController().resumeGame();
+
+			} else {
+
+				//UPDATE MAIN VIEW WITH THE GAME RESULT ON TOP WHEN THE GAME HAS OVER
+				getActivity().updateViewWithGameResult(gameStatus);
+			}
+
+			getActivity().getMainView().invalidate();
 		}
 	}
 }

@@ -14,8 +14,7 @@ import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.events.Events;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.main.MainActivity;
-
-import com.chessartforkids.model.GameData;
+import org.metatrans.commons.chess.model.GameData;
 
 import bagaturchess.bitboard.impl.Constants;
 

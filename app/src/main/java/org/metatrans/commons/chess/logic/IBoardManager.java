@@ -4,18 +4,14 @@ package org.metatrans.commons.chess.logic;
 import java.util.List;
 
 import org.metatrans.commons.chess.logic.computer.IComputer;
-
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.IPlayer;
-import com.chessartforkids.model.Move;
-import com.chessartforkids.model.MovingPiece;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.IPlayer;
+import org.metatrans.commons.chess.model.Move;
+import org.metatrans.commons.chess.model.MovingPiece;
 
 
 public interface IBoardManager {
-	
-	//public int getID();
-	
-	public void switchComputerMode(int modeID);
+
 	
 	public GameData getGameData();
 	
@@ -60,12 +56,8 @@ public interface IBoardManager {
 	public boolean isSelectionAllowed(int pieceID);
 	public boolean isReSelectionAllowed(int currentPieceID, int nextPieceID);
 	
-	public void startHidingPiece(int letter, int digit);
-	public void stopHidingPiece(int letter, int digit);
-	
 	public void move(Move move);
 	public void unmove(Move move);
-	public Move unmove();
 	
 	public boolean selectPossibleFields();
 	public List<Move> selectToFields(int uiLetter, int uiDigit);
@@ -74,9 +66,10 @@ public interface IBoardManager {
 	public int[][] getMovablePieces();
 	
 	public MovingPiece getMovingPiece();
+	public void createMovingPiece(float x, float y, int letter, int digit, int pieceID);
 	public void clearMovingPiece();
-	public void createMovingPiece(float x, float y, int letter, int digit,
-			int pieceID);
+	public void startHidingPiece(int letter, int digit, boolean enforce);
+	public void stopHidingPiece(int letter, int digit, boolean enforce);
 	
 	public String getFEN();
 	

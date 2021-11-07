@@ -1,4 +1,4 @@
-package com.chessartforkids.model;
+package org.metatrans.commons.chess.model;
 
 
 import java.io.Serializable;
@@ -40,7 +40,9 @@ public class GameData extends GameData_Base implements Serializable, GlobalConst
 	
 	
 	public GameData() {
+
 		moves = new ArrayList<Move>();
+
 		searchinfos = new ArrayList<SearchInfo>();
 		
 		currentMoveIndex = -1;
@@ -97,18 +99,8 @@ public class GameData extends GameData_Base implements Serializable, GlobalConst
 	}
 
 
-	public IPlayer getWhite_backup() {
-		return white_backup;
-	}
-
-
 	public void setWhite_backup(IPlayer white_backup) {
 		this.white_backup = white_backup;
-	}
-
-
-	public IPlayer getBlack_backup() {
-		return black_backup;
 	}
 
 
@@ -130,13 +122,25 @@ public class GameData extends GameData_Base implements Serializable, GlobalConst
 	public List<Move> getMoves() {
 		return moves;
 	}
-	
-	
+
+
 	public int getCurrentMoveIndex() {
-		return moves.size() - 1;
+		return currentMoveIndex;
 	}
-	
-	
+
+
+	public boolean isOnTheFirstMove() {
+
+		return currentMoveIndex == -1 || moves.size() == 0 || moves.size() == 1;
+	}
+
+
+	public boolean isOnTheLastMove() {
+
+		return currentMoveIndex == moves.size() - 1 || moves.size() == 0 || moves.size() == 1;
+	}
+
+
 	public void setCurrentMoveIndex(int currentMoveIndex) {
 		this.currentMoveIndex = currentMoveIndex;
 	}
@@ -160,8 +164,7 @@ public class GameData extends GameData_Base implements Serializable, GlobalConst
 	public void setAccumulated_time_black(long accumulated_time_black) {
 		this.accumulated_time_black = accumulated_time_black;
 	}
-	
-	
+
 	public void setMoves(List<Move> moves) {
 		this.moves = moves;
 	}
@@ -179,47 +182,17 @@ public class GameData extends GameData_Base implements Serializable, GlobalConst
 	
 	public List<SearchInfo> getSearchInfos() {
 		
-		if (searchinfos == null) {//After de-serialization
-			searchinfos = new ArrayList<SearchInfo>();
-		}
-		
 		return searchinfos;
 	}
 	
 	
-	public SearchInfo getLastSearchInfo() {
-		
-		if (searchinfos == null) {//After de-serialization
-			searchinfos = new ArrayList<SearchInfo>();
-		}
-		
-		if (searchinfos.size() == 0) {
-			return null;
-		}
-		
-		return searchinfos.get(searchinfos.size() - 1);
-	}
-	
-	
-	public void setSearchinfo(SearchInfo searchinfo) {
-		
-		if (searchinfos == null) {//After de-serialization
-			searchinfos = new ArrayList<SearchInfo>();
-		}
-		
-		if (searchinfos.size() == 0) {
-			searchinfos.add(searchinfo);
-		} else {
-			searchinfos.set(searchinfos.size() - 1, searchinfo);
-		}
-	}
-	
-	
 	public String getInitialFEN() {
-		//Compatibility
+
 		if (initialFEN == null) {
+
 			initialFEN = Constants.INITIAL_BOARD;
 		}
+
 		return initialFEN;
 	}
 	

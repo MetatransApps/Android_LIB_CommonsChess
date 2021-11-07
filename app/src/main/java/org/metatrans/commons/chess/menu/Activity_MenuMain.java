@@ -3,11 +3,11 @@ package org.metatrans.commons.chess.menu;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.UserSettings;
 
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.menu.Config_MenuMain_Base;
@@ -16,7 +16,14 @@ import org.metatrans.commons.chess.Alerts;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.cfg.animation.ConfigurationUtils_Animation;
 import org.metatrans.commons.chess.cfg.pieces.ConfigurationUtils_Pieces;
+import org.metatrans.commons.chess.cfg.rules.IConfigurationRule;
 import org.metatrans.commons.chess.events.Events;
+import org.metatrans.commons.chess.logic.BoardManager_AllRules;
+import org.metatrans.commons.chess.logic.GameDataUtils;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.UserSettings;
+import org.metatrans.commons.chess.utils.BoardUtils;
+import org.metatrans.commons.chess.utils.MessageUtils;
 import org.metatrans.commons.menu.Activity_Menu_Main_Base;
 import org.metatrans.commons.web.Activity_WebView_StatePreservingImpl_With_VideoPlayer;
 
@@ -33,6 +40,9 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 
 	public static int CFG_MENU_STAR_ON_GITHUB 			= 30;
 	public static int CFG_MENU_EDIT_BOARD 				= 31;
+	public static int CFG_MENU_SHARE_FEN 				= 32;
+	public static int CFG_MENU_COPY_FEN 				= 33;
+	public static int CFG_MENU_PASTE_FEN 				= 34;
 
 
 	protected abstract Class<?> getMainActivityClass();
@@ -87,14 +97,16 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 										Events.handleGameEvents_OnExit(Activity_MenuMain.this, (GameData) Application_Base.getInstance().getGameData(),
 												(UserSettings) Application_Base.getInstance().getUserSettings());
 
+										Application_Base.getInstance().recreateGameDataObject();
+
+										Application_Base.getInstance().storeGameData();
+
 										//New
 										Activity_MenuMain.this.finish();
 
 										Intent intent = new Intent(getApplicationContext(), getMainActivityClass());
 
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-										intent.putExtra("myaction","new");
 
 										startActivity(intent);
 
@@ -229,6 +241,169 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 
 
 		result.add(new Config_MenuMain_Base() {
+
+			@Override
+			public int getName() {
+				return R.string.fen_share;
+			}
+
+			@Override
+			public int getIconResID() {
+				return R.drawable.ic_share_white;
+			}
+
+			@Override
+			public int getID() {
+				return CFG_MENU_SHARE_FEN;
+			}
+
+			@Override
+			public String getDescription_String() {
+				return "";
+			}
+
+			@Override
+			public Runnable getAction() {
+
+				return new Runnable() {
+
+					@Override
+					public void run() {
+						Intent intent = new Intent(
+								android.content.Intent.ACTION_SEND);
+						intent.setType("text/plain");
+						intent.putExtra(android.content.Intent.EXTRA_TEXT, getFEN_CurrentGame());
+						startActivity(Intent.createChooser(intent, "Share via"));
+
+						finish();
+					}
+				};
+			}
+		});
+
+		result.add(new Config_MenuMain_Base() {
+
+			@Override
+			public int getName() {
+				return R.string.fen_copy;
+			}
+
+			@Override
+			public int getIconResID() {
+				return R.drawable.ic_copy_white;
+			}
+
+			@Override
+			public int getID() {
+				return CFG_MENU_COPY_FEN;
+			}
+
+			@Override
+			public String getDescription_String() {
+				return "";
+			}
+
+			@Override
+			public Runnable getAction() {
+
+				return new Runnable() {
+
+					@Override
+					public void run() {
+						if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+							android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+							clipboard.setText(getFEN_CurrentGame());
+						} else {
+							android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+							android.content.ClipData clip = android.content.ClipData
+									.newPlainText("Copied FEN", getFEN_CurrentGame());
+							clipboard.setPrimaryClip(clip);
+						}
+
+						finish();
+					}
+				};
+			}
+		});
+
+		result.add(new Config_MenuMain_Base() {
+
+			@Override
+			public int getName() {
+				return R.string.fen_paste;
+			}
+
+			@Override
+			public int getIconResID() {
+				return R.drawable.ic_paste_white;
+			}
+
+			@Override
+			public int getID() {
+				return CFG_MENU_PASTE_FEN;
+			}
+
+			@Override
+			public String getDescription_String() {
+				return "";
+			}
+
+			@Override
+			public Runnable getAction() {
+
+				return new Runnable() {
+
+					@Override
+					public void run() {
+
+						String fen = null;
+						ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+						if (clipboard != null/* && clipboard.getPrimaryClipDescription().hasMimeType("text/plain")*/) {
+							if (clipboard.getPrimaryClip() != null) {
+								ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+								if (item != null) {
+									if (item.getText() != null) {
+										fen = item.getText().toString().trim();
+									}
+								}
+							}
+						}
+
+						System.out.println("PASTED FEN " + fen);
+
+						if (fen != null) {
+							try {
+								String validationMessage = BoardUtils.validateBoard(fen);
+
+								System.out.println("validationMessage is " + validationMessage);
+
+								if (validationMessage != null) {
+
+									MessageUtils.showOkDialog("FEN is not valid.", Activity_MenuMain.this);
+
+								} else {
+
+									UserSettings userSettings = ((UserSettings) Application_Base.getInstance().getUserSettings());
+									GameData gameData = (GameData) GameDataUtils.createGameDataForNewGame(new GameData(), userSettings.playerTypeWhite, userSettings.playerTypeBlack, userSettings.boardManagerID, userSettings.computerModeID, fen);
+									BoardManager_AllRules manager = new BoardManager_AllRules(gameData);
+									Application_Base.getInstance().storeGameData(gameData);
+
+									finish();
+								}
+							} catch (Exception e) {
+								MessageUtils.showOkDialog("FEN is not valid.", Activity_MenuMain.this);
+								e.printStackTrace();
+							}
+						} else {
+							MessageUtils.showOkDialog("Clipboard is empty.", Activity_MenuMain.this);
+						}
+					}
+				};
+			}
+		});
+
+
+		result.add(new Config_MenuMain_Base() {
 			
 			
 			@Override
@@ -272,5 +447,24 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 
 
 		return result;
+	}
+
+
+	private String getFEN_CurrentGame() {
+
+		GameData gamedata = ((GameData) Application_Base.getInstance().getGameData());
+
+		if (gamedata.getBoardManagerID() == IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES) {
+
+			BoardManager_AllRules manager = new BoardManager_AllRules(gamedata);
+
+			String fen = manager.getFEN();
+
+			return fen;
+
+		} else {
+
+			throw new IllegalStateException("boardManagerID=" + gamedata.getBoardManagerID());
+		}
 	}
 }

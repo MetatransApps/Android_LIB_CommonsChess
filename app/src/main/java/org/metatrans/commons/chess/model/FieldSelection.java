@@ -1,4 +1,4 @@
-package com.chessartforkids.model;
+package org.metatrans.commons.chess.model;
 
 import java.io.Serializable;
 

@@ -2,7 +2,7 @@ package org.metatrans.commons.chess.main.views;
 
 
 public interface IPanelsVisualization {
-	
+
 	public void redraw();
 	
 	//public ClockArea getWhiteClockArea();
@@ -60,4 +60,6 @@ public interface IPanelsVisualization {
 	public void lock();
 	public void unlock();
 	public boolean isLocked();
+
+	public boolean isMoveNavigationAndAutoPlayerButtonsLocked();
 }

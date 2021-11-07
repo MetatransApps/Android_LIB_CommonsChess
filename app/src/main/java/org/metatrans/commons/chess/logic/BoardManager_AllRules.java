@@ -7,8 +7,7 @@ import org.metatrans.commons.chess.logic.computer.ComputerPlayer_Engine;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_RandomButCaptureAndDefense;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_StaticEvaluation;
 import org.metatrans.commons.chess.logic.computer.IComputer;
-
-import com.chessartforkids.model.GameData;
+import org.metatrans.commons.chess.model.GameData;
 
 import bagaturchess.bitboard.api.IBitBoard;
 import bagaturchess.bitboard.api.IGameStatus;
@@ -18,12 +17,7 @@ public class BoardManager_AllRules extends BoardManager_NativeBoard {
 	
 	
 	public BoardManager_AllRules(GameData gamedata) {
-		super(gamedata, initBoard(gamedata.getInitialFEN()), true);
-	}
-
-	
-	public BoardManager_AllRules(GameData gamedata, boolean touchMoveList) {
-		super(gamedata, initBoard(gamedata.getInitialFEN()), touchMoveList);
+		super(gamedata, initBoard(gamedata.getInitialFEN()));
 	}
 	
 	
@@ -47,7 +41,7 @@ public class BoardManager_AllRules extends BoardManager_NativeBoard {
 		} else if (modeID == IConfigurationDifficulty.MODE_COMPUTER_POSITIONAL_EVALUATION) {
 			return new ComputerPlayer_StaticEvaluation(colour, this, THINK_TIME_FOR_LEVELS_1_TO_4);
 		} else if (modeID == IConfigurationDifficulty.MODE_COMPUTER_ENGINE_1PLY) {
-			return new ComputerPlayer_Engine(colour, this, 100);
+			return new ComputerPlayer_Engine(colour, this, 0);
 		} else if (modeID == IConfigurationDifficulty.MODE_COMPUTER_ENGINE_1SEC) {
 			return new ComputerPlayer_Engine(colour, this, 1000);
 		} else if (modeID == IConfigurationDifficulty.MODE_COMPUTER_ENGINE_3SEC) {

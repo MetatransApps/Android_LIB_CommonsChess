@@ -1,8 +1,6 @@
 package org.metatrans.commons.chess.logic.computer;
 
 
-import com.chessartforkids.model.Move;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +12,7 @@ import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.BoardManager_NativeBoard;
 import org.metatrans.commons.chess.logic.BoardUtils;
 import org.metatrans.commons.chess.logic.IBoardManager;
+import org.metatrans.commons.chess.model.Move;
 
 import bagaturchess.opening.api.OpeningBook;
 import bagaturchess.opening.api.OpeningBookFactory;

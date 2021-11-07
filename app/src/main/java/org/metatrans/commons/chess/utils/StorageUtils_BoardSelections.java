@@ -15,7 +15,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Set;
 
-import com.chessartforkids.model.FieldSelection;
+import org.metatrans.commons.chess.model.FieldSelection;
 
 
 public class StorageUtils_BoardSelections {

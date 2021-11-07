@@ -9,12 +9,11 @@ import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_Random;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_RandomButCapture;
 import org.metatrans.commons.chess.logic.computer.IComputer;
-
-import com.chessartforkids.model.BoardData;
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.IPlayer;
-import com.chessartforkids.model.Move;
-import com.chessartforkids.model.MovingPiece;
+import org.metatrans.commons.chess.model.BoardData;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.IPlayer;
+import org.metatrans.commons.chess.model.Move;
+import org.metatrans.commons.chess.model.MovingPiece;
 
 
 public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConstants {
@@ -40,19 +39,12 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 	private IComputer computerWhite;
 	private IComputer computerBlack;
 	
-	protected boolean touchMoveList;
 	
-	
-	public BoardManager_BaseImpl(GameData _gamedata, boolean _touchMoveList) {
+	public BoardManager_BaseImpl(GameData _gamedata) {
 		
 		gamedata = _gamedata;
-		touchMoveList = _touchMoveList;
-		
+
 		movingPiece = gamedata.getMovingPiece();
-		
-		String gameResultText = gamedata.getBoarddata().gameResultText;
-		gamedata.setBoarddata(BoardUtils.createBoardDataForNewGame());
-		gamedata.getBoarddata().gameResultText = gameResultText;
 		
 		hidden_letter = -1;
 		hidden_digit = -1;
@@ -60,17 +52,15 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 		captured_w = new int[16];
 		for (int i=0; i<captured_w.length; i++) {
 			captured_w[i] = ID_PIECE_NONE;
-			//captured_w[i] = data.captured_w[i];
 		}
 		
 		captured_b = new int[16];
 		for (int i=0; i<captured_b.length; i++) {
 			captured_b[i] = ID_PIECE_NONE;
-			//captured_b[i] = data.captured_b[i];
 		}
 		
-		size_captured_w = 0;//data.size_captured_w;
-		size_captured_b = 0;//data.size_captured_b;
+		size_captured_w = 0;
+		size_captured_b = 0;
 		
 		piecesForUI = new int[8][8];
 		
@@ -127,48 +117,23 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 	
 	@Override
 	public IPlayer getPlayer(int colour) {
+
 		GameData data = getGameData();
+
 		if (colour == COLOUR_PIECE_WHITE) {
+
 			return data.getWhite();
+
 		} else if (colour == COLOUR_PIECE_BLACK) {
+
 			return data.getBlack();
+
 		} else if (colour == COLOUR_PIECE_ALL) {
 			
-			//if (data.getMoves().size() == 0) {
-			//	return data.getWhite();
-			//} else {
-			//	if (COLOUR_PIECE_WHITE == BoardUtils.getColour(data.getMoves().get(data.getMoves().size() - 1).pieceID)) {
-			//		return data.getBlack();
-			//	} else {
-			//		return data.getWhite();
-			//	}
-			//}
-			
-			/*double rand = Math.random();
-			if (rand <= 0.5) {
-				return data.getWhite();
-			} else {
-				return data.getBlack();
-			}*/
-			
 			throw new IllegalStateException("colour=" + getColourToMove());
+
 		} else {
 			throw new IllegalStateException("colour=" + getColourToMove());
-		}
-	}
-
-
-	@Override
-	public void switchComputerMode(int modeID) {
-		
-		if (computerWhite != null) computerWhite.stopCurrentJob();
-		if (computerBlack != null) computerBlack.stopCurrentJob();
-		
-		setComputerWhite(createComputerPlayer(modeID, COLOUR_PIECE_WHITE));
-		setComputerBlack(createComputerPlayer(modeID, COLOUR_PIECE_BLACK));
-		
-		if (modeID != getGameData().getComputerModeID()) {
-			throw new IllegalStateException();
 		}
 	}
 	
@@ -261,13 +226,10 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 		return size_captured_b;
 	}
 
-	public List<Move> getMoves() {
-		return gamedata.getMoves();
-	}
-	
+
 	@Override
 	public int getHalfMoves() {
-		return getMoves().size();
+		return gamedata.getMoves().size();
 	}
 
 
@@ -288,66 +250,41 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 	
 	@Override
 	public void move(Move move) {
-		
-		if (touchMoveList) gamedata.getMoves().add(move);
-		gamedata.getSearchInfos().add(gamedata.getLastSearchInfo());//Add the last search info in order to make it visible on the panel after the move
-		
+
 		if (move.isCapture) {
 			if (BoardUtils.getColour(move.capturedPieceID) == COLOUR_PIECE_WHITE) {
 				captured_w[size_captured_w] = move.capturedPieceID;
-				size_captured_w++;				
+				size_captured_w++;
 			} else {
 				captured_b[size_captured_b] = move.capturedPieceID;
 				size_captured_b++;					
 			}
 		}
-		
-		hidden_letter = -1;
-		hidden_digit = -1;
 	}
-	
+
+
 	@Override
-	public Move unmove() {
-		
-		/*if (Application_Base.getInstance().isTestMode()) {
-			if (hidden_letter != -1) {
-				throw new IllegalStateException("hidden_letter != -1");
-			}
-		}*/
-		
-		Move move = null;
-		if (gamedata.getMoves().size() > 0) {
+	public void unmove(Move move) {
 			
-			move = gamedata.getMoves().remove(gamedata.getMoves().size() - 1);
-			if (gamedata.getSearchInfos().size() > 0) {//Temporal work around for preventing de-serialization issues. Could be removed later. 
-				gamedata.getSearchInfos().remove(gamedata.getSearchInfos().size() - 1);
-			}
-			
-			unmove(move);
-			
-			if (move.isCapture) {
-				
-				//if (true) throw new IllegalStateException("TODO: Implement capture pieces");
-				
-				if (BoardUtils.getColour(move.capturedPieceID) == COLOUR_PIECE_WHITE) {
-					captured_w[size_captured_w - 1] = ID_PIECE_NONE;
-					size_captured_w--;				
-				} else {
-					captured_b[size_captured_b - 1] = ID_PIECE_NONE;
-					size_captured_b--;		
-				}
+		if (move.isCapture) {
+
+			if (BoardUtils.getColour(move.capturedPieceID) == COLOUR_PIECE_WHITE) {
+
+				captured_w[size_captured_w - 1] = ID_PIECE_NONE;
+				size_captured_w--;
+
+			} else {
+
+				captured_b[size_captured_b - 1] = ID_PIECE_NONE;
+				size_captured_b--;
 			}
 		}
-		
-		return move;
 	}
-	
-	@Override
-	public abstract void unmove(Move move);
 	
 	
 	@Override
 	public int[][] getBoard_WithoutHided() {
+
 		int[][] pieces = getBoard_Full();
 		
 		if (hidden_letter != -1) {
@@ -399,37 +336,6 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 		
 		return hasMove;
 	}
-	
-	
-	@Override
-	public void startHidingPiece(int letter, int digit) {
-		
-		if (Application_Chess_BaseImpl.getInstance() != null && Application_Chess_BaseImpl.getInstance().isTestMode()) {
-			if (hidden_letter != -1) {
-				throw new IllegalStateException("letter=" + letter + ", digit=" + digit + ", hidden_letter=" + hidden_letter + ", hidden_digit=" + hidden_digit);
-			}
-		}
-		
-		hidden_letter = letter;
-		hidden_digit = digit;
-	}
-
-
-	@Override
-	public void stopHidingPiece(int letter, int digit) {
-		
-		if (Application_Chess_BaseImpl.getInstance() != null && Application_Chess_BaseImpl.getInstance().isTestMode()) {
-			if (letter != hidden_letter) {
-				throw new IllegalStateException("letter=" + letter + ", digit=" + digit + ", hidden_letter=" + hidden_letter + ", hidden_digit=" + hidden_digit);
-			}
-			if (digit != hidden_digit) {
-				throw new IllegalStateException("letter=" + letter + ", digit=" + digit + ", hidden_letter=" + hidden_letter + ", hidden_digit=" + hidden_digit);
-			}
-		}
-		
-		hidden_letter = -1;
-		hidden_digit = -1;
-	}
 
 
 	@Override
@@ -448,57 +354,52 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 	public boolean isSelectionAllowed(int pieceID) {
 		return true;
 	}
-	
-	
+
+
 	@Override
-	public MovingPiece getMovingPiece() {
-		return movingPiece;
-	}
-	
-	@Override
-	public void clearMovingPiece() {
-		movingPiece = null;
-		
-		hidden_letter = -1;
-		hidden_digit = -1;
+	public String getFEN() {
+		throw new UnsupportedOperationException();
 	}
 
 
 	@Override
-	public void createMovingPiece(float x, float y, int letter, int digit, int pieceID) {
-		
-		if (movingPiece != null) {
-			throw new IllegalStateException("movingPiece=" + movingPiece);
-		}
-		
-		movingPiece = new MovingPiece();
-		
-		movingPiece.initial_letter = letter;
-		movingPiece.initial_digit = digit;
-		movingPiece.x = x;
-		movingPiece.y = y;
-		movingPiece.pieceID = pieceID;
-		movingPiece.moves = selectToFields(letter, digit);		
+	public boolean isInCheck(int color) {
+		throw new UnsupportedOperationException();
 	}
-	
-	
+
+
+	@Override
+	public boolean isOpponentInCheck() {
+		throw new UnsupportedOperationException();
+	}
+
+
 	private void fillBoardData(BoardData data) {
 		data.board = getBoard_Full();
 		data.captured_w = getCaptured_W();
 		data.captured_b = getCaptured_B();
 		data.size_captured_w = getCapturedSize_W();
 		data.size_captured_b = getCapturedSize_B();
+
 		if (getColourToMove() == BoardConstants.COLOUR_PIECE_ALL) {
-			int movesCount = gamedata.getMoves().size();
-			if (movesCount > 0) {
-				Move last = gamedata.getMoves().get(movesCount - 1);
-				int lastColour = BoardUtils.getColour(last.pieceID);
-				data.colourToMove = BoardUtils.switchColour(lastColour);
+
+			GameData gamedata = getGameData();
+			List<Move> moves = gamedata.getMoves();
+			int moveIndex = gamedata.getCurrentMoveIndex();
+
+			if (moveIndex >= 0) {
+
+				Move move = moves.get(moveIndex);
+				int moveColour = BoardUtils.getColour(move.pieceID);
+				data.colourToMove = BoardUtils.switchColour(moveColour);
+
 			} else {
+
 				data.colourToMove = COLOUR_PIECE_WHITE;
 			}
+
 		} else {
-			data.colourToMove = getColourToMove();	
+			data.colourToMove = getColourToMove();
 		}
 		data.w_kingSideAvailable = getWKingSideAvailable();
 		data.w_queenSideAvailable = getWQueenSideAvailable();
@@ -508,22 +409,112 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 		data.halfMoves = getHalfMoves();
 		data.fullMoves = getFullMoves();
 	}
-	
-	
+
+
 	@Override
-	public String getFEN() {
-		throw new UnsupportedOperationException();
+	public MovingPiece getMovingPiece() {
+		return movingPiece;
 	}
-	
-	
+
+
 	@Override
-	public boolean isInCheck(int color) {
-		throw new UnsupportedOperationException();
+	public void createMovingPiece(float x, float y, int initial_letter, int initial_digit, int pieceID) {
+		
+		if (movingPiece != null) {
+			throw new IllegalStateException("movingPiece=" + movingPiece);
+		}
+		
+		movingPiece = new MovingPiece();
+		
+		movingPiece.initial_letter = initial_letter;
+		movingPiece.initial_digit = initial_digit;
+		movingPiece.x = x;
+		movingPiece.y = y;
+		movingPiece.pieceID = pieceID;
+		movingPiece.moves = selectToFields(initial_letter, initial_digit);
+
+		startHidingPiece(initial_letter, initial_digit, false);
+
 	}
-	
-	
+
+
 	@Override
-	public boolean isOpponentInCheck() {
-		throw new UnsupportedOperationException();
+	public void clearMovingPiece() {
+
+		stopHidingPiece(movingPiece.initial_letter, movingPiece.initial_digit, true);
+
+		movingPiece = null;
+
+		hidden_letter = -1;
+		hidden_digit = -1;
+	}
+
+	@Override
+	public void startHidingPiece(int letter, int digit, boolean enforce) {
+
+		if (!enforce) {
+
+			if (Application_Chess_BaseImpl.getInstance() != null && Application_Chess_BaseImpl.getInstance().isTestMode()) {
+
+				if (hidden_letter != -1) {
+
+					throw new IllegalStateException("letter=" + letter + ", digit=" + digit + ", hidden_letter=" + hidden_letter + ", hidden_digit=" + hidden_digit);
+				}
+			}
+		}
+
+
+		hidden_letter = letter;
+		hidden_digit = digit;
+
+
+		if (!movingPiece.dragging) {
+
+			movingPiece.dragging = true;
+
+		} else {
+
+			if (!enforce) {
+
+				throw new IllegalStateException();
+			}
+		}
+	}
+
+
+	@Override
+	public void stopHidingPiece(int letter, int digit, boolean enforce) {
+
+		if (!enforce) {
+
+			if (Application_Chess_BaseImpl.getInstance() != null && Application_Chess_BaseImpl.getInstance().isTestMode()) {
+
+				if (letter != hidden_letter) {
+
+					throw new IllegalStateException("letter=" + letter + ", digit=" + digit + ", hidden_letter=" + hidden_letter + ", hidden_digit=" + hidden_digit);
+				}
+
+				if (digit != hidden_digit) {
+
+					throw new IllegalStateException("letter=" + letter + ", digit=" + digit + ", hidden_letter=" + hidden_letter + ", hidden_digit=" + hidden_digit);
+				}
+			}
+		}
+
+		hidden_letter = -1;
+
+		hidden_digit = -1;
+
+
+		if (movingPiece.dragging) {
+
+			movingPiece.dragging = false;
+
+		} else {
+
+			if (!enforce) {
+				throw new IllegalStateException();
+			}
+		}
 	}
 }

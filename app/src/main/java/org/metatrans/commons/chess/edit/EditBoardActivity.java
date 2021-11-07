@@ -23,11 +23,10 @@ import org.metatrans.commons.chess.logic.GameDataUtils;
 import org.metatrans.commons.chess.logic.IBoardManager;
 import org.metatrans.commons.chess.main.controllers.GameController;
 import org.metatrans.commons.chess.main.views.IBoardViewActivity;
-import org.metatrans.commons.chess.main.views.MainView;
-
-import com.chessartforkids.model.EditBoardData;
-import com.chessartforkids.model.GameData;
-import com.chessartforkids.model.UserSettings;
+import org.metatrans.commons.chess.main.views.MainView_WithMovesNavigation;
+import org.metatrans.commons.chess.model.EditBoardData;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.UserSettings;
 
 
 public abstract class EditBoardActivity extends Activity_Base_Ads_Banner implements IBoardViewActivity {
@@ -217,7 +216,7 @@ public abstract class EditBoardActivity extends Activity_Base_Ads_Banner impleme
 	
 	
 	@Override
-	public MainView getMainView() {
+	public MainView_WithMovesNavigation getMainView() {
 		throw new UnsupportedOperationException();
 	}
 	

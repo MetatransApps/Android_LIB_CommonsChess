@@ -14,10 +14,12 @@ import org.metatrans.commons.TimeUtils;
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.colours.IConfigurationColours;
 import org.metatrans.commons.chess.R;
-import org.metatrans.commons.chess.cfg.IConfiguration;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.main.MainActivity;
 import org.metatrans.commons.chess.main.controllers.GameController;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.SearchInfo;
+import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.ui.ButtonAreaClick;
 import org.metatrans.commons.ui.ButtonAreaClick_Image;
@@ -26,9 +28,6 @@ import org.metatrans.commons.ui.TextArea;
 import org.metatrans.commons.ui.images.IBitmapCache;
 import org.metatrans.commons.ui.utils.BitmapUtils;
 import org.metatrans.commons.ui.utils.DrawingUtils;
-
-import com.chessartforkids.model.SearchInfo;
-import com.chessartforkids.model.UserSettings;
 
 
 @SuppressLint("ViewConstructor")
@@ -49,6 +48,7 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 	
 	private RectF rectangle_top;
 	private RectF rectangle_bottom;
+	public RectF rectangle_bottom1;
 	private RectF rectangle_bottom2;
 	private float boardSquareSize;
 	
@@ -72,7 +72,13 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 	private RectF rectangle_area_bottom2left;
 	private RectF rectangle_area_bottom2right1;
 	private RectF rectangle_area_bottom2right2;
-	
+
+	public RectF rectf_play_first;
+	public RectF rectf_play_prev;
+	public RectF rectf_empty;
+	public RectF rectf_play_next;
+	public RectF rectf_play_last;
+
 	private ClockArea textarea_topleft;
 	private ClockArea textarea_bottomleft;
 	private ButtonAreaClick textarea_topleft2;
@@ -89,15 +95,23 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 	private TextArea textarea_bottom2left;
 	private TextArea textarea_bottom2right1;
 	private TextArea textarea_bottom2right2;
-	
+
+	public ButtonAreaClick_Image play_first;
+	public ButtonAreaClick_Image play_prev;
+	//public ButtonAreaSwitch_Image empty_space_for_now;
+	public ButtonAreaClick_Image play_next;
+	public ButtonAreaClick_Image play_last;
+
 	private Bitmap thinkingBitmap;
 	
 	
-	public PanelsView(Context context, View _parent,  RectF _rectangleTop,  RectF _rectangleBottom,  RectF _rectangleBottom2) {
+	public PanelsView(Context context, View _parent,  RectF _rectangleTop, RectF _rectangleBottom, RectF _rectangleBottom1,  RectF _rectangleBottom2) {
+		
 		super(context, _parent);
 		
 		rectangle_top = _rectangleTop;
 		rectangle_bottom = _rectangleBottom;
+		rectangle_bottom1 = _rectangleBottom1;
 		rectangle_bottom2 = _rectangleBottom2;
 		
 		captured_w = new int[16];
@@ -121,7 +135,16 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		rectangle_area_bottom2left = new RectF();
 		rectangle_area_bottom2right1 = new RectF();
 		rectangle_area_bottom2right2 = new RectF();
-		
+
+		if (rectangle_bottom1 != null) {
+
+			rectf_play_first = new RectF();
+			rectf_play_prev = new RectF();
+			rectf_empty = new RectF();
+			rectf_play_next = new RectF();
+			rectf_play_last = new RectF();
+		}
+
 		colour_panel = getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black();
 	}
 	
@@ -174,7 +197,6 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 			rectangle_area_topright2.top = rectangle_top.top + delta;
 			rectangle_area_topright2.right = rectangle_top.right - 1 * boardSquareSize - delta;
 			rectangle_area_topright2.bottom = rectangle_top.bottom - delta;
-			//textarea_topright2_newgame = new ButtonAreaClick(rectangle_area_topright2, "+", getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_ValidSelection());
 			textarea_topright2_newgame = new ButtonAreaClick_Image(rectangle_area_topright2, BitmapUtils.fromResource((Context) getActivity(), R.drawable.ic_arrows_double),
 					coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
 		} else {
@@ -219,9 +241,7 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 			rectangle_area_bottomright.bottom = rectangle_bottom.bottom - delta;
 			textarea_bottomright = new ButtonAreaClick(rectangle_area_bottomright, ((Context) getActivity()).getString(R.string.button_undo),
 					coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_Black(), coloursCfg.getColour_Square_MarkingSelection());
-			/*textarea_bottomright = new ButtonAreaClick_Image(rectangle_area_bottomright, BitmapUtils.fromResource(getMainActivity(), R.drawable.ic_arrows_double),
-					coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());*/
-			
+
 			rectangle_area_bottomright2.left = rectangle_bottom.right - 2 * boardSquareSize + delta;
 			rectangle_area_bottomright2.top = rectangle_bottom.top + delta;
 			rectangle_area_bottomright2.right = rectangle_bottom.right - 1 * boardSquareSize - delta;
@@ -293,6 +313,49 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 	    int size = Math.min((int) (rectangle_area_bottomright.right - rectangle_area_bottomright.left), (int) (rectangle_area_bottomright.bottom - rectangle_area_bottomright.top));
 	    size = (int) Math.min(size, boardSquareSize);
 	    thinkingBitmap = BitmapUtils.createScaledBitmap(ic_thinking, size, size, false);
+
+
+		if (rectangle_bottom1 != null) {
+
+			float play_and_goto_buttons_border = 30;
+			float play_and_goto_buttons_size_y = 8 * (rectangle_bottom1.bottom - rectangle_bottom1.top) / 10;
+			float play_and_goto_buttons_size_x = 1.3f * play_and_goto_buttons_size_y;
+
+			rectf_play_first.top = rectangle_bottom1.top + 1 * (rectangle_bottom1.bottom - rectangle_bottom1.top) / 10;
+			rectf_play_first.left = rectangle_bottom1.left + delta;
+			rectf_play_first.right = rectf_play_first.left + play_and_goto_buttons_size_x;
+			rectf_play_first.bottom = rectf_play_first.top + play_and_goto_buttons_size_y;
+
+			rectf_play_prev.top = rectangle_bottom1.top + 1 * (rectangle_bottom1.bottom - rectangle_bottom1.top) / 10;
+			rectf_play_prev.left = rectf_play_first.right + play_and_goto_buttons_border;
+			rectf_play_prev.right = rectf_play_prev.left + play_and_goto_buttons_size_x;
+			rectf_play_prev.bottom = rectf_play_prev.top + play_and_goto_buttons_size_y;
+
+			/*rectf_empty.top = rectangle_bottom1.top + 1 * (rectangle_bottom1.bottom - rectangle_bottom1.top) / 10;
+			rectf_empty.left = rectf_play_prev.right + play_and_goto_buttons_border;
+			rectf_empty.right = rectf_empty.left + play_and_goto_buttons_size_x;
+			rectf_empty.bottom = rectf_empty.top + play_and_goto_buttons_size_y;*/
+
+			rectf_play_last.top = rectangle_bottom1.top + 1 * (rectangle_bottom1.bottom - rectangle_bottom1.top) / 10;
+			rectf_play_last.bottom = rectf_play_last.top + play_and_goto_buttons_size_y;
+			rectf_play_last.right = rectangle_bottom1.right - delta;
+			rectf_play_last.left = rectf_play_last.right - play_and_goto_buttons_size_x;
+
+			rectf_play_next.top = rectangle_bottom1.top + 1 * (rectangle_bottom1.bottom - rectangle_bottom1.top) / 10;
+			rectf_play_next.bottom = rectf_play_next.top + play_and_goto_buttons_size_y;
+			rectf_play_next.left = rectf_play_last.left - play_and_goto_buttons_size_x - play_and_goto_buttons_border;
+			rectf_play_next.right = rectf_play_next.left + play_and_goto_buttons_size_x;
+
+
+			play_first = new ButtonAreaClick_Image(rectf_play_first, BitmapUtils.fromResource((Context) getActivity(), R.drawable.ic_play_first),
+					coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
+			play_prev = new ButtonAreaClick_Image(rectf_play_prev, BitmapUtils.fromResource((Context) getActivity(), R.drawable.ic_play_back),
+					coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
+			play_next = new ButtonAreaClick_Image(rectf_play_next, BitmapUtils.fromResource((Context) getActivity(), R.drawable.ic_play_forward),
+					coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
+			play_last = new ButtonAreaClick_Image(rectf_play_last, BitmapUtils.fromResource((Context) getActivity(), R.drawable.ic_play_last),
+					coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
+		}
 	}
 	
 	
@@ -303,6 +366,11 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
+
+		disableAndEnableNavigationButtons();
+
+		disableAndEnableRotateBoardButton();
+
 		drawPlayersPanels(canvas);
 	}
 	
@@ -330,49 +398,121 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		
 		//Draw players' names
 		textarea_bottomplayername.draw(canvas);
-		
+
+
 		GameController gameController = getActivity().getGameController();
-		
+
+
 		//Draw white thinking
-		if (gameController != null && gameController.isWhiteComputerThinking()) {
-			
-			float x;
-			float y;
-			if (isRotatedBoard()) {
-			    x = rectangle_area_topplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_topplayer.right - rectangle_area_topplayer.left) / 2;
-			    y = rectangle_area_topplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_topplayer.bottom - rectangle_area_topplayer.top) / 2; 
-			} else {
-			    x = rectangle_area_bottomplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_bottomplayer.right - rectangle_area_bottomplayer.left) / 2;
-			    y = rectangle_area_bottomplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_bottomplayer.bottom - rectangle_area_bottomplayer.top) / 2;				
+		if (gameController != null) {
+
+			if (gameController.isWhiteComputerThinking()) {
+
+				float x;
+				float y;
+
+				if (isRotatedBoard()) {
+
+					x = rectangle_area_topplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_topplayer.right - rectangle_area_topplayer.left) / 2;
+					y = rectangle_area_topplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_topplayer.bottom - rectangle_area_topplayer.top) / 2;
+
+				} else {
+
+					x = rectangle_area_bottomplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_bottomplayer.right - rectangle_area_bottomplayer.left) / 2;
+					y = rectangle_area_bottomplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_bottomplayer.bottom - rectangle_area_bottomplayer.top) / 2;
+				}
+
+				x += (thinkingBitmap.getWidth() / 5) * (Math.random() - 0.5);
+				y += (thinkingBitmap.getHeight() / 5) * (Math.random() - 0.5);
+
+				canvas.drawBitmap(thinkingBitmap, x, y, default_paint);
+
+				async_updateUI();
+
 			}
-		    x += (thinkingBitmap.getWidth() / 5) * (Math.random() - 0.5);
-		    y += (thinkingBitmap.getHeight() / 5) * (Math.random() - 0.5);
-		    
-		    canvas.drawBitmap(thinkingBitmap, x, y, default_paint);
-		    //canvas.drawBitmap(bitmap, x - size / 2, y - size / 2, paint);
-		    
-		    async_updateUI();
 		}
-		
+
+
 		//Draw black thinking
 		if (gameController != null && gameController.isBlackComputerThinking()) {
 			
 			float x;
 			float y;
+
 			if (isRotatedBoard()) {
+
 			    x = rectangle_area_bottomplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_bottomplayer.right - rectangle_area_bottomplayer.left) / 2;
 			    y = rectangle_area_bottomplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_bottomplayer.bottom - rectangle_area_bottomplayer.top) / 2;
+
 			} else {
+
 				x = rectangle_area_topplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_topplayer.right - rectangle_area_topplayer.left) / 2;
 		    	y = rectangle_area_topplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_topplayer.bottom - rectangle_area_topplayer.top) / 2;
 			}
+
 		    x += (thinkingBitmap.getWidth() / 5) * (Math.random() - 0.5);
 		    y += (thinkingBitmap.getHeight() / 5) * (Math.random() - 0.5);
 		    
 		    canvas.drawBitmap(thinkingBitmap, x, y, default_paint);
-		    //canvas.drawBitmap(bitmap, x - size / 2, y - size / 2, paint);
 		    
 		    async_updateUI();
+		}
+
+
+		int colour = getActivity().getMainView().getBoardView().hasAnimation();
+
+		if (colour != -1) {
+
+			if (colour == COLOUR_PIECE_WHITE) {
+
+				float x;
+				float y;
+
+				if (isRotatedBoard()) {
+
+					x = rectangle_area_topplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_topplayer.right - rectangle_area_topplayer.left) / 2;
+					y = rectangle_area_topplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_topplayer.bottom - rectangle_area_topplayer.top) / 2;
+
+				} else {
+
+					x = rectangle_area_bottomplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_bottomplayer.right - rectangle_area_bottomplayer.left) / 2;
+					y = rectangle_area_bottomplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_bottomplayer.bottom - rectangle_area_bottomplayer.top) / 2;
+				}
+
+				//x += (thinkingBitmap.getWidth() / 5) * (Math.random() - 0.5);
+				//y += (thinkingBitmap.getHeight() / 5) * (Math.random() - 0.5);
+
+				canvas.drawBitmap(thinkingBitmap, x, y, default_paint);
+
+				async_updateUI();
+
+			} else if (colour == COLOUR_PIECE_BLACK) {
+
+				float x;
+				float y;
+
+				if (isRotatedBoard()) {
+
+					x = rectangle_area_bottomplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_bottomplayer.right - rectangle_area_bottomplayer.left) / 2;
+					y = rectangle_area_bottomplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_bottomplayer.bottom - rectangle_area_bottomplayer.top) / 2;
+
+				} else {
+
+					x = rectangle_area_topplayer.left - thinkingBitmap.getWidth() / 2 + (int) (rectangle_area_topplayer.right - rectangle_area_topplayer.left) / 2;
+					y = rectangle_area_topplayer.top - thinkingBitmap.getHeight() / 2 + (int) (rectangle_area_topplayer.bottom - rectangle_area_topplayer.top) / 2;
+				}
+
+				//x += (thinkingBitmap.getWidth() / 5) * (Math.random() - 0.5);
+				//y += (thinkingBitmap.getHeight() / 5) * (Math.random() - 0.5);
+
+				canvas.drawBitmap(thinkingBitmap, x, y, default_paint);
+
+				async_updateUI();
+
+			} else {
+
+				throw new IllegalStateException();
+			}
 		}
 	}
 	
@@ -455,16 +595,22 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 			DrawingUtils.drawRoundRectangle(canvas, paint, rectangle_bottom2);
 
 
-			SearchInfo last_info = getActivity().getBoardManager().getGameData().getLastSearchInfo();
-
 			String value_eval = "  ...  ";
 			String value_moves = "  ...  ";
 			String value_depth = "  ...  ";
 
-			if (last_info != null) {
-				value_eval = last_info.infoEval;
-				value_moves = last_info.infoMoves + "  ";
-				value_depth = last_info.infoDepth  +  ", " + last_info.infoNPS + "  ";
+			int current_move_index = getActivity().getBoardManager().getGameData().getCurrentMoveIndex();
+
+			if (current_move_index != -1) {
+
+				SearchInfo last_info = getActivity().getBoardManager().getGameData().getSearchInfos().get(current_move_index);
+
+				if (last_info != null) {
+
+					value_eval = last_info.infoEval;
+					value_moves = last_info.infoMoves + "  ";
+					value_depth = last_info.infoDepth + ", " + last_info.infoNPS + "  ";
+				}
 			}
 
 			textarea_bottom2left.setText(value_eval);
@@ -528,28 +674,104 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		} else {
 			//Do nothing
 		}
-	}
-	
-	
-	private void async_updateUI() {
-		
-		final MainActivity mainActivity = (MainActivity) getActivity();
-		
-		if (mainActivity == null) {
-			return;
+
+		if (rectangle_bottom1 != null) {
+
+			paint.setColor(colour_panel);
+			DrawingUtils.drawRoundRectangle(canvas, paint, rectangle_bottom1);
+
+			play_first.draw(canvas);
+			play_prev.draw(canvas);
+			play_next.draw(canvas);
+			play_last.draw(canvas);
 		}
+	}
+
+
+	private void disableAndEnableNavigationButtons() {
+
+		if (rectangle_bottom1 != null) {
+
+			IConfigurationColours coloursCfg = getActivity().getUIConfiguration().getColoursConfiguration();
+
+			if (isMoveNavigationAndAutoPlayerButtonsLocked()) {
+
+				if (play_first != null) play_first.setColour_Area(coloursCfg.getColour_Delimiter());
+				if (play_prev != null) play_prev.setColour_Area(coloursCfg.getColour_Delimiter());
+				if (play_next != null) play_next.setColour_Area(coloursCfg.getColour_Delimiter());
+				if (play_last != null) play_last.setColour_Area(coloursCfg.getColour_Delimiter());
+
+			} else {
+
+				GameData gamedata = getActivity().getBoardManager().getGameData();
+
+				if (!gamedata.isOnTheFirstMove()) {
+
+					if (play_first != null) play_first.setColour_Area(coloursCfg.getColour_Square_ValidSelection());
+					if (play_prev != null) play_prev.setColour_Area(coloursCfg.getColour_Square_ValidSelection());
+
+				} else {
+
+					if (play_first != null) play_first.setColour_Area(coloursCfg.getColour_Delimiter());
+					if (play_prev != null) play_prev.setColour_Area(coloursCfg.getColour_Delimiter());
+				}
+
+				if (!gamedata.isOnTheLastMove()) {
+
+					if (play_next != null) play_next.setColour_Area(coloursCfg.getColour_Square_ValidSelection());
+					if (play_last != null) play_last.setColour_Area(coloursCfg.getColour_Square_ValidSelection());
+
+				} else {
+
+					if (play_next != null) play_next.setColour_Area(coloursCfg.getColour_Delimiter());
+					if (play_last != null) play_last.setColour_Area(coloursCfg.getColour_Delimiter());
+				}
+			}
+		}
+	}
+
+
+	private void disableAndEnableRotateBoardButton() {
+
+		IConfigurationColours coloursCfg = getActivity().getUIConfiguration().getColoursConfiguration();
+
+		if (getActivity().getMainView().getBoardView().hasAnimation() != -1) {
+
+			textarea_topright2_newgame.setColour_Area(coloursCfg.getColour_Delimiter());
+
+		} else {
+
+			if (textarea_topright2_newgame.isSelected()) {
+
+				textarea_topright2_newgame.setColour_Area(coloursCfg.getColour_Square_MarkingSelection());
+
+			} else {
+
+				textarea_topright2_newgame.setColour_Area(coloursCfg.getColour_Square_ValidSelection());
+			}
+		}
+	}
+
+
+	private void async_updateUI() {
+
+		final MainActivity mainActivity = (MainActivity) getActivity();
 		
 		mainActivity.executeJob(new Runnable() {
 			
 			@Override
 			public void run() {
+
 				try {
-					Thread.sleep(100);
+
+					Thread.sleep(42);
+
 				} catch (InterruptedException e) {}
 				
 				Handler ui = mainActivity.getUIHandler();
 				
 				if (ui != null) {
+
 					ui.post(new Runnable() {
 						
 						@Override
@@ -834,6 +1056,7 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		return textarea_bottomright.isActive();
 	}
 
+
 	@Override
 	public boolean isOverButtonAutoTop(float x, float y) {
 		if (AUTO_BUTTON_TOP_ENABLED) {
@@ -877,5 +1100,22 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 
 	private boolean isRotatedBoard() {
 		return ((UserSettings)Application_Base.getInstance().getUserSettings()).rotatedboard;
+	}
+
+
+	@Override
+	public boolean isMoveNavigationAndAutoPlayerButtonsLocked() {
+
+		if (getActivity().getMainView().getBoardView().hasAnimation() != -1) {
+
+			return true;
+		}
+
+		if (getActivity().getGameController().isThinking()) {
+
+			return true;
+		}
+
+		return false;
 	}
 }
