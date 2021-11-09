@@ -14,6 +14,7 @@ import org.metatrans.commons.cfg.colours.ConfigurationUtils_Colours;
 import org.metatrans.commons.cfg.colours.IConfigurationColours;
 import org.metatrans.commons.cfg.menu.ConfigurationUtils_Base_MenuMain;
 import org.metatrans.commons.chess.BuildConfig;
+import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.cfg.Configuration_BaseImpl;
 import org.metatrans.commons.chess.cfg.IConfiguration;
 import org.metatrans.commons.chess.cfg.animation.ConfigurationUtils_Animation;
@@ -22,7 +23,7 @@ import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.cfg.rules.ConfigurationUtils_Bagatur_AllRules;
 import org.metatrans.commons.chess.engines.EngineClient_LocalImpl;
 import org.metatrans.commons.chess.events.Events;
-import org.metatrans.commons.chess.logic.GameDataUtils;
+import org.metatrans.commons.chess.logic.game.GameDataUtils;
 import org.metatrans.commons.chess.model.EditBoardData;
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.GameData;
@@ -82,9 +83,9 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 		ObjectInputStream input = null;
 
-		try {
+		File file = new File(getFilesDir(), "storage");
 
-			File file = new File(getFilesDir(), "storage");
+		try {
 
 			if (file.exists()) {
 
@@ -103,8 +104,6 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 				if (gamedata != null) Application_Base.getInstance().storeGameData(gamedata);
 
 				if (selections != null) StorageUtils_BoardSelections.writeStore(this, selections);
-
-				file.delete();
 			}
 
 		} catch (Throwable t) {
@@ -120,6 +119,8 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 				} catch (IOException e) {}
 			}
+
+			file.delete();
 		}
 	}
 
@@ -155,21 +156,15 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 	}
 
 
+	public int getMovingComputerIconID() {
+
+		return R.drawable.ic_computer_moving_bagatur;
+	}
+
+
 	public String[] getKeywords() {
 		return KEYWORDS;
 	}
-
-
-	/*@Override
-	protected ILeaderboardsProvider createLeaderboardsProvider() {
-		return null;
-	}
-	
-
-	@Override
-	protected IAchievementsManager createAchievementsManager() {
-		return null;
-	}*/
 
 	
 	@Override

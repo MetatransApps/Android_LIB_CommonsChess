@@ -1,9 +1,8 @@
-package org.metatrans.commons.chess.main.views;
+package org.metatrans.commons.chess.views_and_controllers;
 
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -18,7 +17,7 @@ import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.ui.utils.DrawingUtils;
 
 
-public class MainView_WithMovesNavigation extends View {
+public class MainView_WithMovesNavigation extends View implements IMainView {
 	
 	
 	private static final float USAGE_PERCENT_BOARD 			= 0.7F;
@@ -66,22 +65,30 @@ public class MainView_WithMovesNavigation extends View {
 		
 		boardView = createBoardView(rectf_board);
 		
-		panelsView = new PanelsView(getContext(), this,
-				rectf_toppanel,
-				rectf_bottompanel0,
-				rectf_bottompanel1,
-				rectf_bottompanel2
-				);
+		panelsView = createPanelsView(rectf_toppanel, rectf_bottompanel0, rectf_bottompanel1, rectf_bottompanel2);
 
 		paint = new Paint();
+
+		setOnTouchListener(new OnTouchListener_Main(getMainActivity(), boardView, panelsView));
 	}
 	
 	
 	protected BoardView createBoardView(RectF rectangle) {
 		return new BoardView(getContext(), this, rectangle);
 	}
-	
-	
+
+
+	protected PanelsView createPanelsView(RectF rectf_toppanel, RectF rectf_bottompanel0, RectF rectf_bottompanel1, RectF rectf_bottompanel2) {
+
+		return new PanelsView(getContext(), this,
+				rectf_toppanel,
+				rectf_bottompanel0,
+				rectf_bottompanel1,
+				rectf_bottompanel2
+		);
+	}
+
+
 	protected MainActivity getMainActivity() {
 		return (MainActivity) getContext();
 	}
@@ -121,16 +128,14 @@ public class MainView_WithMovesNavigation extends View {
 		//int[] screen_size = ScreenUtils.getScreenSize(getMainActivity());
 		int main_width = getMeasuredWidth();
 		int main_height = getMeasuredHeight();
-		
-		float dimension = Math.min(main_width, main_height);
-		
+
 		float panelBoarder = 10;
 		
 		if (main_width > main_height) {
 
 			panelBoarder = panelBoarder / 2;
 
-			dimension = main_height;
+			float dimension = main_height;
 
 			float board_dimension = dimension * USAGE_PERCENT_BOARD;
 			float panel_height = dimension * USAGE_PERCENT_PANEL - panelBoarder;
@@ -181,10 +186,11 @@ public class MainView_WithMovesNavigation extends View {
 
 		} else {
 			
-			dimension = main_width;
-			
 			float board_dimension = main_width * 1;
 			float panel_height = (main_height - main_width) / 5.28f - panelBoarder;
+			if (!enabled_moves_navigation) {
+				panel_height = (4f * panel_height * 1.015f) / 3f ;
+			}
 
 			float sections_count = 9.1f;
 			int section_height = (int) (main_height / sections_count);

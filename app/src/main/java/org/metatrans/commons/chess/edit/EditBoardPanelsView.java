@@ -13,7 +13,7 @@ import org.metatrans.commons.cfg.colours.IConfigurationColours;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.logic.BoardConstants;
-import org.metatrans.commons.chess.main.views.BaseView;
+import org.metatrans.commons.chess.views_and_controllers.BaseView;
 import org.metatrans.commons.chess.model.EditBoardData;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.ui.ButtonAreaClick_Image;

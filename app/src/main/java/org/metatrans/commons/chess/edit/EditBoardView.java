@@ -7,7 +7,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.View;
 
-import org.metatrans.commons.chess.main.views.IBoardViewActivity;
+import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
 import org.metatrans.commons.ui.utils.DrawingUtils;
 
 

@@ -1,6 +1,7 @@
-package org.metatrans.commons.chess.logic;
+package org.metatrans.commons.chess.logic.board;
 
 
+import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.model.BoardData;
 import org.metatrans.commons.storage.ObjectUtils;
 

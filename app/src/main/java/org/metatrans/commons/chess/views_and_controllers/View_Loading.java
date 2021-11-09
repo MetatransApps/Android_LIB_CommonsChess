@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.loading;
+package org.metatrans.commons.chess.views_and_controllers;
 
 
 import android.content.Context;
@@ -7,7 +7,9 @@ import android.graphics.Bitmap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.chess.R;
+import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.cfg.pieces.ConfigurationUtils_Pieces;
 import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.logic.BoardConstants;
@@ -41,9 +43,11 @@ public class View_Loading extends View_Loading_Base {
 
 	@Override
 	public void initPiecesBitmaps() {
-		
+
+		int moving_computer_icon_id = ((Application_Chess_BaseImpl) Application_Base.getInstance()).getMovingComputerIconID();
+
 		bitmap_commons = new Bitmap[] {
-				getImageBitmap(R.drawable.ic_computer_moving),
+				getImageBitmap(moving_computer_icon_id),
 				getImageBitmap(R.drawable.ic_logo_cafk),
 		};
 		

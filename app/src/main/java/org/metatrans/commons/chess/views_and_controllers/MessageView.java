@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.main.views;
+package org.metatrans.commons.chess.views_and_controllers;
 
 
 import android.content.Context;
@@ -53,8 +53,8 @@ public class MessageView extends View {
 	
 	
 	private void initializeDimensions() {
-		
-		MainView_WithMovesNavigation main = getMainActivity().getMainView();
+
+		IMainView main = getMainActivity().getMainView();
 		//System.out.println("Main view = " + main);
 		
 		if (main != null) {

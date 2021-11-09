@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.main.controllers.time;
+package org.metatrans.commons.chess.logic.time;
 
 
 public interface ITimeController {

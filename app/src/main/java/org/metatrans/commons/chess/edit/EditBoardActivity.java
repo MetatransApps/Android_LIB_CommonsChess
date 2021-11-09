@@ -18,12 +18,12 @@ import org.metatrans.commons.chess.cfg.Configuration_BaseImpl;
 import org.metatrans.commons.chess.cfg.IConfiguration;
 import org.metatrans.commons.chess.cfg.pieces.ConfigurationUtils_Pieces;
 import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
-import org.metatrans.commons.chess.logic.BoardManager_AllRules;
-import org.metatrans.commons.chess.logic.GameDataUtils;
-import org.metatrans.commons.chess.logic.IBoardManager;
-import org.metatrans.commons.chess.main.controllers.GameController;
-import org.metatrans.commons.chess.main.views.IBoardViewActivity;
-import org.metatrans.commons.chess.main.views.MainView_WithMovesNavigation;
+import org.metatrans.commons.chess.logic.board.BoardManager_AllRules;
+import org.metatrans.commons.chess.logic.game.GameDataUtils;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
+import org.metatrans.commons.chess.logic.game.GameManager;
+import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
+import org.metatrans.commons.chess.views_and_controllers.IMainView;
 import org.metatrans.commons.chess.model.EditBoardData;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.UserSettings;
@@ -210,13 +210,13 @@ public abstract class EditBoardActivity extends Activity_Base_Ads_Banner impleme
 	
 	
 	@Override
-	public GameController getGameController() {
+	public GameManager getGameController() {
 		throw new UnsupportedOperationException();
 	}
 	
 	
 	@Override
-	public MainView_WithMovesNavigation getMainView() {
+	public IMainView getMainView() {
 		throw new UnsupportedOperationException();
 	}
 	

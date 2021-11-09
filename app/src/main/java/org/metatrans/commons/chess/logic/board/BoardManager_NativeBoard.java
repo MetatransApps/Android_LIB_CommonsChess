@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.logic;
+package org.metatrans.commons.chess.logic.board;
 
 
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.metatrans.commons.cfg.difficulty.IConfigurationDifficulty;
 import org.metatrans.commons.chess.GlobalConstants;
+import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_RandomButCaptureAndDefense;
 import org.metatrans.commons.chess.logic.computer.IComputer;
 import org.metatrans.commons.chess.model.GameData;
@@ -36,10 +37,10 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 		for (int i = 0; i <= currentMoveIndex; i++) {
 			move(moves.get(i));
 		}
-		
-		//System.out.println("MOVE INDEX (NativeBoard constructor) " + gamedata.getCurrentMoveIndex());
-		
+
 		handleMovingPiece(gamedata);
+
+		gamedata.save();
 	}
 	
 	
@@ -303,7 +304,7 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 		int uiColour = BoardUtils.getColour(pieceID);
 		int boardColour = board.getColourToMove();
 		
-		boolean isUIColourWhite = uiColour == BoardConstants.COLOUR_PIECE_WHITE; 
+		boolean isUIColourWhite = uiColour == BoardConstants.COLOUR_PIECE_WHITE;
 		boolean isBoardColourWhite = boardColour == Constants.COLOUR_WHITE; 
 		
 		return isUIColourWhite == isBoardColourWhite;

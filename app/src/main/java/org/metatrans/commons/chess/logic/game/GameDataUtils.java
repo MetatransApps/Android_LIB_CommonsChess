@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.logic;
+package org.metatrans.commons.chess.logic.game;
 
 
 import java.util.Collections;
@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.metatrans.commons.chess.GlobalConstants;
+import org.metatrans.commons.chess.logic.BoardConstants;
+import org.metatrans.commons.chess.logic.board.BoardUtils;
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.IPlayer;

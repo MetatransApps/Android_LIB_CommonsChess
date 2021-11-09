@@ -20,8 +20,8 @@ import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.cfg.pieces.ConfigurationUtils_Pieces;
 import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.logic.BoardConstants;
-import org.metatrans.commons.chess.logic.BoardUtils;
-import org.metatrans.commons.chess.logic.GameDataUtils;
+import org.metatrans.commons.chess.logic.board.BoardUtils;
+import org.metatrans.commons.chess.logic.game.GameDataUtils;
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.Move;
@@ -183,6 +183,7 @@ public class MenuActivity_Promotion extends MenuActivity_BasePieces implements G
 				GameData gamedata = ((GameData) Application_Base.getInstance().getGameData());
 
 				gamedata.getMoves().add(move);
+				gamedata.getSearchInfos().add(null);
 				gamedata.setCurrentMoveIndex(gamedata.getMoves().size() - 1);
 				gamedata.save();
 

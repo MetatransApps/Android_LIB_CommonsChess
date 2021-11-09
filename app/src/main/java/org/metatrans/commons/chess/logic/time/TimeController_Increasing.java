@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.main.controllers.time;
+package org.metatrans.commons.chess.logic.time;
 
 
 import org.metatrans.commons.chess.logic.BoardConstants;

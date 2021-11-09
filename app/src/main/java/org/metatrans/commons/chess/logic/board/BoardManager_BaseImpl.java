@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.logic;
+package org.metatrans.commons.chess.logic.board;
 
 
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.metatrans.commons.cfg.difficulty.IConfigurationDifficulty;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
+import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_Random;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_RandomButCapture;
 import org.metatrans.commons.chess.logic.computer.IComputer;

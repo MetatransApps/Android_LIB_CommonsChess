@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.logic;
+package org.metatrans.commons.chess.logic.board;
 
 
 import org.metatrans.commons.cfg.difficulty.IConfigurationDifficulty;

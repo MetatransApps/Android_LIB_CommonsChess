@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Menu;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -28,17 +29,17 @@ import org.metatrans.commons.chess.cfg.rules.IConfigurationRule;
 import org.metatrans.commons.chess.events.Events;
 import org.metatrans.commons.chess.events.IEvent;
 import org.metatrans.commons.chess.logic.BoardConstants;
-import org.metatrans.commons.chess.logic.BoardManager_AllRules;
-import org.metatrans.commons.chess.logic.GameDataUtils;
-import org.metatrans.commons.chess.logic.IBoardManager;
-import org.metatrans.commons.chess.main.controllers.GameController;
-import org.metatrans.commons.chess.main.controllers.OnTouchListener_Main;
-import org.metatrans.commons.chess.main.controllers.time.ITimeController;
-import org.metatrans.commons.chess.main.controllers.time.TimeController_Increasing;
-import org.metatrans.commons.chess.main.views.IBoardViewActivity;
-import org.metatrans.commons.chess.main.views.IBoardVisualization;
-import org.metatrans.commons.chess.main.views.IPanelsVisualization;
-import org.metatrans.commons.chess.main.views.MainView_WithMovesNavigation;
+import org.metatrans.commons.chess.logic.board.BoardManager_AllRules;
+import org.metatrans.commons.chess.logic.game.GameDataUtils;
+import org.metatrans.commons.chess.logic.game.GameManager;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
+import org.metatrans.commons.chess.logic.time.ITimeController;
+import org.metatrans.commons.chess.logic.time.TimeController_Increasing;
+import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
+import org.metatrans.commons.chess.views_and_controllers.IBoardVisualization;
+import org.metatrans.commons.chess.views_and_controllers.IMainView;
+import org.metatrans.commons.chess.views_and_controllers.IPanelsVisualization;
+import org.metatrans.commons.chess.views_and_controllers.MainView_WithMovesNavigation;
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.IPlayer;
@@ -46,7 +47,6 @@ import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
 import org.metatrans.commons.ui.images.IBitmapCache;
-import org.metatrans.commons.ui.utils.DebugUtils;
 
 
 public abstract class MainActivity extends Activity_Base_Ads_Banner implements BoardConstants, GlobalConstants, IBoardViewActivity {
@@ -57,7 +57,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 	protected IBoardManager manager;
 
-	protected GameController gameController;
+	protected GameManager gameController;
 
 	private ITimeController timeController;
 
@@ -274,48 +274,24 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 		System.out.println("MainActivity: recreateControllersAndViews: called");
 
-		GameData gameData;
+		GameData gameData = (GameData) Application_Base.getInstance().getGameData();
 
-		try {
-
-			gameData = (GameData) Application_Base.getInstance().getGameData();
-
-			manager = createBoardManager(gameData);
-
-		} catch (Exception e) {
-
-			if (Application_Base.getInstance().isTestMode()) {
-
-				throw e;
-			}
-
-			e.printStackTrace();
-
-			//In case of incompatible change of GameData class and failed deserialization or BoardManager creation, we lose the current game and create new one
-			Application_Base.getInstance().recreateGameDataObject();
-
-			gameData = (GameData) Application_Base.getInstance().getGameData();
-
-			manager = createBoardManager(gameData);
-		}
-
+		manager = createBoardManager(gameData);
 
 		setContentView(getMainLayout());
 
 		ViewGroup frame = findViewById(getMainLayoutID());
 
-		MainView_WithMovesNavigation mainview = createMainView();
+		View mainview = createMainView();
 
 		mainview.setId(MAIN_VIEW_ID);
 
 		frame.addView(mainview);
 
-		mainview.setOnTouchListener(new OnTouchListener_Main(this));
-
 		setBackgroundPoster(getMainLayoutID(), 77);
 
 
-		gameController = new GameController(this);
+		gameController = new GameManager(this);
 
 		IBoardVisualization boardview = getBoard();
 		boardview.setData(getBoardManager().getBoard_Full());
@@ -325,6 +301,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		if (selections != null) {
 
 			try {
+
 				for (int i = 0; i < selections.length; i++) {
 					Set<FieldSelection>[] cur = selections[i];
 					for (int j = 0; j < cur.length; j++) {
@@ -335,6 +312,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 						}
 					}
 				}
+
 			} catch (Exception e) {
 
 				if (Application_Base.getInstance().isTestMode()) {
@@ -362,7 +340,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 
 
-	protected MainView_WithMovesNavigation createMainView() {
+	protected View createMainView() {
 		return new MainView_WithMovesNavigation(this, null, true);
 	}
 
@@ -447,9 +425,9 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 
 
-	public synchronized MainView_WithMovesNavigation getMainView() {
+	public synchronized IMainView getMainView() {
 
-		MainView_WithMovesNavigation mainview = findViewById(MAIN_VIEW_ID);
+		IMainView mainview = findViewById(MAIN_VIEW_ID);
 
 		return mainview;
 	}
@@ -570,7 +548,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 	
 	
-	public GameController getGameController() {
+	public GameManager getGameController() {
 
 		return gameController;
 	}

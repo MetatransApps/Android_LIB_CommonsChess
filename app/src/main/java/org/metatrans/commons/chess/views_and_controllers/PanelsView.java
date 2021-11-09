@@ -1,23 +1,28 @@
-package org.metatrans.commons.chess.main.views;
+package org.metatrans.commons.chess.views_and_controllers;
 
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Handler;
+import android.view.MotionEvent;
 import android.view.View;
 
 import org.metatrans.commons.TimeUtils;
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.colours.IConfigurationColours;
+import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.R;
+import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.logic.BoardConstants;
+import org.metatrans.commons.chess.logic.game.GameManager;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.main.MainActivity;
-import org.metatrans.commons.chess.main.controllers.GameController;
 import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.SearchInfo;
 import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
@@ -29,15 +34,19 @@ import org.metatrans.commons.ui.images.IBitmapCache;
 import org.metatrans.commons.ui.utils.BitmapUtils;
 import org.metatrans.commons.ui.utils.DrawingUtils;
 
+import java.util.List;
 
-@SuppressLint("ViewConstructor")
+
+/**
+ * TODO: This class have to be reworked.
+ * It has a lot of redundant methods, which are also exposed in the IPanelsVisualization interface
+ * They have to be removed and directly rectangles and buttons have to be used
+ * in this class as well as in the inner class OnTouchListener_Panels
+ */
 public class PanelsView extends BaseView implements IPanelsVisualization, BoardConstants {
 	
 	
 	private static int DELTA_AREAS = 9;
-	
-	private static boolean HELP_BUTTON_TOP_ENABLED = false;
-	private static boolean HELP_BUTTON_BOTTOM_ENABLED = false;
 	
 	private static boolean AUTO_BUTTON_TOP_ENABLED = true;
 	private static boolean AUTO_BUTTON_BOTTOM_ENABLED = true;
@@ -60,15 +69,15 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 	private Paint default_paint;
 	
 	private RectF rectangle_area_topleft;
-	private RectF rectangle_area_topleft2;
+	private RectF rectangle_area_topplayer;
 	private RectF rectangle_area_topright;
 	private RectF rectangle_area_topright2;
+
 	private RectF rectangle_area_bottomleft;
-	private RectF rectangle_area_bottomleft2;
+	private RectF rectangle_area_bottomplayer;
 	private RectF rectangle_area_bottomright;
 	private RectF rectangle_area_bottomright2;
-	private RectF rectangle_area_topplayer;
-	private RectF rectangle_area_bottomplayer;
+
 	private RectF rectangle_area_bottom2left;
 	private RectF rectangle_area_bottom2right1;
 	private RectF rectangle_area_bottom2right2;
@@ -78,6 +87,7 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 	public RectF rectf_empty;
 	public RectF rectf_play_next;
 	public RectF rectf_play_last;
+
 
 	private ClockArea textarea_topleft;
 	private ClockArea textarea_bottomleft;
@@ -120,9 +130,7 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		default_paint = new Paint();
 		
 		rectangle_area_topleft = new RectF();
-		rectangle_area_topleft2 = new RectF();
 		rectangle_area_bottomleft = new RectF();
-		rectangle_area_bottomleft2 = new RectF();
 		
 		rectangle_area_topright = new RectF();
 		rectangle_area_topright2 = new RectF();
@@ -156,33 +164,12 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		int delta = DELTA_AREAS;
 		
 		boardSquareSize = (rectangle_top.right - rectangle_top.left) / (float) 8;
-		
-		if (HELP_BUTTON_TOP_ENABLED) {
-			rectangle_area_topleft.left = rectangle_top.left + delta;
-			rectangle_area_topleft.top = rectangle_top.top + delta;
-			rectangle_area_topleft.right = rectangle_top.left + boardSquareSize + boardSquareSize / 2 - delta;
-			rectangle_area_topleft.bottom = rectangle_top.bottom - delta;
-			textarea_topleft = new ClockArea(rectangle_area_topleft, "00:00:00", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black());
-			
-			rectangle_area_topleft2.left = rectangle_top.left + boardSquareSize + boardSquareSize / 2 + delta;
-			rectangle_area_topleft2.top = rectangle_top.top + delta;
-			rectangle_area_topleft2.right = rectangle_top.left + boardSquareSize + boardSquareSize - delta;
-			rectangle_area_topleft2.bottom = rectangle_top.bottom - delta;
-			textarea_topleft2 = new ButtonAreaClick(rectangle_area_topleft2, "?", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_ValidSelection());
-		} else {
-			rectangle_area_topleft.left = rectangle_top.left + delta;
-			rectangle_area_topleft.top = rectangle_top.top + delta;
-			rectangle_area_topleft.right = rectangle_top.left + boardSquareSize + boardSquareSize - delta;
-			rectangle_area_topleft.bottom = rectangle_top.bottom - delta;
-			textarea_topleft = new ClockArea(rectangle_area_topleft, "00:00:00", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black());
-			
-			/*rectangle_area_topleft2.left = rectangle_top.left + boardSquareSize + boardSquareSize / 2 + delta;
-			rectangle_area_topleft2.top = rectangle_top.top + delta;
-			rectangle_area_topleft2.right = rectangle_top.left + boardSquareSize + boardSquareSize - delta;
-			rectangle_area_topleft2.bottom = rectangle_top.bottom - delta;
-			textarea_topleft2 = new ButtonAreaClick(rectangle_area_topleft2, "+", getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_ValidSelection());
-			*/	
-		}
+
+		rectangle_area_topleft.left = rectangle_top.left + delta;
+		rectangle_area_topleft.top = rectangle_top.top + delta;
+		rectangle_area_topleft.right = rectangle_top.left + boardSquareSize + boardSquareSize - delta;
+		rectangle_area_topleft.bottom = rectangle_top.bottom - delta;
+		textarea_topleft = new ClockArea(rectangle_area_topleft, "00:00:00", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black());
 		
 		if (AUTO_BUTTON_TOP_ENABLED) {
 			rectangle_area_topright.left = rectangle_top.right - boardSquareSize + delta;
@@ -206,33 +193,12 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 			rectangle_area_topright.bottom = rectangle_top.bottom - delta;
 			textarea_topright = new ButtonAreaClick(rectangle_area_topright, "   " + ((Context) getActivity()).getString(R.string.button_menu) + "   ", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_ValidSelection());
 		}
-		
-		if (HELP_BUTTON_BOTTOM_ENABLED) {
-			rectangle_area_bottomleft.left = rectangle_bottom.left + delta;
-			rectangle_area_bottomleft.top = rectangle_bottom.top + delta;
-			rectangle_area_bottomleft.right = rectangle_bottom.left + boardSquareSize + boardSquareSize / 2 - delta;
-			rectangle_area_bottomleft.bottom = rectangle_bottom.bottom - delta;
-			textarea_bottomleft = new ClockArea(rectangle_area_bottomleft, "00:00:00", coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_Black());
-	
-			rectangle_area_bottomleft2.left = rectangle_bottom.left + boardSquareSize + boardSquareSize / 2 + delta;
-			rectangle_area_bottomleft2.top = rectangle_bottom.top + delta;
-			rectangle_area_bottomleft2.right = rectangle_bottom.left + boardSquareSize + boardSquareSize - delta;
-			rectangle_area_bottomleft2.bottom = rectangle_bottom.bottom - delta;
-			textarea_bottomleft2 = new ButtonAreaClick(rectangle_area_bottomleft2, "?", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_ValidSelection());
-		} else {
-			rectangle_area_bottomleft.left = rectangle_bottom.left + delta;
-			rectangle_area_bottomleft.top = rectangle_bottom.top + delta;
-			rectangle_area_bottomleft.right = rectangle_bottom.left + boardSquareSize + boardSquareSize - delta;
-			rectangle_area_bottomleft.bottom = rectangle_bottom.bottom - delta;
-			textarea_bottomleft = new ClockArea(rectangle_area_bottomleft, "00:00:00", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black());
-			
-			/*rectangle_area_bottomleft2.left = rectangle_bottom.left + boardSquareSize + boardSquareSize / 2 + delta;
-			rectangle_area_bottomleft2.top = rectangle_bottom.top + delta;
-			rectangle_area_bottomleft2.right = rectangle_bottom.left + boardSquareSize + boardSquareSize - delta;
-			rectangle_area_bottomleft2.bottom = rectangle_bottom.bottom - delta;
-			textarea_bottomleft2 = new ButtonAreaClick(rectangle_area_bottomleft2, "?", getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_ValidSelection());
-			*/			
-		}
+
+		rectangle_area_bottomleft.left = rectangle_bottom.left + delta;
+		rectangle_area_bottomleft.top = rectangle_bottom.top + delta;
+		rectangle_area_bottomleft.right = rectangle_bottom.left + boardSquareSize + boardSquareSize - delta;
+		rectangle_area_bottomleft.bottom = rectangle_bottom.bottom - delta;
+		textarea_bottomleft = new ClockArea(rectangle_area_bottomleft, "00:00:00", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black());
 		
 		if (AUTO_BUTTON_BOTTOM_ENABLED) {
 			rectangle_area_bottomright.left = rectangle_bottom.right - boardSquareSize + delta;
@@ -248,20 +214,6 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 			rectangle_area_bottomright2.bottom = rectangle_bottom.bottom - delta;
 			textarea_bottomright2_info = new ButtonAreaSwitch(rectangle_area_bottomright2, ((Context) getActivity()).getString(R.string.button_info),
 					coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_Black(), coloursCfg.getColour_Square_ValidSelection(), info_enabled);
-		} else {
-			//rectangle_area_bottomright.left = rectangle_bottom.right - 2 * boardSquareSize + delta;
-			//rectangle_area_bottomright.top = rectangle_bottom.top + delta;
-			//rectangle_area_bottomright.right = rectangle_bottom.right - delta;
-			//rectangle_area_bottomright.bottom = rectangle_bottom.bottom - delta;
-			//textarea_bottomright = new ButtonAreaClick(rectangle_area_bottomright, "   " + getMainActivity().getString(R.string.button_undo) + "   ", getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_ValidSelection());
-			
-			//rectangle_area_bottomright.left = rectangle_bottom.right - boardSquareSize + delta;
-			//rectangle_area_bottomright.top = rectangle_bottom.top + delta;
-			//rectangle_area_bottomright.right = rectangle_bottom.right - delta;
-			//rectangle_area_bottomright.bottom = rectangle_bottom.bottom - delta;
-			//textarea_bottomright = new ButtonAreaClick_Image(rectangle_area_bottomright, BitmapUtils.fromResource(getMainActivity(), R.drawable.ic_arrows_double),
-			//		coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());		
-
 		}
 		
 		
@@ -297,19 +249,18 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		rectangle_area_bottomplayer.right = 6 * boardSquareSize - delta;
 		rectangle_area_bottomplayer.bottom = rectangle_area_bottomleft.bottom;
 		
-		//textarea_topplayername = new TextArea(rectangle_area_topplayer, playerName_black, getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), true);
 		textarea_topplayername = new ButtonAreaSwitch(isRotatedBoard() ? rectangle_area_bottomplayer : rectangle_area_topplayer, playerName_black,
 				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_Black(), coloursCfg.getColour_Square_ValidSelection(), autotop);
-		
-		//textarea_bottomplayername = new TextArea(rectangle_area_bottomplayer, playerName_white, getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getMainActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black(), true);
+
 		textarea_bottomplayername = new ButtonAreaSwitch(isRotatedBoard() ? rectangle_area_topplayer : rectangle_area_bottomplayer, playerName_white,
 				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_Black(), coloursCfg.getColour_Square_ValidSelection(), autobottom);
 		
 		setBlackPlayerName(playerName_black);
 		setWhitePlayerName(playerName_white);
-		
-		
-	    Bitmap ic_thinking = CachesBitmap.getSingletonFullSized().getBitmap((Context) getActivity(), R.drawable.ic_computer_moving);
+
+		int moving_computer_icon_id = ((Application_Chess_BaseImpl) Application_Base.getInstance()).getMovingComputerIconID();
+
+	    Bitmap ic_thinking = CachesBitmap.getSingletonFullSized().getBitmap((Context) getActivity(), moving_computer_icon_id);
 	    int size = Math.min((int) (rectangle_area_bottomright.right - rectangle_area_bottomright.left), (int) (rectangle_area_bottomright.bottom - rectangle_area_bottomright.top));
 	    size = (int) Math.min(size, boardSquareSize);
 	    thinkingBitmap = BitmapUtils.createScaledBitmap(ic_thinking, size, size, false);
@@ -373,18 +324,6 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 
 		drawPlayersPanels(canvas);
 	}
-	
-	
-	/*@Override
-	public ClockArea getWhiteClockArea() {
-		return textarea_bottomleft;
-	}
-	
-	
-	@Override
-	public ClockArea getBlackClockArea() {
-		return textarea_topleft;
-	}*/
 
 	
 	private void drawPlayersPanels(Canvas canvas) {
@@ -400,7 +339,7 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		textarea_bottomplayername.draw(canvas);
 
 
-		GameController gameController = getActivity().getGameController();
+		GameManager gameController = getActivity().getGameController();
 
 
 		//Draw white thinking
@@ -566,15 +505,14 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		
 		//Draw buttons and clock
 		textarea_topleft.draw(canvas);
-		if (HELP_BUTTON_TOP_ENABLED) { 
-			textarea_topleft2.draw(canvas);
-		} else {
-			//Do nothing
-		}
 		textarea_topright.draw(canvas);
+
 		if (AUTO_BUTTON_TOP_ENABLED) {
+
 			textarea_topright2_newgame.draw(canvas);
+
 		} else {
+
 			//Do nothing
 		}
 	}
@@ -625,9 +563,7 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		
 		//Draw pieces
 		float max_image_height = (rectangle_bottom.bottom - rectangle_bottom.top) / 2;
-		float imageTop = rectangle_bottom.top;// - max_image_height;
-		//float max_image_height = (rectangle_bottom.bottom - rectangle_bottom.top) / 2;
-		//float imageTop = rectangle_bottom.top + max_image_height;
+		float imageTop = rectangle_bottom.top;
 		
 		int w_image_size = (int) Math.min(max_image_height, (int) Math.min(boardSquareSize, 4 * boardSquareSize / (float) captured_w_size));
 		int b_image_size = (int) Math.min(max_image_height, (int) Math.min(boardSquareSize, (4 * boardSquareSize / (float) captured_b_size)));
@@ -663,15 +599,15 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		
 		//Draw buttons and clock
 		textarea_bottomleft.draw(canvas);
-		if (HELP_BUTTON_BOTTOM_ENABLED) {
-			textarea_bottomleft2.draw(canvas);
-		} else {
-			//Do nothing
-		}
+
 		textarea_bottomright.draw(canvas);
-		if (AUTO_BUTTON_BOTTOM_ENABLED) { 
+
+		if (AUTO_BUTTON_BOTTOM_ENABLED) {
+
 			textarea_bottomright2_info.draw(canvas);
+
 		} else {
+
 			//Do nothing
 		}
 
@@ -858,11 +794,6 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 
 	@Override
 	public void deselectButtonHelpTop() {
-		if (HELP_BUTTON_TOP_ENABLED) { 
-			textarea_topleft2.deselect();
-		} else {
-			//Do nothing
-		}
 	}
 
 
@@ -874,11 +805,6 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 
 	@Override
 	public void deselectButtonHelpBottom() {
-		if (HELP_BUTTON_BOTTOM_ENABLED) {
-			textarea_bottomleft2.deselect();
-		} else {
-			//Do nothing
-		}
 	}
 
 
@@ -901,15 +827,6 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		}
 	}
 
-	/*@Override
-	public void finishButtonAutoTop() {
-		textarea_topright2_newgame.finish();
-	}
-	
-	@Override
-	public boolean isActiveButtonAutoTop() {
-		return textarea_topright2_newgame.isActive();
-	}*/
 	
 	@Override
 	public void selectButton_Info() {
@@ -958,17 +875,6 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		}
 	}
 	
-	/*@Override
-	public void finishButtonAutoBottom() {
-		textarea_bottomright2_share.finish();
-	}*/
-	
-
-	/*@Override
-	public boolean isActiveButtonAutoBottom() {
-		return textarea_bottomright2_share.isActive();
-	}*/
-	
 	
 	@Override
 	public boolean isOverTopArea(float x, float y) {
@@ -978,7 +884,8 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 			return rectangle_area_topplayer.contains(x, y);
 		}
 	}
-	
+
+
 	@Override
 	public void selectButtonTopPlayer() {
 		textarea_topplayername.select();
@@ -1069,21 +976,13 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 	
 	@Override
 	public boolean isOverButtonHelpTop(float x, float y) {
-		if (HELP_BUTTON_TOP_ENABLED) { 
-			return rectangle_area_topleft2.contains(x, y);
-		} else {
-			return false;
-		}
+		return false;
 	}
 
 
 	@Override
 	public boolean isOverButtonHelpBottom(float x, float y) {
-		if (HELP_BUTTON_BOTTOM_ENABLED) {
-			return rectangle_area_bottomleft2.contains(x, y);
-		} else {
-			return false;
-		}
+		return false;
 	}
 
 
@@ -1117,5 +1016,600 @@ public class PanelsView extends BaseView implements IPanelsVisualization, BoardC
 		}
 
 		return false;
+	}
+
+
+	@Override
+	public OnTouchListener createOnTouchListener(IBoardVisualization boardVisualization, IBoardViewActivity activity) {
+
+		return new OnTouchListener_Panels(boardVisualization, activity);
+	}
+
+
+	public class OnTouchListener_Panels implements OnTouchListener, BoardConstants {
+
+
+		private IBoardVisualization boardVisualization;
+
+		private IBoardViewActivity activity;
+
+
+		public OnTouchListener_Panels(IBoardVisualization _boardVisualization, IBoardViewActivity _activity) {
+
+			boardVisualization = _boardVisualization;
+
+			activity = _activity;
+		}
+
+
+		@Override
+		public boolean onTouch(View view, MotionEvent event) {
+
+			if (isLocked()) {
+
+				return true;
+			}
+
+			synchronized (activity) {
+
+				int action = event.getAction();
+
+				if (action == MotionEvent.ACTION_DOWN) {
+
+					processEvent_DOWN(event);
+
+				} else if (action == MotionEvent.ACTION_MOVE) {
+
+					processEvent_MOVE(event);
+
+				} else if (action == MotionEvent.ACTION_UP
+						|| action == MotionEvent.ACTION_CANCEL) {
+
+					processEvent_UP(event);
+
+				}
+			}
+
+			return true;
+		}
+
+
+		private void processEvent_DOWN(MotionEvent event) {
+
+			float x = event.getX();
+			float y = event.getY();
+
+			if (isOverButtonMenu(x, y)) {
+
+				selectButtonMenu();
+
+			} else if (isOverButtonUnmove(x, y)) {
+
+				if (activity.getMainView().getBoardView().hasAnimation() != -1) {
+
+					deselectButtonUnmove();
+
+					return;
+				}
+
+				selectButtonUnmove();
+
+			} else if (isOverButtonAutoTop(x, y)) {
+
+				if (boardVisualization.hasAnimation() != -1) {
+
+					return;
+				}
+
+				selectButtonAutoTop();
+
+			} else if (isOverButtonInfo(x, y)) {
+
+				selectButton_Info();
+
+			} else if (isOverButtonHelpTop(x, y)) {
+
+				selectButtonHelpTop();
+
+			} else if (isOverButtonHelpBottom(x, y)) {
+
+				selectButtonHelpBottom();
+
+			} else if (isOverTopArea(x, y)) {
+
+				selectButtonTopPlayer();
+
+			} else if (isOverBottomArea(x, y)) {
+
+				selectButtonBottomPlayer();
+
+			} else if (rectangle_bottom1 != null) {
+
+				if (isMoveNavigationAndAutoPlayerButtonsLocked()) return;
+
+				GameData gamedata = activity.getBoardManager().getGameData();
+
+				if (!gamedata.isOnTheFirstMove() && rectf_play_first.contains(x, y)) {
+
+					play_first.select();
+
+				} else if (!gamedata.isOnTheFirstMove() && rectf_play_prev.contains(x, y)) {
+
+					play_prev.select();
+
+				} else if (!gamedata.isOnTheLastMove() && rectf_play_next.contains(x, y)) {
+
+					play_next.select();
+
+				} else if (!gamedata.isOnTheLastMove() && rectf_play_last.contains(x, y)) {
+
+					play_last.select();
+				}
+			}
+
+			redraw();
+		}
+
+
+		private void processEvent_MOVE(MotionEvent event) {
+
+			float x = event.getX();
+			float y = event.getY();
+
+			if (isOverButtonMenu(x, y)) {
+
+				selectButtonMenu();
+
+			} else {
+
+				deselectButtonMenu();
+			}
+
+			if (isOverButtonUnmove(x, y)) {
+				if (activity.getMainView().getBoardView().hasAnimation() != -1) {
+					deselectButtonUnmove();
+					return;
+				}
+				selectButtonUnmove();
+			} else {
+				deselectButtonUnmove();
+			}
+
+			if (boardVisualization.hasAnimation() == -1) {
+
+				if (isOverButtonAutoTop(x, y)) {
+
+					selectButtonAutoTop();
+
+				} else {
+
+					deselectButtonAutoTop();
+				}
+			}
+
+			if (isOverButtonInfo(x, y)) {
+				selectButton_Info();
+			} else {
+				deselectButton_Info();
+			}
+
+			if (isOverButtonHelpTop(x, y)) {
+				selectButtonHelpTop();
+			} else {
+				deselectButtonHelpTop();
+			}
+
+			if (isOverButtonHelpBottom(x, y)) {
+				selectButtonHelpBottom();
+			} else {
+				deselectButtonHelpBottom();
+			}
+
+			if (isOverTopArea(x, y)) {
+				selectButtonTopPlayer();
+			} else {
+				deselectButtonTopPlayer();
+			}
+
+			if (isOverBottomArea(x, y)) {
+				selectButtonBottomPlayer();
+			} else {
+				deselectButtonBottomPlayer();
+			}
+
+			if (rectangle_bottom1 != null) {
+
+				if (isMoveNavigationAndAutoPlayerButtonsLocked()) return;
+
+				GameData gamedata = activity.getBoardManager().getGameData();
+
+				if (!gamedata.isOnTheFirstMove() && rectf_play_first.contains(x, y)) {
+					play_first.select();
+				} else {
+					play_first.deselect();
+				}
+
+				if (!gamedata.isOnTheFirstMove() && rectf_play_prev.contains(x, y)) {
+					play_prev.select();
+				} else {
+					play_prev.deselect();
+				}
+
+				if (!gamedata.isOnTheLastMove() && rectf_play_next.contains(x, y)) {
+					play_next.select();
+				} else {
+					play_next.deselect();
+				}
+
+				if (!gamedata.isOnTheLastMove() && rectf_play_last.contains(x, y)) {
+					play_last.select();
+				} else {
+					play_last.deselect();
+				}
+			}
+
+			redraw();
+		}
+
+
+		private void processEvent_UP(MotionEvent event) {
+
+			float x = event.getX();
+			float y = event.getY();
+
+			if (isOverButtonMenu(x, y)) {
+
+				deselectButtonMenu();
+
+				Intent i = new Intent((Context) activity, activity.getMainMenuClass());
+				activity.startActivity(i);
+
+			} else if (isOverButtonUnmove(x, y)) {
+
+				deselectButtonUnmove();
+
+				if (isMoveNavigationAndAutoPlayerButtonsLocked()) return;
+
+				GameData gamedata = activity.getBoardManager().getGameData();
+
+				List<Move> moves = gamedata.getMoves();
+				int moveIndex = gamedata.getCurrentMoveIndex();
+				Move lastmove = null;
+				if (moveIndex >= 0) {
+
+					lastmove = moves.remove(moveIndex);
+					gamedata.getSearchInfos().remove(moveIndex);
+
+					activity.getBoardManager().unmove(lastmove);
+					gamedata.setCurrentMoveIndex(moveIndex - 1);
+					gamedata.save();
+				}
+
+				boardVisualization.setTopMessageText(null);
+
+
+				//Visualize needed stuffs
+
+				boardVisualization.setData(activity.getBoardManager().getBoard_WithoutHided());
+				setCapturedPieces(activity.getBoardManager().getCaptured_W(), activity.getBoardManager().getCaptured_B(), activity.getBoardManager().getCapturedSize_W(), activity.getBoardManager().getCapturedSize_B());
+
+				if (activity.getBoardManager().getMovingPiece() != null)
+					activity.getBoardManager().clearMovingPiece();
+
+				boardVisualization.clearSelections();
+
+				if (lastmove != null) {
+					boardVisualization.markingSelection_Permanent_Border(lastmove.fromLetter, lastmove.fromDigit);
+					boardVisualization.markingSelection_Permanent_Border(lastmove.toLetter, lastmove.toDigit);
+				}
+
+				boardVisualization.redraw();
+
+				activity.getGameController().scheduleComputerPlayerAutoStart();
+
+			} else if (isOverButtonAutoTop(x, y)) {
+
+				deselectButtonAutoTop();
+
+				if (boardVisualization.hasAnimation() != -1) {
+
+					return;
+				}
+
+				((UserSettings) Application_Base.getInstance().getUserSettings()).rotatedboard = !((UserSettings) Application_Base.getInstance().getUserSettings()).rotatedboard;
+				Application_Base.getInstance().getUserSettings().save();
+
+				activity.getMainView().requestLayout();
+
+				boardVisualization.redraw();
+
+
+			} else if (isOverButtonInfo(x, y)) {
+
+				if (isActiveButtonInfo()) {
+					activity.getUserSettings().infoEnabled = false;
+				} else {
+					activity.getUserSettings().infoEnabled = true;
+				}
+
+				Application_Base.getInstance().getUserSettings().save();
+
+				finishButtonInfo();
+
+				//force re-calculating the layout dimension and the redraw of the view
+				activity.getMainView().requestLayout();
+
+
+			} else if (isOverButtonHelpTop(x, y)) {
+
+				deselectButtonHelpTop();
+
+			} else if (isOverButtonHelpBottom(x, y)) {
+
+				deselectButtonHelpBottom();
+
+			} else if (isOverTopArea(x, y)) {
+
+				deselectButtonTopPlayer();
+
+				finishButtonTopPlayer();
+
+				UserSettings settings = activity.getUserSettings();
+
+				if (!settings.auto_player_enabled_black) {
+
+					//Auto player switched on
+					activity.getGameController().switchOnAutoPlayer(COLOUR_PIECE_BLACK);
+
+				} else {
+
+					//Auto player switched off
+					activity.getGameController().switchOffAutoPlayer(COLOUR_PIECE_BLACK);
+
+					//Enable human player to manually select piece and make move via UI.
+					//The UI of the board should be unlocked for this purpose.
+					activity.getMainView().getBoardView().unlock();
+				}
+
+			} else if (isOverBottomArea(x, y)) {
+
+				deselectButtonBottomPlayer();
+
+				finishButtonBottomPlayer();
+
+				UserSettings settings = activity.getUserSettings();
+
+				if (!settings.auto_player_enabled_white) {
+
+					//Auto player switched on
+					activity.getGameController().switchOnAutoPlayer(COLOUR_PIECE_WHITE);
+
+				} else {
+
+					//Auto player switched off
+					activity.getGameController().switchOffAutoPlayer(COLOUR_PIECE_WHITE);
+
+					//Enable human player to manually select piece and make move via UI.
+					//The UI of the board should be unlocked for this purpose.
+					activity.getMainView().getBoardView().unlock();
+				}
+
+			} else if (rectangle_bottom1 != null) {
+
+				play_first.deselect();
+				play_prev.deselect();
+				play_next.deselect();
+				play_last.deselect();
+
+				if (isMoveNavigationAndAutoPlayerButtonsLocked()) {
+
+					return;
+				}
+
+				if (rectf_play_first.contains(x, y)) {
+
+					GameData gamedata = activity.getBoardManager().getGameData();
+
+					if (gamedata.isOnTheFirstMove()) {
+
+						return;
+					}
+
+					IBoardManager boardManager = activity.getBoardManager();
+
+					List<Move> moves = gamedata.getMoves();
+					int moveIndex = gamedata.getCurrentMoveIndex();
+					Move lastmove = null;
+					for (int i = moveIndex; i >= 0; i--) {
+						lastmove = moves.get(i);
+						boardManager.unmove(lastmove);
+					}
+					gamedata.setCurrentMoveIndex(-1);
+
+					Application_Base.getInstance().storeGameData(gamedata);
+
+					if (activity.getBoardManager().getMovingPiece() != null)
+						activity.getBoardManager().clearMovingPiece();
+
+
+					boardVisualization.clearSelections();
+					if (lastmove != null)
+						boardVisualization.markingSelection_Permanent_Border(lastmove.fromLetter, lastmove.fromDigit);
+					if (lastmove != null)
+						boardVisualization.markingSelection_Permanent_Border(lastmove.toLetter, lastmove.toDigit);
+
+					boardVisualization.setData(boardManager.getBoard_WithoutHided());
+					boardVisualization.setTopMessageText(null);
+					setCapturedPieces(activity.getBoardManager().getCaptured_W(), activity.getBoardManager().getCaptured_B(), activity.getBoardManager().getCapturedSize_W(), activity.getBoardManager().getCapturedSize_B());
+					redraw();
+					boardVisualization.redraw();
+
+					activity.getGameController().scheduleComputerPlayerAutoStart();
+
+				} else if (rectf_play_prev.contains(x, y)) {
+
+					GameData gamedata = activity.getBoardManager().getGameData();
+
+					if (gamedata.isOnTheFirstMove()) {
+						return;
+					}
+
+					IBoardManager boardManager = activity.getBoardManager();
+
+					List<Move> moves = gamedata.getMoves();
+					int moveIndex = gamedata.getCurrentMoveIndex();
+					Move lastmove = null;
+					if (moveIndex >= 0) {
+						lastmove = moves.get(moveIndex);
+						boardManager.unmove(lastmove);
+						gamedata.setCurrentMoveIndex(moveIndex - 1);
+					}
+
+					lastmove = null;
+
+					if (gamedata.getCurrentMoveIndex() >= 0) {
+						lastmove = moves.get(gamedata.getCurrentMoveIndex());
+					}
+
+					gamedata.getBoarddata().gameResultText = null;
+
+					Application_Base.getInstance().storeGameData(gamedata);
+
+
+					if (activity.getBoardManager().getMovingPiece() != null)
+						activity.getBoardManager().clearMovingPiece();
+
+
+					boardVisualization.clearSelections();
+					if (lastmove != null)
+						boardVisualization.markingSelection_Permanent_Border(lastmove.fromLetter, lastmove.fromDigit);
+					if (lastmove != null)
+						boardVisualization.markingSelection_Permanent_Border(lastmove.toLetter, lastmove.toDigit);
+
+					boardVisualization.setData(boardManager.getBoard_WithoutHided());
+					boardVisualization.setTopMessageText(null);
+					setCapturedPieces(activity.getBoardManager().getCaptured_W(), activity.getBoardManager().getCaptured_B(), activity.getBoardManager().getCapturedSize_W(), activity.getBoardManager().getCapturedSize_B());
+					redraw();
+					boardVisualization.redraw();
+
+					activity.getGameController().scheduleComputerPlayerAutoStart();
+
+				} else if (rectf_play_next.contains(x, y)) {
+
+					GameData gamedata = activity.getBoardManager().getGameData();
+
+					if (gamedata.isOnTheLastMove()) {
+						return;
+					}
+
+					IBoardManager boardManager = activity.getBoardManager();
+
+					List<Move> moves = gamedata.getMoves();
+					int moveIndex = gamedata.getCurrentMoveIndex() + 1;
+					if (moveIndex < 0) {
+						moveIndex = 0;
+					}
+					Move lastmove = null;
+					if (moveIndex <= moves.size() - 1) {
+						lastmove = moves.get(moveIndex);
+						boardManager.move(lastmove);
+						gamedata.setCurrentMoveIndex(moveIndex);
+					}
+
+					if (lastmove == null && moves.size() > 0) {
+						lastmove = moves.get(moves.size() - 1);
+					}
+
+					Application_Base.getInstance().storeGameData(gamedata);
+
+
+					if (activity.getBoardManager().getMovingPiece() != null)
+						activity.getBoardManager().clearMovingPiece();
+
+
+					boardVisualization.clearSelections();
+					if (lastmove != null)
+						boardVisualization.markingSelection_Permanent_Border(lastmove.fromLetter, lastmove.fromDigit);
+					if (lastmove != null)
+						boardVisualization.markingSelection_Permanent_Border(lastmove.toLetter, lastmove.toDigit);
+
+
+					boardVisualization.setData(boardManager.getBoard_WithoutHided());
+					setCapturedPieces(activity.getBoardManager().getCaptured_W(), activity.getBoardManager().getCaptured_B(), activity.getBoardManager().getCapturedSize_W(), activity.getBoardManager().getCapturedSize_B());
+
+					int gameStatus = activity.getBoardManager().getGameStatus();
+					if (gameStatus != GlobalConstants.GAME_STATUS_NONE) {
+
+						activity.updateViewWithGameResult(gameStatus);
+
+					} else {
+
+						//Do not resume game, because the player most probably will click next move button more than once.
+						//activity.getGameController().resumeGame();
+						//So cancel the auto run as well
+						activity.getGameController().recreateAutoPlayCallBack();
+
+					}
+
+					redraw();
+					boardVisualization.redraw();
+
+				} else if (rectf_play_last.contains(x, y)) {
+
+					GameData gamedata = activity.getBoardManager().getGameData();
+
+					if (gamedata.isOnTheLastMove()) {
+						return;
+					}
+
+					IBoardManager boardManager = activity.getBoardManager();
+
+					List<Move> moves = gamedata.getMoves();
+					int moveIndex = gamedata.getCurrentMoveIndex() + 1;
+					if (moveIndex < 0) {
+						moveIndex = 0;
+					}
+					Move lastmove = null;
+					for (int i = moveIndex; i <= moves.size() - 1; i++) {
+						lastmove = moves.get(i);
+						boardManager.move(lastmove);
+					}
+					gamedata.setCurrentMoveIndex(moves.size() - 1);
+
+					if (lastmove == null && moves.size() > 0) {
+						lastmove = moves.get(moves.size() - 1);
+					}
+
+					Application_Base.getInstance().storeGameData(gamedata);
+
+
+					if (activity.getBoardManager().getMovingPiece() != null)
+						activity.getBoardManager().clearMovingPiece();
+
+
+					boardVisualization.clearSelections();
+					if (lastmove != null)
+						boardVisualization.markingSelection_Permanent_Border(lastmove.fromLetter, lastmove.fromDigit);
+					if (lastmove != null)
+						boardVisualization.markingSelection_Permanent_Border(lastmove.toLetter, lastmove.toDigit);
+
+
+					boardVisualization.setData(boardManager.getBoard_WithoutHided());
+					setCapturedPieces(activity.getBoardManager().getCaptured_W(), activity.getBoardManager().getCaptured_B(), activity.getBoardManager().getCapturedSize_W(), activity.getBoardManager().getCapturedSize_B());
+
+					int gameStatus = activity.getBoardManager().getGameStatus();
+					if (gameStatus != GlobalConstants.GAME_STATUS_NONE) {
+						activity.updateViewWithGameResult(gameStatus);
+					} else {
+						activity.getGameController().resumeGame();
+					}
+
+					redraw();
+					boardVisualization.redraw();
+				}
+			}
+
+			redraw();
+		}
 	}
 }

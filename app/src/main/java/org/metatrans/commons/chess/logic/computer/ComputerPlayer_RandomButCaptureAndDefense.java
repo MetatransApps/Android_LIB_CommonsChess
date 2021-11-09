@@ -1,7 +1,7 @@
 package org.metatrans.commons.chess.logic.computer;
 
 
-import org.metatrans.commons.chess.logic.BoardManager_NativeBoard;
+import org.metatrans.commons.chess.logic.board.BoardManager_NativeBoard;
 import org.metatrans.commons.chess.model.Move;
 
 import bagaturchess.bitboard.api.IBitBoard;

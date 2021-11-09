@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.main.views;
+package org.metatrans.commons.chess.views_and_controllers;
 
 
 import org.metatrans.commons.ui.TextArea;

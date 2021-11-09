@@ -7,7 +7,7 @@ import android.graphics.RectF;
 import android.view.View;
 
 
-public class BoardView extends org.metatrans.commons.chess.main.views.BoardView {
+public class BoardView extends org.metatrans.commons.chess.views_and_controllers.BoardView {
 	
 	
 	public BoardView(Context context, View _parent, RectF _rectangle) {

@@ -11,14 +11,13 @@ import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.difficulty.IConfigurationDifficulty;
 import org.metatrans.commons.chess.cfg.rules.IConfigurationRule;
 import org.metatrans.commons.chess.logic.BoardConstants;
-import org.metatrans.commons.chess.logic.BoardManager_AllRules;
-import org.metatrans.commons.chess.logic.GameDataUtils;
-import org.metatrans.commons.chess.logic.IBoardManager;
+import org.metatrans.commons.chess.logic.board.BoardManager_AllRules;
+import org.metatrans.commons.chess.logic.game.GameDataUtils;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_BaseImpl;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.UserSettings;
-import org.metatrans.commons.storage.ObjectUtils;
 
 
 public class StaticCache {

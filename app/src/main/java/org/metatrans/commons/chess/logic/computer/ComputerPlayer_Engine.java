@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.metatrans.commons.chess.engines.EngineClient_LocalImpl;
 import org.metatrans.commons.chess.engines.search.IEngineClient;
-import org.metatrans.commons.chess.logic.BoardManager_NativeBoard;
+import org.metatrans.commons.chess.logic.board.BoardManager_NativeBoard;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.SearchInfo;
 

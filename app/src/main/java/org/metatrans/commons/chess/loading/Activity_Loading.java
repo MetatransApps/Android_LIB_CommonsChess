@@ -14,6 +14,7 @@ import org.metatrans.commons.chess.main.MainActivity;
 import org.metatrans.commons.chess.menu.MenuActivity_Pieces;
 import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.StaticCache;
+import org.metatrans.commons.chess.views_and_controllers.View_Loading;
 
 
 public class Activity_Loading extends org.metatrans.commons.loading.Activity_Loading_Base_Ads {
@@ -94,25 +95,7 @@ public class Activity_Loading extends org.metatrans.commons.loading.Activity_Loa
 	@Override
 	protected IConfigurationColours getColoursCfg() {
 
-		UserSettings settings = null;
-
-		try {
-
-			settings = (UserSettings) Application_Base.getInstance().getUserSettings();
-
-		} catch (Exception e) {
-
-			if (Application_Base.getInstance().isTestMode()) {
-				throw e;
-			}
-
-			e.printStackTrace();
-
-			//In case of incompatible change of UserSettings class and failed deserialization, we lose the current settings and create new one
-			Application_Base.getInstance().recreateUserSettings();
-			
-			settings = (UserSettings) Application_Base.getInstance().getUserSettings();
-		}
+		UserSettings settings = (UserSettings) Application_Base.getInstance().getUserSettings();
 
 		IConfigurationColours colors_cfg = ConfigurationUtils_Colours.getConfigByID(settings.uiColoursID);
 

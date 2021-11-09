@@ -1,13 +1,12 @@
-package org.metatrans.commons.chess.main.views;
+package org.metatrans.commons.chess.views_and_controllers;
 
+
+import android.view.View;
 
 import java.util.Set;
 
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.Move;
-import org.metatrans.commons.chess.model.MovingPiece;
-
-
 
 
 public interface IBoardVisualization {
@@ -50,10 +49,29 @@ public interface IBoardVisualization {
 	public void lock();
 	public void unlock();
 	public boolean isLocked();
-	public void startMoveAnimation(final Move move);
-	public void endMoveAnimation();
 
-	public int hasAnimation();
 
-	public void invalidate();
+	void startMoveAnimation(final Move move);
+
+	void endMoveAnimation();
+
+	int hasAnimation();
+
+	View.OnTouchListener createOnTouchListener(IBoardVisualization boardVisualization, IBoardViewActivity activity);
+
+    void setOnTouchListener(View.OnTouchListener listener);
+
+	float getSquareSize();
+
+	boolean isOverBoard(float x, float y);
+
+	boolean isOverBottomReplay(float x, float y);
+
+	boolean isOverLeaderBoards(float x, float y);
+
+	View.OnTouchListener getLeaderboard();
+
+	void selectButtonReplay();
+
+	void deselectButtonReplay();
 }

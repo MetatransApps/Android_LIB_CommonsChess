@@ -1,4 +1,4 @@
-package org.metatrans.commons.chess.main.controllers;
+package org.metatrans.commons.chess.logic.game;
 
 
 import android.app.AlertDialog;
@@ -13,14 +13,14 @@ import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.computer.ComputerMove;
 import org.metatrans.commons.chess.logic.computer.IComputer;
 import org.metatrans.commons.chess.main.MainActivity;
-import org.metatrans.commons.chess.main.controllers.time.ITimeController;
+import org.metatrans.commons.chess.logic.time.ITimeController;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.IPlayer;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.SearchInfo;
 
 
-public class GameController implements GlobalConstants {
+public class GameManager implements GlobalConstants {
 
 
 	private MainActivity mainActivity;
@@ -34,7 +34,7 @@ public class GameController implements GlobalConstants {
 	private ReadWriteLock lock = new ReentrantReadWriteLock();
 
 
-	public GameController(MainActivity _mainActivity) {
+	public GameManager(MainActivity _mainActivity) {
 		mainActivity = _mainActivity;
 	}
 
@@ -120,7 +120,7 @@ public class GameController implements GlobalConstants {
 
 	public void resumeGame() {
 
-		System.out.println("GameController resumeGame");
+		System.out.println("GameManager resumeGame");
 
 		lock();
 
@@ -167,7 +167,7 @@ public class GameController implements GlobalConstants {
 
 		lock();
 
-		System.out.println("GameController.switchOnAutoPlayer: playerColour=" + playerColour);
+		System.out.println("GameManager.switchOnAutoPlayer: playerColour=" + playerColour);
 
 		GameData gamedata = mainActivity.getBoardManager().getGameData();
 
@@ -355,7 +355,7 @@ public class GameController implements GlobalConstants {
 
 		} else {
 
-			throw new IllegalStateException();
+			throw new IllegalStateException("current_move_index=" + current_move_index);
 		}
 	}
 

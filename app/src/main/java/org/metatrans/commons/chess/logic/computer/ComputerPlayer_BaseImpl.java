@@ -9,9 +9,9 @@ import java.util.List;
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.logic.BoardConstants;
-import org.metatrans.commons.chess.logic.BoardManager_NativeBoard;
-import org.metatrans.commons.chess.logic.BoardUtils;
-import org.metatrans.commons.chess.logic.IBoardManager;
+import org.metatrans.commons.chess.logic.board.BoardManager_NativeBoard;
+import org.metatrans.commons.chess.logic.board.BoardUtils;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.model.Move;
 
 import bagaturchess.opening.api.OpeningBook;

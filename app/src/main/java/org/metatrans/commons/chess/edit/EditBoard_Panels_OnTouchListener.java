@@ -13,7 +13,6 @@ import org.metatrans.commons.chess.Alerts;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.model.EditBoardData;
-import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.BoardUtils;
 import org.metatrans.commons.chess.utils.MessageUtils;

@@ -1,8 +1,8 @@
 package org.metatrans.commons.chess.logic.computer;
 
 
-import org.metatrans.commons.chess.logic.BoardUtils;
-import org.metatrans.commons.chess.logic.IBoardManager;
+import org.metatrans.commons.chess.logic.board.BoardUtils;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.model.Move;
 
 
