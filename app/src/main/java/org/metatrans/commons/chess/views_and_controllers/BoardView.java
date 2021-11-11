@@ -229,10 +229,12 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 		rect_replay.bottom = rect_replay.top + (rect_replay.right - rect_replay.left);
 		
 		
-		buttonarea_replay = new ButtonAreaClick_Image(rect_replay, BitmapUtils.fromResource(getContext(), R.drawable.ic_action_replay),
+		buttonarea_replay = new ButtonAreaClick_Image(rect_replay,
+				BitmapUtils.fromResource(getContext(), R.drawable.ic_action_turn_right_white),
 				getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_ValidSelection(),
 				getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_MarkingSelection(),
-				true);
+				false
+			);
 		
 		
 		int colourRankFile = getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter();

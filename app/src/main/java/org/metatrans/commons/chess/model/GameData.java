@@ -99,16 +99,6 @@ public class GameData extends GameData_Base implements Serializable, GlobalConst
 	}
 
 
-	public void setWhite_backup(IPlayer white_backup) {
-		this.white_backup = white_backup;
-	}
-
-
-	public void setBlack_backup(IPlayer black_backup) {
-		this.black_backup = black_backup;
-	}
-
-
 	public BoardData getBoarddata() {
 		return boarddata;
 	}

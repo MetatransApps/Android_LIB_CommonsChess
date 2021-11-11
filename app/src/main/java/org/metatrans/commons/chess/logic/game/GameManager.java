@@ -1,6 +1,9 @@
 package org.metatrans.commons.chess.logic.game;
 
 
+import static org.metatrans.commons.chess.logic.BoardConstants.COLOUR_PIECE_BLACK;
+import static org.metatrans.commons.chess.logic.BoardConstants.COLOUR_PIECE_WHITE;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
@@ -9,7 +12,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.metatrans.commons.chess.Alerts;
 import org.metatrans.commons.chess.GlobalConstants;
-import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.computer.ComputerMove;
 import org.metatrans.commons.chess.logic.computer.IComputer;
 import org.metatrans.commons.chess.main.MainActivity;
@@ -39,219 +41,9 @@ public class GameManager implements GlobalConstants {
 	}
 
 
-	ITimeController getTimeController() {
-
-		if (timeController == null) {
-			mainActivity.createTimeController();//Will set timeController field as well
-		}
-
-		return timeController;
-	}
-
-
-	public void setTimeController(ITimeController _timeController) {
-		timeController = _timeController;
-	}
-
-
-	private void lock() {
-		lock.writeLock().lock();
-	}
-
-
-	private void unlock() {
-		lock.writeLock().unlock();
-	}
-
-
-	public boolean isThinking() {
-		return thinker != null;
-	}
-
-
-	public void scheduleComputerPlayerAutoStart() {
-
-		stopThinking();
-
-		getTimeController().pause(mainActivity.getBoardManager().getColourToMove());
-
-		mainActivity.getBoard().unlock();
-
-		recreateAutoPlayCallBack();
-	}
-
-
-	public void recreateAutoPlayCallBack() {
-
-		cancelCurrentAutoPlayCallBack();
-
-		createNewAutoPlayCallBack();
-	}
-
-
-	private void cancelCurrentAutoPlayCallBack() {
-		if (last_SetAutoOnUndo != null) {
-
-			last_SetAutoOnUndo.stopped = true;
-
-			last_SetAutoOnUndo = null;
-		}
-	}
-
-
-	private void createNewAutoPlayCallBack() {
-		//TODO: Must be only once at a time !!!
-		//Should work with this null check, but actually doesn't work ...
-		//if (last_SetAutoOnUndo == null) {
-		last_SetAutoOnUndo = new SetAutoOnUndo();
-
-		mainActivity.executeJob(last_SetAutoOnUndo);
-		//}
-	}
-
-
-	public void pauseGame() {
-
-		stopThinking();
-
-		getTimeController().pauseAll();
-	}
-
-
-	public void resumeGame() {
-
-		System.out.println("GameManager resumeGame");
-
-		lock();
-
-		int gameStatus = mainActivity.getBoardManager().getGameStatus();
-
-		if (gameStatus != GlobalConstants.GAME_STATUS_NONE) {
-
-			mainActivity.updateViewWithGameResult(gameStatus);
-
-		} else {
-
-			getTimeController().resume(mainActivity.getBoardManager().getColourToMove());
-
-			if (mainActivity.getBoardManager().getPlayerToMove().getType() == PLAYER_TYPE_COMPUTER) {
-
-				startThinking(mainActivity.getBoardManager().getComputerToMove());
-
-			} else {
-
-				//Enable human player to manually select piece and make move via UI.
-				//The UI of the board should be unlocked for this purpose.
-				mainActivity.getBoard().unlock();
-
-			}
-		}
-
-		unlock();
-	}
-
-
-	public synchronized void stopThinking() {
-
-
-		cancelCurrentAutoPlayCallBack();
-
-		if (thinker != null) {
-			thinker.stopCurrentJob();
-			thinker = null;
-		}
-	}
-
-
-	public void switchOnAutoPlayer(int playerColour) {
-
-		lock();
-
-		System.out.println("GameManager.switchOnAutoPlayer: playerColour=" + playerColour);
-
-		GameData gamedata = mainActivity.getBoardManager().getGameData();
-
-		if (playerColour == BoardConstants.COLOUR_PIECE_WHITE) {
-
-			mainActivity.switchPlayerWhite(gamedata);
-
-			mainActivity.getUserSettings().auto_player_enabled_white = true;
-			mainActivity.getUserSettings().playerTypeWhite = GlobalConstants.PLAYER_TYPE_COMPUTER;
-			mainActivity.getUserSettings().save();
-
-			mainActivity.getPanels().setWhitePlayerName(mainActivity.getBoardManager().getGameData().getWhite().getName(mainActivity));
-
-		} else {
-
-			mainActivity.switchPlayerBlack(gamedata);
-
-			mainActivity.getUserSettings().auto_player_enabled_black = true;
-			mainActivity.getUserSettings().playerTypeBlack = GlobalConstants.PLAYER_TYPE_COMPUTER;
-			mainActivity.getUserSettings().save();
-
-			mainActivity.getPanels().setBlackPlayerName(mainActivity.getBoardManager().getGameData().getBlack().getName(mainActivity));
-
-		}
-
-		int gameStatus = mainActivity.getBoardManager().getGameStatus();
-
-		if (gameStatus == GlobalConstants.GAME_STATUS_NONE) {
-
-			if (playerColour == mainActivity.getBoardManager().getColourToMove()) {
-
-				if (mainActivity.getMainView().getBoardView().hasAnimation() == -1) {
-
-					resumeGame();
-				}
-			}
-		}
-
-		unlock();
-	}
-
-
-	public void switchOffAutoPlayer(int playerColour) {
-
-
-		GameData gamedata = mainActivity.getBoardManager().getGameData();
-
-
-		IPlayer player = (playerColour == BoardConstants.COLOUR_PIECE_WHITE) ? gamedata.getWhite() : gamedata.getBlack();
-
-		if (player.getType() == PLAYER_TYPE_COMPUTER) {
-
-			IComputer autoPlayer = (playerColour == BoardConstants.COLOUR_PIECE_WHITE) ? mainActivity.getBoardManager().getComputerWhite() : mainActivity.getBoardManager().getComputerBlack();
-
-			if (thinker == autoPlayer) {
-
-				stopThinking();
-			}
-		}
-
-
-		if (player.getColour() == BoardConstants.COLOUR_PIECE_WHITE) {
-
-			mainActivity.switchPlayerWhite(gamedata);
-
-			mainActivity.getUserSettings().auto_player_enabled_white = false;
-			mainActivity.getUserSettings().playerTypeWhite = GlobalConstants.PLAYER_TYPE_HUMAN;
-			mainActivity.getUserSettings().save();
-
-			mainActivity.getPanels().setWhitePlayerName(mainActivity.getBoardManager().getGameData().getWhite().getName(mainActivity));
-
-		} else {
-
-			mainActivity.switchPlayerBlack(gamedata);
-
-			mainActivity.getUserSettings().auto_player_enabled_black = false;
-			mainActivity.getUserSettings().playerTypeBlack = GlobalConstants.PLAYER_TYPE_HUMAN;
-			mainActivity.getUserSettings().save();
-
-			mainActivity.getPanels().setBlackPlayerName(mainActivity.getBoardManager().getGameData().getBlack().getName(mainActivity));
-		}
-	}
-
-
+	/**
+	 * Main logic, which handles new move made on the board by both human and computer player
+	 */
 	public void acceptNewMove(final Move move, final SearchInfo last_search_info) {
 
 		pauseGame();
@@ -422,6 +214,135 @@ public class GameManager implements GlobalConstants {
 	}
 
 
+	ITimeController getTimeController() {
+
+		if (timeController == null) {
+			mainActivity.createTimeController();//Will set timeController field as well
+		}
+
+		return timeController;
+	}
+
+
+	public void setTimeController(ITimeController _timeController) {
+		timeController = _timeController;
+	}
+
+
+	private void lock() {
+		lock.writeLock().lock();
+	}
+
+
+	private void unlock() {
+		lock.writeLock().unlock();
+	}
+
+
+	public boolean isThinking() {
+		return thinker != null;
+	}
+
+
+	public void scheduleComputerPlayerAutoStart() {
+
+		stopThinking();
+
+		getTimeController().pause(mainActivity.getBoardManager().getColourToMove());
+
+		mainActivity.getBoard().unlock();
+
+		recreateAutoPlayCallBack();
+	}
+
+
+	public void recreateAutoPlayCallBack() {
+
+		cancelCurrentAutoPlayCallBack();
+
+		createNewAutoPlayCallBack();
+	}
+
+
+	private void cancelCurrentAutoPlayCallBack() {
+
+		if (last_SetAutoOnUndo != null) {
+
+			last_SetAutoOnUndo.stopped = true;
+
+			last_SetAutoOnUndo = null;
+		}
+	}
+
+
+	private void createNewAutoPlayCallBack() {
+
+		//TODO: Must be only once at a time !!!
+		//Should work with this null check, but actually doesn't work ...
+		//if (last_SetAutoOnUndo == null) {
+		last_SetAutoOnUndo = new SetAutoOnUndo();
+
+		mainActivity.executeJob(last_SetAutoOnUndo);
+		//}
+	}
+
+
+	public void pauseGame() {
+
+		stopThinking();
+
+		getTimeController().pauseAll();
+	}
+
+
+	public void resumeGame() {
+
+		System.out.println("GameManager resumeGame");
+
+		lock();
+
+		int gameStatus = mainActivity.getBoardManager().getGameStatus();
+
+		if (gameStatus != GlobalConstants.GAME_STATUS_NONE) {
+
+			mainActivity.updateViewWithGameResult(gameStatus);
+
+		} else {
+
+			getTimeController().resume(mainActivity.getBoardManager().getColourToMove());
+
+			if (mainActivity.getBoardManager().getPlayerToMove().getType() == PLAYER_TYPE_COMPUTER) {
+
+				startThinking(mainActivity.getBoardManager().getComputerToMove());
+
+			} else {
+
+				//Enable human player to manually select piece and make move via UI.
+				//The UI of the board should be unlocked for this purpose.
+				mainActivity.getBoard().unlock();
+
+			}
+		}
+
+		unlock();
+	}
+
+
+	public synchronized void stopThinking() {
+
+		System.out.println("GameManager.stopThinking: thinker=" + thinker);
+
+		cancelCurrentAutoPlayCallBack();
+
+		if (thinker != null) {
+
+			thinker.stopCurrentJob();
+
+			thinker = null;
+		}
+	}
+
+
 	private synchronized void startThinking(IComputer computerPlayerToMove) {
 
 		System.out.println("Start thinking of " + computerPlayerToMove.getColour() + " computerPlayerToMove=" + computerPlayerToMove);
@@ -444,21 +365,111 @@ public class GameManager implements GlobalConstants {
 	}
 
 
+	public void switchOnAutoPlayer(int playerColour) {
+
+		lock();
+
+		System.out.println("GameManager.switchOnAutoPlayer: playerColour=" + playerColour);
+
+		GameData gamedata = mainActivity.getBoardManager().getGameData();
+
+		if (playerColour == COLOUR_PIECE_WHITE) {
+
+			mainActivity.getUserSettings().auto_player_enabled_white = true;
+			mainActivity.getUserSettings().playerTypeWhite = PLAYER_TYPE_COMPUTER;
+
+		} else {
+
+			mainActivity.getUserSettings().auto_player_enabled_black = true;
+			mainActivity.getUserSettings().playerTypeBlack = PLAYER_TYPE_COMPUTER;
+
+		}
+
+		GameDataUtils.switchPlayerType(playerColour, PLAYER_TYPE_COMPUTER, gamedata);
+
+		gamedata.save();
+		mainActivity.getUserSettings().save();
+
+
+		int gameStatus = mainActivity.getBoardManager().getGameStatus();
+
+		if (gameStatus == GAME_STATUS_NONE) {
+
+			if (playerColour == mainActivity.getBoardManager().getColourToMove()) {
+
+				if (mainActivity.getMainView().getBoardView().hasAnimation() == -1) {
+
+					resumeGame();
+				}
+			}
+		}
+
+		unlock();
+	}
+
+
+	public void switchOffAutoPlayer(int playerColour) {
+
+		lock();
+
+		System.out.println("GameManager.switchOffAutoPlayer: playerColour=" + playerColour);
+
+		GameData gamedata = mainActivity.getBoardManager().getGameData();
+
+
+		IPlayer old_player = (playerColour == COLOUR_PIECE_WHITE) ? gamedata.getWhite() : gamedata.getBlack();
+
+		if (playerColour != old_player.getColour()) {
+
+			throw new IllegalStateException("playerColour=" + playerColour + ", old_player.getColour()=" + old_player.getColour());
+		}
+
+		if (old_player.getType() == PLAYER_TYPE_COMPUTER) {
+
+			IComputer autoPlayer = (playerColour == COLOUR_PIECE_WHITE) ? mainActivity.getBoardManager().getComputerWhite() : mainActivity.getBoardManager().getComputerBlack();
+
+			if (thinker == autoPlayer) {
+
+				stopThinking();
+			}
+		}
+
+
+		if (old_player.getColour() == COLOUR_PIECE_WHITE) {
+
+			mainActivity.getUserSettings().auto_player_enabled_white = false;
+			mainActivity.getUserSettings().playerTypeWhite = PLAYER_TYPE_HUMAN;
+
+		} else {
+
+			mainActivity.getUserSettings().auto_player_enabled_black = false;
+			mainActivity.getUserSettings().playerTypeBlack = PLAYER_TYPE_HUMAN;
+		}
+
+		GameDataUtils.switchPlayerType(old_player.getColour(), PLAYER_TYPE_HUMAN, gamedata);
+
+		gamedata.save();
+		mainActivity.getUserSettings().save();
+
+		unlock();
+	}
+
+
 	public boolean isBlackComputerThinking() {
 
-		return thinker != null && thinker.getColour() == BoardConstants.COLOUR_PIECE_BLACK;
+		return thinker != null && thinker.getColour() == COLOUR_PIECE_BLACK;
 	}
 
 
 	public boolean isWhiteComputerThinking() {
 
-		return thinker != null && thinker.getColour() == BoardConstants.COLOUR_PIECE_WHITE;
+		return thinker != null && thinker.getColour() == COLOUR_PIECE_WHITE;
 	}
 
 
 	public boolean isWhitePlayerClockOn() {
 
-		boolean result = mainActivity.getBoardManager().getColourToMove() == BoardConstants.COLOUR_PIECE_WHITE
+		boolean result = mainActivity.getBoardManager().getColourToMove() == COLOUR_PIECE_WHITE
 
 				&& mainActivity.getBoardManager().getGameStatus() == GlobalConstants.GAME_STATUS_NONE;
 
@@ -468,7 +479,7 @@ public class GameManager implements GlobalConstants {
 
 	public boolean isBlackPlayerClockOn() {
 
-		boolean result = mainActivity.getBoardManager().getColourToMove() == BoardConstants.COLOUR_PIECE_BLACK
+		boolean result = mainActivity.getBoardManager().getColourToMove() == COLOUR_PIECE_BLACK
 
 				&& mainActivity.getBoardManager().getGameStatus() == GlobalConstants.GAME_STATUS_NONE;
 

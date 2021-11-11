@@ -151,65 +151,143 @@ public class EditBoardPanelsView extends BaseView {
 		
 		IConfigurationColours coloursCfg = getActivity().getUIConfiguration().getColoursConfiguration();
 		
-		//EditBoardData editBoardData = ((Application_CBS)Application_Base.getInstance()).getEditBoardData();
+		switch_castling_K = new ButtonAreaSwitch(rectf_castling_K, "K",
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_MarkingSelection(),
+				false);
+
+		switch_castling_Q = new ButtonAreaSwitch(rectf_castling_Q, "Q",
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_MarkingSelection(),
+				false);
+
+		switch_castling_k = new ButtonAreaSwitch(rectf_castling_k, "k",
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_MarkingSelection(),
+				false);
+
+		switch_castling_q = new ButtonAreaSwitch(rectf_castling_q, "q",
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_MarkingSelection(),
+				false);
 		
-		switch_castling_K = new ButtonAreaSwitch(rectf_castling_K, "K", 
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_White(),
-				coloursCfg.getColour_Square_ValidSelection(), false);
-		switch_castling_Q = new ButtonAreaSwitch(rectf_castling_Q, "Q", 
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_White(),
-				coloursCfg.getColour_Square_ValidSelection(), false);
-		switch_castling_k = new ButtonAreaSwitch(rectf_castling_k, "k", 
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_White(),
-				coloursCfg.getColour_Square_ValidSelection(), false);
-		switch_castling_q = new ButtonAreaSwitch(rectf_castling_q, "q", 
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_White(),
-				coloursCfg.getColour_Square_ValidSelection(), false);
 		
-		
-		switch_w_p = new ButtonAreaSwitch_Image(rectf_w_p, getPieceBitmap((int)(rectf_w_p.right - rectf_w_p.left), BoardConstants.ID_PIECE_W_PAWN),
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_ValidSelection(), false);
+		switch_w_p = new ButtonAreaSwitch_Image(rectf_w_p, getPieceBitmap((int)(rectf_w_p.right - rectf_w_p.left),BoardConstants.ID_PIECE_W_PAWN),
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_w_n = new ButtonAreaSwitch_Image(rectf_w_n, getPieceBitmap((int)(rectf_w_n.right - rectf_w_n.left), BoardConstants.ID_PIECE_W_KNIGHT),
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_w_b = new ButtonAreaSwitch_Image(rectf_w_b, getPieceBitmap((int)(rectf_w_b.right - rectf_w_b.left), BoardConstants.ID_PIECE_W_BISHOP),
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_w_r = new ButtonAreaSwitch_Image(rectf_w_r, getPieceBitmap((int)(rectf_w_r.right - rectf_w_r.left), BoardConstants.ID_PIECE_W_ROOK),
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_w_q = new ButtonAreaSwitch_Image(rectf_w_q, getPieceBitmap((int)(rectf_w_q.right - rectf_w_q.left), BoardConstants.ID_PIECE_W_QUEEN),
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_w_k = new ButtonAreaSwitch_Image(rectf_w_k, getPieceBitmap((int)(rectf_w_k.right - rectf_w_k.left), BoardConstants.ID_PIECE_W_KING),
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_ValidSelection(), false);
-		
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
+
 		switch_b_p = new ButtonAreaSwitch_Image(rectf_b_p, getPieceBitmap((int)(rectf_b_p.right - rectf_b_p.left), BoardConstants.ID_PIECE_B_PAWN),
-				coloursCfg.getColour_Square_White(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_b_n = new ButtonAreaSwitch_Image(rectf_b_n, getPieceBitmap((int)(rectf_b_n.right - rectf_b_n.left), BoardConstants.ID_PIECE_B_KNIGHT),
-				coloursCfg.getColour_Square_White(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_b_b = new ButtonAreaSwitch_Image(rectf_b_b, getPieceBitmap((int)(rectf_b_b.right - rectf_b_b.left), BoardConstants.ID_PIECE_B_BISHOP),
-				coloursCfg.getColour_Square_White(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_b_r = new ButtonAreaSwitch_Image(rectf_b_r, getPieceBitmap((int)(rectf_b_r.right - rectf_b_r.left), BoardConstants.ID_PIECE_B_ROOK),
-				coloursCfg.getColour_Square_White(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_b_q = new ButtonAreaSwitch_Image(rectf_b_q, getPieceBitmap((int)(rectf_b_q.right - rectf_b_q.left), BoardConstants.ID_PIECE_B_QUEEN),
-				coloursCfg.getColour_Square_White(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
+
 		switch_b_k = new ButtonAreaSwitch_Image(rectf_b_k, getPieceBitmap((int)(rectf_b_k.right - rectf_b_k.left), BoardConstants.ID_PIECE_B_KING),
-				coloursCfg.getColour_Square_White(), coloursCfg.getColour_Square_ValidSelection(), false);
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_ValidSelection(),
+				false);
 		
 		
-		switch_white_to_move = new ButtonAreaSwitch(rectf_white_to_move, "W", 
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_White(),
-				coloursCfg.getColour_Square_ValidSelection(), false);
-		switch_black_to_move = new ButtonAreaSwitch(rectf_black_to_move, "B", 
-				coloursCfg.getColour_Delimiter(), coloursCfg.getColour_Square_White(),
-				coloursCfg.getColour_Square_ValidSelection(), false);
+		switch_white_to_move = new ButtonAreaSwitch(rectf_white_to_move,
+				"W",
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_MarkingSelection(),
+				false);
+
+		switch_black_to_move = new ButtonAreaSwitch(rectf_black_to_move,
+				"B",
+				coloursCfg.getColour_Square_ValidSelection(),
+				coloursCfg.getColour_Delimiter(),
+				coloursCfg.getColour_Square_White(),
+				coloursCfg.getColour_Square_MarkingSelection(),
+				false);
 		
-		clear_board = new ButtonAreaClick_Image(rectf_clear, BitmapUtils.fromResource((Context) getActivity(), R.drawable.ic_clear),
+		clear_board = new ButtonAreaClick_Image(rectf_clear, BitmapUtils.fromResource((Context) getActivity(),
+				R.drawable.ic_action_cancel_white),
 				coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
-		new_board = new ButtonAreaClick_Image(rectf_new, BitmapUtils.fromResource((Context) getActivity(), R.drawable.ic_new_label),
+
+		new_board = new ButtonAreaClick_Image(rectf_new, BitmapUtils.fromResource((Context) getActivity(),
+				R.drawable.ic_action_add_white),
 				coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
-		rotate_board = new ButtonAreaClick_Image(rectf_rotate, BitmapUtils.fromResource((Context) getActivity(), R.drawable.ic_rotate),
+
+		rotate_board = new ButtonAreaClick_Image(rectf_rotate, BitmapUtils.fromResource((Context) getActivity(),
+				R.drawable.ic_action_reload_white),
 				coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
-		goto_picture = new ButtonAreaClick_Image(rectf_goto_picture, BitmapUtils.fromResource((Context) getActivity(), ((EditBoardActivity) getActivity()).button1ImageID()),
+
+		goto_picture = new ButtonAreaClick_Image(rectf_goto_picture, BitmapUtils.fromResource((Context) getActivity(),
+				((EditBoardActivity) getActivity()).button1ImageID()),
 				coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
-		goto_analyse = new ButtonAreaClick_Image(rectf_goto_analyse, BitmapUtils.fromResource((Context) getActivity(), ((EditBoardActivity) getActivity()).button2ImageID()),
+
+		goto_analyse = new ButtonAreaClick_Image(rectf_goto_analyse, BitmapUtils.fromResource((Context) getActivity(),
+				((EditBoardActivity) getActivity()).button2ImageID()),
 				coloursCfg.getColour_Square_ValidSelection(), coloursCfg.getColour_Square_MarkingSelection());
 	}
 
@@ -339,55 +417,25 @@ public class EditBoardPanelsView extends BaseView {
 		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_bottom2, 10);
 		
 		
-		/*paint.setColor(getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_White());
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_castling_K, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_castling_Q, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_castling_k, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_castling_q, 10);
-		
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_w_p, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_w_n, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_w_b, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_w_r, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_w_q, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_w_k, 10);
-		
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_b_p, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_b_n, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_b_b, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_b_r, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_b_q, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_b_k, 10);
-		
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_white_to_move, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_black_to_move, 10);
-		
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_clear, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_new, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_goto_picture, 10);
-		DrawingUtils.drawRoundRectangle(canvas, paint, rectf_goto_analyse, 10);
-		*/
-		
-		
 		if (editBoardData.castling_K) {
-			switch_castling_K.select();
+			switch_castling_K.activate();
 		} else {
-			switch_castling_K.deselect();
+			switch_castling_K.deactivate();
 		}
 		if (editBoardData.castling_Q) {
-			switch_castling_Q.select();
+			switch_castling_Q.activate();
 		} else {
-			switch_castling_Q.deselect();
+			switch_castling_Q.deactivate();
 		}
 		if (editBoardData.castling_k) {
-			switch_castling_k.select();
+			switch_castling_k.activate();
 		} else {
-			switch_castling_k.deselect();
+			switch_castling_k.deactivate();
 		}
 		if (editBoardData.castling_q) {
-			switch_castling_q.select();
+			switch_castling_q.activate();
 		} else {
-			switch_castling_q.deselect();
+			switch_castling_q.deactivate();
 		}
 		switch_castling_K.draw(canvas);
 		switch_castling_Q.draw(canvas);
@@ -396,34 +444,34 @@ public class EditBoardPanelsView extends BaseView {
 		
 		
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_PAWN) {
-			switch_w_p.select();
+			switch_w_p.activate();
 		} else {
-			switch_w_p.deselect();
+			switch_w_p.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_KNIGHT) {
-			switch_w_n.select();
+			switch_w_n.activate();
 		} else {
-			switch_w_n.deselect();
+			switch_w_n.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_BISHOP) {
-			switch_w_b.select();
+			switch_w_b.activate();
 		} else {
-			switch_w_b.deselect();
+			switch_w_b.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_ROOK) {
-			switch_w_r.select();
+			switch_w_r.activate();
 		} else {
-			switch_w_r.deselect();
+			switch_w_r.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_QUEEN) {
-			switch_w_q.select();
+			switch_w_q.activate();
 		} else {
-			switch_w_q.deselect();
+			switch_w_q.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_KING) {
-			switch_w_k.select();
+			switch_w_k.activate();
 		} else {
-			switch_w_k.deselect();
+			switch_w_k.deactivate();
 		}
 		switch_w_p.draw(canvas);
 		switch_w_n.draw(canvas);
@@ -433,34 +481,34 @@ public class EditBoardPanelsView extends BaseView {
 		switch_w_k.draw(canvas);
 		
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_PAWN) {
-			switch_b_p.select();
+			switch_b_p.activate();
 		} else {
-			switch_b_p.deselect();
+			switch_b_p.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_KNIGHT) {
-			switch_b_n.select();
+			switch_b_n.activate();
 		} else {
-			switch_b_n.deselect();
+			switch_b_n.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_BISHOP) {
-			switch_b_b.select();
+			switch_b_b.activate();
 		} else {
-			switch_b_b.deselect();
+			switch_b_b.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_ROOK) {
-			switch_b_r.select();
+			switch_b_r.activate();
 		} else {
-			switch_b_r.deselect();
+			switch_b_r.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_QUEEN) {
-			switch_b_q.select();
+			switch_b_q.activate();
 		} else {
-			switch_b_q.deselect();
+			switch_b_q.deactivate();
 		}
 		if (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_KING) {
-			switch_b_k.select();
+			switch_b_k.activate();
 		} else {
-			switch_b_k.deselect();
+			switch_b_k.deactivate();
 		}
 		switch_b_p.draw(canvas);
 		switch_b_n.draw(canvas);
@@ -471,14 +519,14 @@ public class EditBoardPanelsView extends BaseView {
 		
 		
 		if (editBoardData.move_W) {
-			switch_white_to_move.select();
+			switch_white_to_move.activate();
 		} else {
-			switch_white_to_move.deselect();
+			switch_white_to_move.deactivate();
 		}
 		if (editBoardData.move_B) {
-			switch_black_to_move.select();
+			switch_black_to_move.activate();
 		} else {
-			switch_black_to_move.deselect();
+			switch_black_to_move.deactivate();
 		}
 		switch_white_to_move.draw(canvas);
 		switch_black_to_move.draw(canvas);

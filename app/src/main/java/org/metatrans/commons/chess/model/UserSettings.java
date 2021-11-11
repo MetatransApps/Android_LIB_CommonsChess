@@ -83,13 +83,5 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 
 			moveAnimationID = Config_Animation_Base.ID_NORMAL;
 		}
-
-		if (!auto_player_enabled_black) {
-
-			if (!auto_player_enabled_white) {
-
-				auto_player_enabled_black = true;
-			}
-		}
 	}
 }

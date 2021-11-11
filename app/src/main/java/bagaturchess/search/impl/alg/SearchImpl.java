@@ -25,7 +25,6 @@ package bagaturchess.search.impl.alg;
 
 import bagaturchess.bitboard.api.IBitBoard;
 import bagaturchess.bitboard.api.IGameStatus;
-import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.search.api.IEngineConfig;
 import bagaturchess.search.api.IEvaluator;
 import bagaturchess.search.api.ISearchConfig_AB;
@@ -37,9 +36,7 @@ import bagaturchess.search.api.internal.ISearchMoveList;
 import bagaturchess.search.impl.env.SearchEnv;
 import bagaturchess.search.impl.env.SharedData;
 import bagaturchess.search.impl.history.IHistoryTable;
-import bagaturchess.search.impl.pv.PVNode;
 import bagaturchess.search.impl.tpt.ITTEntry;
-import bagaturchess.search.impl.tpt.ITTable;
 import bagaturchess.search.impl.tpt.TTEntry_BaseImpl;
 import bagaturchess.search.impl.utils.SearchUtils;
 import bagaturchess.uci.api.ChannelManager;

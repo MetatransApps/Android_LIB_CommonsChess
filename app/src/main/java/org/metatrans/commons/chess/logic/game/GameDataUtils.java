@@ -18,6 +18,17 @@ import bagaturchess.bitboard.impl.Constants;
 
 public class GameDataUtils implements BoardConstants, GlobalConstants {
 
+
+	private static final IPlayer[][] PLAYER_BY_COLOR_AND_TYPE = new IPlayer[3][3];//Indexes 1 and 2 are used in both dimensions. There are 4 possible players.
+
+	static {
+
+		PLAYER_BY_COLOR_AND_TYPE[COLOUR_PIECE_WHITE][PLAYER_TYPE_HUMAN] = GameDataUtils.createPlayer(PLAYER_TYPE_HUMAN, COLOUR_PIECE_WHITE);
+		PLAYER_BY_COLOR_AND_TYPE[COLOUR_PIECE_WHITE][PLAYER_TYPE_COMPUTER] = GameDataUtils.createPlayer(PLAYER_TYPE_COMPUTER, COLOUR_PIECE_WHITE);
+		PLAYER_BY_COLOR_AND_TYPE[COLOUR_PIECE_BLACK][PLAYER_TYPE_HUMAN] = GameDataUtils.createPlayer(PLAYER_TYPE_HUMAN, COLOUR_PIECE_BLACK);
+		PLAYER_BY_COLOR_AND_TYPE[COLOUR_PIECE_BLACK][PLAYER_TYPE_COMPUTER] = GameDataUtils.createPlayer(PLAYER_TYPE_COMPUTER, COLOUR_PIECE_BLACK);
+	}
+
 	
 	public static GameData createGameDataForNewGame(int playerTypeWhite, int playerTypeBlack, int boardManagerID, int computerModeID) {
 		return createGameDataForNewGame(playerTypeWhite, playerTypeBlack, boardManagerID, computerModeID, Constants.INITIAL_BOARD);
@@ -44,27 +55,9 @@ public class GameDataUtils implements BoardConstants, GlobalConstants {
 		
 		return data;
 	}
-	
-	
-	public static IPlayer createPlayer(int type, int colour) {
-		
-		if (type == PLAYER_TYPE_HUMAN) {
-			
-			return new Player(type, colour);
-			
-		} else if (type == PLAYER_TYPE_COMPUTER) {
-			
-			return new Player(type, colour);
-			
-		} else {
-			
-			throw new IllegalStateException("type=" + type);
-		}
-	}
-	
-	
+
+
 	public static Set<FieldSelection>[][] createEmptySelections() {
-		@SuppressWarnings("unchecked")
 		Set<FieldSelection>[][] selections = new Set[8][8];
 		for (int i = 0; i < selections.length; i++) {
 			Set<FieldSelection>[] cur = selections[i];
@@ -73,5 +66,30 @@ public class GameDataUtils implements BoardConstants, GlobalConstants {
 			}
 		}
 		return selections;
+	}
+
+
+	public static void switchPlayerType(int color, int type, GameData data) {
+
+		IPlayer new_player = PLAYER_BY_COLOR_AND_TYPE[color][type];
+
+		if (new_player.getColour() == COLOUR_PIECE_WHITE) {
+
+			data.setWhite(new_player);
+
+		} else if (new_player.getColour() == COLOUR_PIECE_BLACK) {
+
+			data.setBlack(new_player);
+
+		} else {
+
+			throw new IllegalStateException();
+		}
+	}
+
+
+	private static IPlayer createPlayer(int type, int colour) {
+
+		return new Player(type, colour);
 	}
 }

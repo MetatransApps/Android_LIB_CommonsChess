@@ -103,7 +103,7 @@ public abstract class ComputerPlayer_BaseImpl implements IComputer , BoardConsta
 		
 		if (!isThinking()) {
 			//TODO: after the call should be not null but the check is risky
-			throw new IllegalStateException();
+			//throw new IllegalStateException();
 		}
 		
 		if (checkStopCondition()) {

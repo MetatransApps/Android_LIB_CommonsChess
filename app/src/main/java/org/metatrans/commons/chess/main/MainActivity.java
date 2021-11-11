@@ -465,11 +465,11 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 	
 	
-	@Override
+	/*@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 
 		super.onConfigurationChanged(newConfig);
-	}
+	}*/
 	
 	
 	public IBoardVisualization getBoard() {
@@ -484,77 +484,13 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 	
 	
-	public void switchPlayerWhite(GameData data) {
-		
-		IPlayer white = data.getWhite();
-		
-		if (white.getType() == PLAYER_TYPE_HUMAN) {
-			//if (data.getWhite_backup() == null) {
-				data.setWhite_backup(white);
-				data.setWhite(GameDataUtils.createPlayer(PLAYER_TYPE_COMPUTER, COLOUR_PIECE_WHITE));
-			//} else {
-			//	data.setWhite(data.getWhite_backup());
-			//	data.setWhite_backup(white);
-			//}
-			
-			Events.register(this, Events.create(IEvent.CHANGE_AUTO, IEvent.CHANGE_AUTO_W_COMPUTER, "CHANGE_AUTO", "CHANGE_AUTO_W_COMPUTER"));
-			
-		} else if (white.getType() == PLAYER_TYPE_COMPUTER) {
-			//if (data.getWhite_backup() == null) {
-				data.setWhite_backup(white);
-				data.setWhite(GameDataUtils.createPlayer(PLAYER_TYPE_HUMAN, COLOUR_PIECE_WHITE));
-			//} else {
-			//	data.setWhite(data.getWhite_backup());
-			//	data.setWhite_backup(white);
-			//}
-			
-			Events.register(this, Events.create(IEvent.CHANGE_AUTO, IEvent.CHANGE_AUTO_W_HUMAN, "CHANGE_AUTO", "CHANGE_AUTO_W_HUMAN"));
-			
-		} else {
-			throw new IllegalStateException("player type is " + white.getType());
-		}
-	}
-	
-	
-	public void switchPlayerBlack(GameData data) {
-		
-		IPlayer black = data.getBlack();
-		
-		if (black.getType() == PLAYER_TYPE_HUMAN) {
-			//if (data.getBlack_backup() == null) {
-				data.setBlack_backup(black);
-				data.setBlack(GameDataUtils.createPlayer(PLAYER_TYPE_COMPUTER, COLOUR_PIECE_BLACK));
-			//} else {
-			//	data.setBlack(data.getBlack_backup());
-			//	data.setBlack_backup(black);
-			//}
-			
-			Events.register(this, Events.create(IEvent.CHANGE_AUTO, IEvent.CHANGE_AUTO_B_COMPUTER, "CHANGE_AUTO", "CHANGE_AUTO_B_COMPUTER"));
-			
-		} else if (black.getType() == PLAYER_TYPE_COMPUTER) {
-			//if (data.getBlack_backup() == null) {
-				data.setBlack_backup(black);
-				data.setBlack(GameDataUtils.createPlayer(PLAYER_TYPE_HUMAN, COLOUR_PIECE_BLACK));
-			//} else {
-			//	data.setBlack(data.getBlack_backup());
-			//	data.setBlack_backup(black);
-			//}
-			
-			Events.register(this, Events.create(IEvent.CHANGE_AUTO, IEvent.CHANGE_AUTO_B_HUMAN, "CHANGE_AUTO", "CHANGE_AUTO_B_HUMAN"));
-			
-		} else {
-			throw new IllegalStateException("player type is " + black.getType());
-		}
-	}
-	
-	
 	public GameManager getGameController() {
 
 		return gameController;
 	}
 	
 	
-	@Override
+	/*@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		
 		Intent i = new Intent(getApplicationContext(), getMainMenuClass());
@@ -562,17 +498,25 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		startActivity(i);
 		
 		return false;
-	}
+	}*/
 	
 	
 	public void executeJob(Runnable r) {
 
 		try {
 
-			executor.execute(r);
+			if (executor != null) {
 
-		} catch(Exception e) {
-			System.out.println("Rejected job: " + r);
+				executor.execute(r);
+
+			} else {
+
+				System.out.println("MainActivity.executeJob: Job will not be processed as the executor is null. runnable=" + r);
+			}
+
+
+		} catch (Exception e) {
+
 			e.printStackTrace();
 		}
 	}
@@ -584,6 +528,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 
 	public UserSettings getUserSettings() {
-		return (UserSettings) Application_Chess_BaseImpl.getInstance().getUserSettings();
+
+		return (UserSettings) Application_Base.getInstance().getUserSettings();
 	}
 }

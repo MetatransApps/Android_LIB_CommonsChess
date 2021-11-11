@@ -131,10 +131,31 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 
 	public EditBoardData getEditBoardData() {
-		if (org.metatrans.commons.storage.StorageUtils.storageFileExists(this, EDIT_BOARD_DATA_FILE_NAME)) {
-			return (EditBoardData) org.metatrans.commons.storage.StorageUtils.readStorage(this, EDIT_BOARD_DATA_FILE_NAME);
+
+		Object data = org.metatrans.commons.storage.StorageUtils.readStorage(this, EDIT_BOARD_DATA_FILE_NAME);
+
+		if (data != null) {
+
+			if (!EditBoardData.class.equals(data.getClass())) {
+
+				EditBoardData edit_data = new EditBoardData();
+
+				storeEditBoardData(edit_data);
+
+				return edit_data;
+
+			} else {
+
+				return (EditBoardData) data;
+			}
+
 		} else {
-			return new EditBoardData();
+
+			EditBoardData edit_data = new EditBoardData();
+
+			storeEditBoardData(edit_data);
+
+			return edit_data;
 		}
 	}
 

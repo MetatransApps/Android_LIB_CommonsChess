@@ -113,7 +113,7 @@ public class MainView_WithMovesNavigation extends View implements IMainView {
 
 		boardView.init();
 
-		panelsView.init(getMainActivity().getBoardManager().getPlayerWhite().getName(getMainActivity()), getMainActivity().getBoardManager().getPlayerBlack().getName(getMainActivity()),
+		panelsView.init(getMainActivity().getBoardManager().getPlayerWhite().getName(), getMainActivity().getBoardManager().getPlayerBlack().getName(),
 				getMainActivity().getUserSettings().playerTypeBlack == GlobalConstants.PLAYER_TYPE_COMPUTER,
 				getMainActivity().getUserSettings().playerTypeWhite == GlobalConstants.PLAYER_TYPE_COMPUTER,
 				getMainActivity().getUserSettings().infoEnabled

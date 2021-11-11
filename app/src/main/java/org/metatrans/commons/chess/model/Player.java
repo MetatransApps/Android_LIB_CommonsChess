@@ -1,9 +1,8 @@
 package org.metatrans.commons.chess.model;
 
 
+import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.chess.R;
-
-import android.content.Context;
 
 
 public class Player implements IPlayer {
@@ -13,11 +12,14 @@ public class Player implements IPlayer {
 	
 	
 	private int type;
+
 	private int colour;
 	
 	
 	public Player(int _type, int _colour) {
+
 		type = _type;
+
 		colour = _colour;
 	}
 
@@ -32,13 +34,20 @@ public class Player implements IPlayer {
 	}
 
 
-	public String getName(Context ctx) {
+	public String getName() {
+
 		String name = "";
+
 		if (type == PLAYER_TYPE_HUMAN) {
-			name = ctx.getString(R.string.player_type_human);
+
+			name = Application_Base.getInstance().getString(R.string.player_type_human);
+
 		} else if (type == PLAYER_TYPE_COMPUTER) {
-			name = ctx.getString(R.string.player_type_computer);
+
+			name = Application_Base.getInstance().getString(R.string.player_type_computer);
+
 		} else {
+
 			throw new IllegalStateException("type=" + type);
 		}
 		
