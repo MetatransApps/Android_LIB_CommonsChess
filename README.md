@@ -15,10 +15,7 @@ The main example is the Android version of Bagatur Chess Engine itself, which so
 
 It extends the code of this library with custom features.
 
-Another example of game, developed with this framework is Chess Art For Kids:
+Other examples of games, developed with this framework are:
 
-  - https://metatransapps.com/chess-art-for-kids-kindergarten-to-grandmaster/
-
-    
-
-    
+  - Chess Art For Kids https://metatransapps.com/chess-art-for-kids-kindergarten-to-grandmaster/
+  - Chess Board Position Scanner, Edit and Analyze https://metatransapps.com/chess-board-scanner-and-analyzer/
