@@ -23,7 +23,8 @@ public class ComputerPlayer_StaticEvaluation extends ComputerPlayer_BaseImpl {
 		board_computer = boardManager.createBoard();
 		
 		bagaturchess.learning.goldmiddle.impl1.eval.BagaturEvaluatorFactory ef = new bagaturchess.learning.goldmiddle.impl1.eval.BagaturEvaluatorFactory();
-		eval = ef.create(board_computer, new EvalCache_Impl2(1));
+
+		eval = ef.create(board_computer, new EvalCache_Impl2(8 * 2));
 	}
 	
 	

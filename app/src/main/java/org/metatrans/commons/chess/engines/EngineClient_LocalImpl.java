@@ -41,8 +41,10 @@ public class EngineClient_LocalImpl implements IEngineClient {
 	public static boolean USE_OPENNING = true;
 	
 	public static double MEMORY_USAGE_PERCENT = 0.25;
-	
-	
+
+	public static int STATIC_JVM_MEMORY = 0;
+
+
 	private static EngineClient_LocalImpl singleton;
 	
 	
@@ -98,14 +100,15 @@ public class EngineClient_LocalImpl implements IEngineClient {
 	private synchronized void init(IBitBoard initialBoard) {
 		
 		System.out.println("EngineClient_LocalImpl: init");
-		
-		ChannelManager.setChannel(new Channel_Console(System.in, System.out, System.out));
-		
-		MemoryConsumers.set_JVMDLL_MEMORY_CONSUMPTION((int) DeviceUtils.getJVM_MemoryUsage());
-		
+
+		if (ChannelManager.getChannel() == null) {
+
+			ChannelManager.setChannel(new Channel_Console(System.in, System.out, System.out));
+		}
+
+		MemoryConsumers.set_STATIC_JVM_MEMORY(STATIC_JVM_MEMORY);
+
 		MemoryConsumers.set_MEMORY_USAGE_PERCENT(MEMORY_USAGE_PERCENT);
-		
-		MemoryConsumers.set_MIN_MEMORY_BUFFER(5 * 1024 * 1024);
 		
 		
 		/*

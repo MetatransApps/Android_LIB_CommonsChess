@@ -341,7 +341,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 
 	protected View createMainView() {
-		return new MainView_WithMovesNavigation(this, null, true);
+		return new MainView_WithMovesNavigation(this, null);
 	}
 
 

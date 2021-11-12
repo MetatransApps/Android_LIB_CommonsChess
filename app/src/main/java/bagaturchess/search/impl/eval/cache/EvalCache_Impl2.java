@@ -23,37 +23,40 @@
 package bagaturchess.search.impl.eval.cache;
 
 
-import bagaturchess.bitboard.impl1.internal.Util;
+import bagaturchess.uci.api.ChannelManager;
 
 
 public class EvalCache_Impl2 implements IEvalCache {
 	
-	private int POWER_2_ENTRIES;
-	
-	private int keyShifts;
-	public int maxEntries;
 	
 	private long[] keys;
 	
-	private long counter_tries;
-	private long counter_hits;
+	private long tries;
+	
+	private long hits;
 	
 	
-	public EvalCache_Impl2(int sizeInMB) {
+	public EvalCache_Impl2(long size_in_bytes) {
 		
-		POWER_2_ENTRIES = (int) (Math.log(sizeInMB) / Math.log(2) + 16);
+		ChannelManager.getChannel().dump("EvalCache_Impl2: bytes_count=" + size_in_bytes);
 		
-		keyShifts = 64 - POWER_2_ENTRIES;
-		maxEntries = (int) Util.POWER_LOOKUP[POWER_2_ENTRIES];
+		long maxEntries = size_in_bytes / 8; //one long per entry and one long has 8 bytes
 		
-		keys = new long[2 * maxEntries];
+		if (maxEntries > 1073741823) { //1073741823 = 2^30 - 1 (should work on 32 and 64 bits), 2147483647 = 2^31 - 1 (should work on 64 bits only)
+			maxEntries = 1073741823;
+			ChannelManager.getChannel().dump("EvalCache_Impl2: limited to " + 1073741823 + " entries.");
+		}
+		
+		ChannelManager.getChannel().dump("EvalCache_Impl2: maxEntries=" + maxEntries);
+		
+		keys = new long[(int) maxEntries];
 	}
 	
 	
 	@Override
 	public void get(long key, IEvalEntry entry) {
 		
-		counter_tries++;
+		tries++;
 		
 		entry.setIsEmpty(true);
 		
@@ -74,12 +77,24 @@ public class EvalCache_Impl2 implements IEvalCache {
 	
 	@Override
 	public int getHitRate() {
-		return (int) (counter_hits * 100 / counter_tries);
+		return (int) (hits * 100 / tries);
 	}
 	
 	
 	private int getIndex(final long key) {
-		return (int) (key >>> keyShifts);
+		
+		long index = (int) (key ^ (key >>> 32));
+		
+		if (index < 0) {
+			
+			index = -index;
+		}
+		
+		index = index % keys.length;
+		
+		index = 2 * (index / 2);
+		
+		return (int) index;
 	}
 	
 	
@@ -89,7 +104,7 @@ public class EvalCache_Impl2 implements IEvalCache {
 		final long score = keys[index + 1];
 		if (storedKey == keys[index]) {//Optimistic read locking
 			if ((storedKey ^ score) == key) {
-				counter_hits++;
+				hits++;
 				return (int) score;
 			}
 		}

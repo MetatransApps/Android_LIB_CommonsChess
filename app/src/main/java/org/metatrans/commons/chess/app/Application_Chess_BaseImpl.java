@@ -37,6 +37,9 @@ import org.metatrans.commons.model.UserSettings_Base;
 import org.metatrans.commons.ui.utils.DebugUtils;
 
 import bagaturchess.bitboard.impl1.internal.MoveGenerator;
+import bagaturchess.search.impl.env.MemoryConsumers;
+import bagaturchess.uci.api.ChannelManager;
+import bagaturchess.uci.impl.Channel_Console;
 
 
 public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
@@ -67,9 +70,14 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 		Events.init(getEventsManager());
 		
 		ConfigurationUtils_Base_MenuMain.createInstance();
-		
-		MoveGenerator.USE_ContinuationHistory 		= false;
-		EngineClient_LocalImpl.MEMORY_USAGE_PERCENT = 0.75;
+
+		//Do not use dedicated memory under Android as it works different than desktop computers.
+		EngineClient_LocalImpl.STATIC_JVM_MEMORY 	= 0;
+
+		//Meaning: use 50% of the available memory
+		EngineClient_LocalImpl.MEMORY_USAGE_PERCENT = 0.50;
+
+		ChannelManager.setChannel(new Channel_Console(System.in, System.out, System.out));
 
 		System.out.println("Application_Bagatur: onCreate finished " + System.currentTimeMillis());
 	}
