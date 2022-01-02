@@ -48,4 +48,9 @@ public class SyzygyTBProbing {
     public synchronized int getWDLScore(int wdl, int depth) {
         throw new UnsupportedOperationException("Syzygy TB probing is not supported.");
     }
+
+    public void probeMove(IBitBoard bitboardForSetup, long[] result_long_pair) {
+        result_long_pair[0] = -1;
+        result_long_pair[1] = -1;
+    }
 }

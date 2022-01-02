@@ -31,6 +31,8 @@ public class EvalCache_Impl2 implements IEvalCache {
 	
 	private long[] keys;
 	
+	private long counter_usage;
+	
 	private long tries;
 	
 	private long hits;
@@ -38,16 +40,16 @@ public class EvalCache_Impl2 implements IEvalCache {
 	
 	public EvalCache_Impl2(long size_in_bytes) {
 		
-		ChannelManager.getChannel().dump("EvalCache_Impl2: bytes_count=" + size_in_bytes);
+		if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump("EvalCache_Impl2: bytes_count=" + size_in_bytes);
 		
 		long maxEntries = size_in_bytes / 8; //one long per entry and one long has 8 bytes
 		
 		if (maxEntries > 1073741823) { //1073741823 = 2^30 - 1 (should work on 32 and 64 bits), 2147483647 = 2^31 - 1 (should work on 64 bits only)
 			maxEntries = 1073741823;
-			ChannelManager.getChannel().dump("EvalCache_Impl2: limited to " + 1073741823 + " entries.");
+			if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump("EvalCache_Impl2: limited to " + 1073741823 + " entries.");
 		}
 		
-		ChannelManager.getChannel().dump("EvalCache_Impl2: maxEntries=" + maxEntries);
+		if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump("EvalCache_Impl2: maxEntries=" + maxEntries);
 		
 		keys = new long[(int) maxEntries];
 	}
@@ -76,7 +78,13 @@ public class EvalCache_Impl2 implements IEvalCache {
 	
 	
 	@Override
+	public int getUsage() {
+		return (int) (counter_usage * 100 / keys.length);
+	}
+	
+	@Override
 	public int getHitRate() {
+		if (tries == 0) return 0;
 		return (int) (hits * 100 / tries);
 	}
 	
@@ -113,7 +121,13 @@ public class EvalCache_Impl2 implements IEvalCache {
 	
 
 	private void addValue(final long key, final int score) {
+		
 		final int index = getIndex(key);
+		
+		if (keys[index] == 0) {
+			counter_usage++;
+		}	
+		
 		keys[index] = key ^ score;
 		keys[index + 1] = score;
 	}

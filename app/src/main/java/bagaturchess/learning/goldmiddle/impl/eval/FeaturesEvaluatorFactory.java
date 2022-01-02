@@ -6,10 +6,8 @@ import bagaturchess.learning.api.ISignalFiller;
 import bagaturchess.learning.api.ISignals;
 import bagaturchess.learning.goldmiddle.api.ILearningInput;
 import bagaturchess.learning.goldmiddle.api.LearningInputFactory;
-import bagaturchess.learning.goldmiddle.impl.cfg.bagatur.Bagatur_LearningInputImpl;
-import bagaturchess.learning.goldmiddle.impl.cfg.bagatur_allfeatures.Bagatur_ALL_LearningInputImpl;
-import bagaturchess.learning.goldmiddle.impl.cfg.base_allfeatures.ALL_LearningInputImpl;
-import bagaturchess.learning.impl.features.baseimpl.Features;
+import bagaturchess.learning.impl.features.baseimpl.Features_Splitter;
+import bagaturchess.learning.impl.signals.Signals;
 import bagaturchess.search.api.IEvalConfig;
 import bagaturchess.search.api.IEvaluator;
 import bagaturchess.search.api.IEvaluatorFactory;
@@ -28,9 +26,22 @@ public class FeaturesEvaluatorFactory implements IEvaluatorFactory {
 		ILearningInput input = LearningInputFactory.createDefaultInput();
 		ISignalFiller filler = input.createFiller(bitboard);
 		
-		Features features = createFeatures();
-		ISignals signals = features.createSignals();
-		return new FeaturesEvaluator(bitboard, evalCache, filler, features, signals);
+		Features_Splitter features_splitter;
+		
+		try {
+			
+			features_splitter = Features_Splitter.load(Features_Splitter.FEATURES_FILE_NAME, input.getFeaturesConfigurationClassName());
+		
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			
+			throw new RuntimeException(e);
+		}
+		
+		ISignals signals = new Signals(features_splitter.getFeatures(bitboard));
+		
+		return new FeaturesEvaluator(bitboard, evalCache, filler, features_splitter, signals);
 	}
 
 
@@ -40,21 +51,21 @@ public class FeaturesEvaluatorFactory implements IEvaluatorFactory {
 		ILearningInput input = LearningInputFactory.createDefaultInput();
 		ISignalFiller filler = input.createFiller(bitboard);
 		
-		Features features = createFeatures();
-		ISignals signals = features.createSignals();
-		return new FeaturesEvaluator(bitboard, evalCache, filler, features, signals);
-	}
-	
-	
-	private Features createFeatures() {
-		Features features = null;
+		Features_Splitter features_splitter;
+		
 		try {
-			//features = Features.createNewFeatures(FeaturesConfigurationBagaturImpl.class.getName());
-			//features = Features.load(FeaturesConfigurationBagaturImpl.class.getName());
-			features = Features.load();
+			
+			features_splitter = Features_Splitter.load(Features_Splitter.FEATURES_FILE_NAME, input.getFeaturesConfigurationClassName());
+		
 		} catch (Exception e) {
-			throw new IllegalStateException(e);
+			
+			e.printStackTrace();
+			
+			throw new RuntimeException(e);
 		}
-		return features;
+		
+		ISignals signals = new Signals(features_splitter.getFeatures(bitboard));
+		
+		return new FeaturesEvaluator(bitboard, evalCache, filler, features_splitter, signals);
 	}
 }

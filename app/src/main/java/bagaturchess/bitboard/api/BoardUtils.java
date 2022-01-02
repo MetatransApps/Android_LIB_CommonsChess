@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import bagaturchess.bitboard.impl.Board;
 import bagaturchess.bitboard.impl.BoardProxy_ReversedBBs;
 import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.bitboard.impl.Fields;
@@ -75,8 +76,18 @@ public class BoardUtils {
 			bitboard = new BoardImpl(fen, boardConfig);
 			
 		} else {
-
-			throw new UnsupportedOperationException("Non-Impl1 board representation is not supported here.");
+			DataObjectFactory<PawnsModelEval> pawnsCacheFactory = null;
+			try {
+				pawnsCacheFactory = (DataObjectFactory<PawnsModelEval>) 
+				BoardUtils.class.getClassLoader().loadClass(cacheFactoryClassName).newInstance();
+			} catch (Exception e) {
+				throw new IllegalStateException(e);
+			}
+			
+			//PawnsEvalCache pawnsCache = new PawnsEvalCache(pawnsCacheFactory, EngineConfigFactory.getDefaultEngineConfiguration().getPawnsCacheSize());
+			PawnsEvalCache pawnsCache = new PawnsEvalCache(pawnsCacheFactory, pawnsCacheSize, false, new BinarySemaphore_Dummy());
+			 
+			bitboard = new BoardProxy_ReversedBBs(new Board(fen, pawnsCache, boardConfig));
 		}
 		
 		if (boardConfig != null) {

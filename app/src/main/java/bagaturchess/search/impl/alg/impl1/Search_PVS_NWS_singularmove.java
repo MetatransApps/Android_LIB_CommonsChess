@@ -47,11 +47,11 @@ import bagaturchess.search.api.internal.ISearchMediator;
 import bagaturchess.search.api.internal.SearchInterruptedException;
 
 import bagaturchess.search.impl.alg.SearchImpl;
+import bagaturchess.search.impl.alg.SearchUtils;
 import bagaturchess.search.impl.env.SearchEnv;
 import bagaturchess.search.impl.pv.PVManager;
 import bagaturchess.search.impl.pv.PVNode;
 import bagaturchess.search.impl.tpt.ITTEntry;
-import bagaturchess.search.impl.utils.SearchUtils;
 
 
 public class Search_PVS_NWS_singularmove extends SearchImpl {
@@ -124,7 +124,7 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 			int mateMove, boolean useMateDistancePrunning) {
 		
 		return calculateBestMove(mediator, info, pvman, env.getEval(), ((BoardImpl) env.getBitboard()).getChessBoard(),
-				((BoardImpl) env.getBitboard()).getMoveGenerator(), 0, normDepth(maxdepth), alpha_org, beta, true, 0);
+				((BoardImpl) env.getBitboard()).getMoveGenerator(), 0, SearchUtils.normDepth(maxdepth), alpha_org, beta, true, 0);
 	}
 	
 	
@@ -136,7 +136,7 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 			boolean inNullMove, int mateMove, boolean useMateDistancePrunning) {
 		
 		return calculateBestMove(mediator, info, pvman, env.getEval(), ((BoardImpl) env.getBitboard()).getChessBoard(),
-				((BoardImpl) env.getBitboard()).getMoveGenerator(), 0, normDepth(maxdepth), beta - 1, beta, false, 0);		
+				((BoardImpl) env.getBitboard()).getMoveGenerator(), 0, SearchUtils.normDepth(maxdepth), beta - 1, beta, false, 0);		
 	}
 	
 	
@@ -242,7 +242,7 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 			if (cb.checkingPieces != 0) {
 				if (!env.getBitboard().hasMoveInCheck()) {
 					node.bestmove = 0;
-					node.eval = -getMateVal(ply);
+					node.eval = -SearchUtils.getMateVal(ply);
 					node.leaf = true;
 					return node.eval;
 				}
@@ -322,7 +322,7 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 			}
 			
 			
-			if (EngineConstants.ENABLE_RAZORING && depth < RAZORING_MARGIN.length && Math.abs(alpha) < EvalConstants.SCORE_MATE_BOUND) {
+			if (EngineConstants.ENABLE_RAZORING && depth < RAZORING_MARGIN.length && Math.abs(alpha) < IEvaluator.MAX_EVAL) {
 				if (eval + RAZORING_MARGIN[depth] < alpha) {
 					int score = qsearch(mediator, pvman, evaluator, info, cb, moveGen, alpha - RAZORING_MARGIN[depth], alpha - RAZORING_MARGIN[depth] + 1, ply, isPv);
 					if (score + RAZORING_MARGIN[depth] <= alpha) {

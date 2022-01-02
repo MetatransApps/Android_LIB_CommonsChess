@@ -226,7 +226,7 @@ public class StateManager extends Protocol implements BestMoveSender {
 		String result = "\r\n\r\n";
 		result += "***************************************************************************";
 		result += "\r\n";
-		result += "* Copyright (C) 2005-2020 Krasimir I. Topchiyski (k_topchiyski@yahoo.com) *";
+		result += "* Copyright (C) 2005-2022 Krasimir I. Topchiyski (k_topchiyski@yahoo.com) *";
 		result += "\r\n";
 		result += "*                                                                         *";
 		result += "\r\n";
@@ -364,7 +364,7 @@ public class StateManager extends Protocol implements BestMoveSender {
 	
 	@Override
 	public void sendBestMove() {
-
+		
 		channel.sendLogToGUI("StateManager: sendBestMove called");
 		
 		if (searchAdaptor == null) {

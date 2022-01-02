@@ -17,9 +17,6 @@ public class ChessBoardUtil {
 
 	public static final String ALL_FIELD_NAMES[] = new String[] {"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2", "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4", "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6", "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", };
 	
-	public static final int PHASE_TOTAL = 4 * EvalConstants.PHASE[NIGHT] + 4 * EvalConstants.PHASE[BISHOP] + 4 * EvalConstants.PHASE[ROOK]
-			+ 2 * EvalConstants.PHASE[QUEEN];
-	
 	public static ChessBoard getNewCB() {
 		return getNewCB(ChessConstants.FEN_START);
 	}
@@ -75,12 +72,14 @@ public class ChessBoardUtil {
 				cb.epIndex = 104 - fenArray[3].charAt(0) + 8 * (Integer.parseInt(fenArray[3].substring(1)) - 1);
 			}
 		}
-
+		
 		if (fenArray.length > 4) {
-			// TODO
-			// 5: half-counter since last capture or pawn advance: 1
-			// fenArray[4]
+			
+			//5: half-counter since last capture or pawn advance: 1
+			String lastCaptureOrPawnMoveBefore = fenArray[4];
 
+			cb.lastCaptureOrPawnMoveBefore = Integer.parseInt(lastCaptureOrPawnMoveBefore);
+			
 			// 6: counter: 1
 			cb.moveCounter = Integer.parseInt(fenArray[5]) * 2;
 			if (cb.colorToMove == BLACK) {
@@ -230,11 +229,17 @@ public class ChessBoardUtil {
 		cb.psqtScore_eg = 0;
 		calculatePositionScores(cb);
 
-		cb.phase = PHASE_TOTAL - (Long.bitCount(cb.pieces[WHITE][NIGHT] | cb.pieces[BLACK][NIGHT]) * EvalConstants.PHASE[NIGHT]
-				+ Long.bitCount(cb.pieces[WHITE][BISHOP] | cb.pieces[BLACK][BISHOP]) * EvalConstants.PHASE[BISHOP]
-				+ Long.bitCount(cb.pieces[WHITE][ROOK] | cb.pieces[BLACK][ROOK]) * EvalConstants.PHASE[ROOK]
-				+ Long.bitCount(cb.pieces[WHITE][QUEEN] | cb.pieces[BLACK][QUEEN]) * EvalConstants.PHASE[QUEEN]);
+		cb.material_factor_white =
+				+ (Long.bitCount(cb.pieces[WHITE][NIGHT]) * EvalConstants.PHASE[NIGHT]
+				+ Long.bitCount(cb.pieces[WHITE][BISHOP]) * EvalConstants.PHASE[BISHOP]
+				+ Long.bitCount(cb.pieces[WHITE][ROOK]) * EvalConstants.PHASE[ROOK]
+				+ Long.bitCount(cb.pieces[WHITE][QUEEN]) * EvalConstants.PHASE[QUEEN]);
 		 
+		cb.material_factor_black = 
+				+ (Long.bitCount(cb.pieces[BLACK][NIGHT]) * EvalConstants.PHASE[NIGHT]
+				+ Long.bitCount(cb.pieces[BLACK][BISHOP]) * EvalConstants.PHASE[BISHOP]
+				+ Long.bitCount(cb.pieces[BLACK][ROOK]) * EvalConstants.PHASE[ROOK]
+				+ Long.bitCount(cb.pieces[BLACK][QUEEN]) * EvalConstants.PHASE[QUEEN]);
 		
 		calculatePawnZobristKeys(cb);
 		calculateZobristKeys(cb);
@@ -267,7 +272,7 @@ public class ChessBoardUtil {
 		}
 	}
 
-	public static String toString(ChessBoard cb) {
+	public static String toString(ChessBoard cb, boolean add_ep) {
 		// TODO castling, EP, moves
 		StringBuilder sb = new StringBuilder();
 		for (int i = 63; i >= 0; i--) {
@@ -313,14 +318,14 @@ public class ChessBoardUtil {
 		fen = fen.replaceAll("11", "2");
 		
 		fen += " ";
-		if (cb.epIndex != 0) {
+		if (add_ep && cb.epIndex != 0) {
 			fen += ALL_FIELD_NAMES[cb.epIndex];
 		} else {
 			fen += "-";
 		}
 		
 		fen += " ";
-		fen += cb.playedMovesCount;
+		fen += cb.lastCaptureOrPawnMoveBefore;
 		
 		fen += " ";
 		fen += ((cb.playedMovesCount + 1) / 2 + 1);

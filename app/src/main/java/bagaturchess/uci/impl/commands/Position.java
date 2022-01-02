@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import bagaturchess.bitboard.impl.Board;
+import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.uci.api.IChannel;
 import bagaturchess.uci.impl.Channel_Console;
 import bagaturchess.uci.impl.Protocol;

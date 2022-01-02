@@ -63,14 +63,14 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 	private double blackPST_e;
 	
 	private IBoardConfig boardConfig;
-	private PSTConstants pst;
+	private PSTs pst;
 	private IMaterialFactor interpolator;
 	
 	
 	public BaseEvaluation(IBoardConfig _boardConfig, IMaterialFactor _interpolator) {
 		boardConfig = _boardConfig;
 		interpolator = _interpolator;
-		pst = new PSTConstants(boardConfig);
+		pst = new PSTs(boardConfig);
 		
 		w_material_nopawns_o = 0;
 		b_material_nopawns_o = 0;
@@ -401,13 +401,13 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 	}
 
 	@Override
-	public void preForwardMove(int move) {
+	public void preForwardMove(int color, int move) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void postForwardMove(int move) {		
+	public void postForwardMove(int color, int move) {		
 		if (MoveInt.isCapture(move)) {
 			int cap_pid = MoveInt.getCapturedFigurePID(move);
 			removed(cap_pid);
@@ -422,13 +422,13 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 	}
 
 	@Override
-	public void preBackwardMove(int move) {
+	public void preBackwardMove(int color, int move) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void postBackwardMove(int move) {
+	public void postBackwardMove(int color, int move) {
 		if (MoveInt.isCapture(move)) {
 			int cap_pid = MoveInt.getCapturedFigurePID(move);
 			added(cap_pid);

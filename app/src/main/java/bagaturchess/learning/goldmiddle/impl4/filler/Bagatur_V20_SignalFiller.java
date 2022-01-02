@@ -40,8 +40,11 @@ public class Bagatur_V20_SignalFiller implements ISignalFiller {
 	
 	
 	public Bagatur_V20_SignalFiller(IBitBoard _bitboard) {
+		
 		bitboard = _bitboard;
+		
 		board = ((BoardImpl)bitboard).getChessBoard();
+		
 		evalInfo = new EvalInfo();
 	}
 	
@@ -50,11 +53,12 @@ public class Bagatur_V20_SignalFiller implements ISignalFiller {
 	public void fill(ISignals signals) {
 		
 		evalInfo.clearEvals();
+		
 		evalInfo.fillBoardInfo(board);
 		
 		IEvalComponentsProcessor evalComponentsProcessor = new EvalComponentsProcessor(signals);
 		
-		Evaluator.eval1(board, evalInfo, evalComponentsProcessor);
+		Evaluator.eval1(bitboard.getBoardConfig(), board, evalInfo, evalComponentsProcessor);
 		Evaluator.eval2(board, evalInfo, evalComponentsProcessor);
 		Evaluator.eval3(board, evalInfo, evalComponentsProcessor);
 		Evaluator.eval4(board, evalInfo, evalComponentsProcessor);
@@ -100,16 +104,9 @@ public class Bagatur_V20_SignalFiller implements ISignalFiller {
 		@Override
 		public void addEvalComponent(int evalPhaseID, int componentID, int value_o, int value_e, double weight_o, double weight_e) {
 			
-			double openningPart = bitboard.getMaterialFactor().getOpenningPart();
+			signals.getSignal(componentID).addStrength(value_o, -1);
 			
-			double value = interpolateInternal(value_o, value_e, openningPart);
-			
-			signals.getSignal(componentID).addStrength(value, openningPart);
-		}
-		
-		
-		private double interpolateInternal(double o, double e, double openningPart) {
-			return (o * openningPart + e * (1 - openningPart));
+			//signals.getSignal(componentID + 1000).addStrength(value_e, -1);
 		}
 	}
 }

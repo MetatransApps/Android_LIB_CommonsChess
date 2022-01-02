@@ -36,6 +36,7 @@ import org.metatrans.commons.model.GameData_Base;
 import org.metatrans.commons.model.UserSettings_Base;
 import org.metatrans.commons.ui.utils.DebugUtils;
 
+import bagaturchess.bitboard.impl1.internal.ContinuationHistory;
 import bagaturchess.bitboard.impl1.internal.MoveGenerator;
 import bagaturchess.search.impl.env.MemoryConsumers;
 import bagaturchess.uci.api.ChannelManager;
@@ -73,6 +74,8 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 		//Do not use dedicated memory under Android as it works different than desktop computers.
 		EngineClient_LocalImpl.STATIC_JVM_MEMORY 	= 0;
+
+		MoveGenerator.USE_ContinuationHistory = false;
 
 		//Meaning: use 50% of the available memory
 		EngineClient_LocalImpl.MEMORY_USAGE_PERCENT = 0.50;

@@ -22,18 +22,21 @@
  */
 package bagaturchess.search.impl.info;
 
+import bagaturchess.search.api.internal.ISearch;
 import bagaturchess.search.api.internal.ISearchInfo;
-import bagaturchess.search.impl.utils.SearchUtils;
+import bagaturchess.search.impl.alg.SearchUtils;
 
 
 
 
 public class SearchInfoImpl implements ISearchInfo {
+	
 
 	public int depth;
 	public int seldepth;
 	
 	public long nodes;
+	public long tbhits;
 	
 	public int eval;
 	
@@ -47,6 +50,10 @@ public class SearchInfoImpl implements ISearchInfo {
 	public boolean isLowerBound;
 	public boolean isUpperBound;
 	
+	
+	public long getTBhits() {
+		return tbhits;
+	}
 	
 	public int getBestMove() {
 		return bestmove;
@@ -80,6 +87,10 @@ public class SearchInfoImpl implements ISearchInfo {
 		return seldepth;
 	}
 
+	public void setTBhits(long tbhits) {
+		this.tbhits = tbhits;
+	}
+	
 	public void setBestMove(int move) {
 		bestmove = move;
 	}
@@ -113,7 +124,8 @@ public class SearchInfoImpl implements ISearchInfo {
 	}
 
 	public int getMateScore() {
-		return SearchUtils.getMateDepth(eval);
+		//eval + ISearch.MAX_MAT_INTERVAL / 2
+		return ((SearchUtils.getMateDepth(eval) + 1) / 2);
 	}
 
 	public boolean isMateScore() {

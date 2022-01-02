@@ -26,12 +26,19 @@ package bagaturchess.search.api;
 
 public interface IEvaluator {
 	
+	
 	public static final int MAX_EVAL = 100000;
+	
 	public static final int MIN_EVAL = -MAX_EVAL;
 	
+	
 	public void beforeSearch();
+	
 	public int roughEval(int depth, int rootColour);
+	
 	public int lazyEval(int depth, int alpha, int beta, int rootColour);
+	
 	public int lazyEval(int depth, int alpha, int beta, int rootColour, FullEvalFlag flag);
+	
 	public double fullEval(int depth, int alpha, int beta, int rootColour);
 }

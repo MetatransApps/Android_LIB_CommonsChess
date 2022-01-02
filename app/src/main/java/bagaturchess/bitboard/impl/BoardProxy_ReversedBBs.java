@@ -251,6 +251,13 @@ public class BoardProxy_ReversedBBs implements IBitBoard {
 		return bitboard.getStateRepetition();
 	}
 
+	
+	@Override
+	public int getEnpassantSquareID() {
+		return bitboard.getEnpassantSquareID();
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see bagaturchess.bitboard.api.IBoard#getFigureID(int)
 	 */
@@ -354,15 +361,23 @@ public class BoardProxy_ReversedBBs implements IBitBoard {
 	public int getDraw50movesRule() {
 		return bitboard.getDraw50movesRule();
 	}
-
+	
+	
 	/* (non-Javadoc)
 	 * @see bagaturchess.bitboard.api.IBoard#hasSufficientMaterial()
 	 */
 	@Override
-	public boolean hasSufficientMaterial() {
-		return bitboard.hasSufficientMaterial();
+	public boolean hasSufficientMatingMaterial() {
+		return bitboard.hasSufficientMatingMaterial();
 	}
-
+	
+	
+	@Override
+	public boolean hasSufficientMatingMaterial(int color) {
+		return bitboard.hasSufficientMatingMaterial(color);
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see bagaturchess.bitboard.api.IBoard#isInCheck()
 	 */

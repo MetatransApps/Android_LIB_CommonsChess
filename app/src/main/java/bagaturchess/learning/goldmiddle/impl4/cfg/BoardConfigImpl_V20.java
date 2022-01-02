@@ -7,27 +7,27 @@ import bagaturchess.bitboard.common.Utils;
 
 public class BoardConfigImpl_V20 implements IBoardConfig {
 	
-	public static final double MATERIAL_PAWN_O	=	94.18293928782354;
-	public static final double MATERIAL_PAWN_E	=	90.28196533079549;
+	// 100, 396, 416, 706, 1302, 3000
+	public static final double MATERIAL_PAWN_O	=	100;
+	public static final double MATERIAL_PAWN_E	=	100;
 
-	public static final double MATERIAL_KNIGHT_O	=	403.14932123641825;
-	public static final double MATERIAL_KNIGHT_E	=	370.844633944891;
+	public static final double MATERIAL_KNIGHT_O	=	400;
+	public static final double MATERIAL_KNIGHT_E	=	400;
 
-	public static final double MATERIAL_BISHOP_O	=	414.79861896389804;
-	public static final double MATERIAL_BISHOP_E	=	400.9667795603543;
+	public static final double MATERIAL_BISHOP_O	=	425;
+	public static final double MATERIAL_BISHOP_E	=	425;
 
-	public static final double MATERIAL_ROOK_O	=	590.5163213779672;
-	public static final double MATERIAL_ROOK_E	=	623.329334160401;
+	public static final double MATERIAL_ROOK_O	=	700;
+	public static final double MATERIAL_ROOK_E	=	700;
 
-	public static final double MATERIAL_QUEEN_O	=	1179.4647304300893;
-	public static final double MATERIAL_QUEEN_E	=	1174.9161809712318;
+	public static final double MATERIAL_QUEEN_O	=	1300;
+	public static final double MATERIAL_QUEEN_E	=	1300;
 	
-	private double MATERIAL_KING_O = 3000;
-	private double MATERIAL_KING_E = 3000;
+	private static final double MATERIAL_KING_O = 3000;
+	private static final double MATERIAL_KING_E = 3000;
 	
-	
-	private double MATERIAL_BARIER_NOPAWNS_O	= Math.max(MATERIAL_KNIGHT_O, MATERIAL_BISHOP_O) + MATERIAL_PAWN_O;
-	private double MATERIAL_BARIER_NOPAWNS_E	= Math.max(MATERIAL_KNIGHT_E, MATERIAL_BISHOP_E) + MATERIAL_PAWN_E;
+	private static final double MATERIAL_BARIER_NOPAWNS_O	= Math.max(MATERIAL_KNIGHT_O, MATERIAL_BISHOP_O) + MATERIAL_PAWN_O;
+	private static final double MATERIAL_BARIER_NOPAWNS_E	= Math.max(MATERIAL_KNIGHT_E, MATERIAL_BISHOP_E) + MATERIAL_PAWN_E;
 	
 	private static final double[] KING_O			= Utils.reverseSpecial(new double[] {
 			 -50,180,-26,  2,  2,-26,180,-50,

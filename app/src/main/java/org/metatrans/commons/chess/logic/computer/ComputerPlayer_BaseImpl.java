@@ -50,7 +50,7 @@ public abstract class ComputerPlayer_BaseImpl implements IComputer , BoardConsta
 		}
 		
 		if (OpeningBookFactory.getBook() != null) {
-			saver = new TimeSaver(OpeningBookFactory.getBook());
+			saver = new TimeSaver(null, OpeningBookFactory.getBook());
 		}
 	}
 	
@@ -116,7 +116,7 @@ public abstract class ComputerPlayer_BaseImpl implements IComputer , BoardConsta
 			if (boardManager instanceof BoardManager_NativeBoard) {
 				if (this instanceof ComputerPlayer_StaticEvaluation /*|| this instanceof ComputerPlayer_StaticEvaluation_PiecesAware*/) {
 					ISearchMediator mediator = new OpenningBookCaptureMediator();
-					boolean moveSent = saver.beforeMove(((BoardManager_NativeBoard) boardManager).getBoard_Native(), OpeningBook.OPENNING_BOOK_MODE_POWER1, mediator, true);
+					boolean moveSent = saver.beforeMove(((BoardManager_NativeBoard) boardManager).getBoard_Native(), OpeningBook.OPENING_BOOK_MODE_POWER1, mediator, true, false, 0);
 					if (moveSent) {
 						bookinfo = mediator.getLastInfo();
 						if (bookinfo == null) {

@@ -133,6 +133,11 @@ public class DummyBoard implements IBitBoard {
 		return true;
 	}
 
+	@Override
+	public int getEnpassantSquareID() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public int getChecksCount(int colour) {
 		throw new UnsupportedOperationException();
 	}
@@ -257,7 +262,14 @@ public class DummyBoard implements IBitBoard {
 		return false;
 		//throw new UnsupportedOperationException();
 	}
-
+	
+	
+	@Override
+	public boolean hasSufficientMatingMaterial(int color) {
+		throw new UnsupportedOperationException();
+	}
+	
+	
 	public int getCastlingType(int colour) {
 		return 0;
 	}
@@ -608,7 +620,7 @@ public class DummyBoard implements IBitBoard {
 		return null;
 	}
 
-	public boolean hasSufficientMaterial() {
+	public boolean hasSufficientMatingMaterial() {
 		// TODO Auto-generated method stub
 		return false;
 	}

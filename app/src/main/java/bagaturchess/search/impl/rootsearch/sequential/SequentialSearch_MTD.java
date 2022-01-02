@@ -29,7 +29,6 @@ import java.util.concurrent.Executors;
 import bagaturchess.bitboard.api.BoardUtils;
 import bagaturchess.bitboard.api.IBitBoard;
 import bagaturchess.bitboard.impl.utils.ReflectionUtils;
-import bagaturchess.search.api.IEvaluator;
 import bagaturchess.search.api.IFinishCallback;
 import bagaturchess.search.api.IRootSearchConfig;
 import bagaturchess.search.api.internal.CompositeStopper;
@@ -37,7 +36,7 @@ import bagaturchess.search.api.internal.ISearch;
 import bagaturchess.search.api.internal.ISearchInfo;
 import bagaturchess.search.api.internal.ISearchMediator;
 import bagaturchess.search.api.internal.ISearchStopper;
-import bagaturchess.search.impl.eval.cache.EvalCache_Impl2;
+import bagaturchess.search.impl.env.SearchEnv;
 import bagaturchess.search.impl.pv.PVManager;
 import bagaturchess.search.impl.rootsearch.RootSearch_BaseImpl;
 import bagaturchess.search.impl.rootsearch.multipv.MultiPVMediator;
@@ -54,19 +53,24 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 	
 	
 	private ExecutorService executor;
+	
 	private ISearch searcher;
 	
 	private PVManager pvman;
 	
 	
 	public SequentialSearch_MTD(Object[] args) {
+		
 		super(args);
+		
 		executor = Executors.newFixedThreadPool(1);
+		
 		pvman = new PVManager(ISearch.MAX_DEPTH);
 	}
 	
 	
 	public IRootSearchConfig getRootSearchConfig() {
+		
 		return (IRootSearchConfig) super.getRootSearchConfig();
 	}
 	
@@ -77,8 +81,11 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 		super.createBoard(_bitboardForSetup);
 		
 		String searchClassName =  getRootSearchConfig().getSearchClassName();
+		
 		searcher = (ISearch) ReflectionUtils.createObjectByClassName_ObjectsConstructor(
+				
 						searchClassName,
+						
 						new Object[] {getBitboardForSetup(),  getRootSearchConfig(), getSharedData()}
 					);
 	}
@@ -87,6 +94,7 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 	@Override
 	public void negamax(IBitBoard _bitboardForSetup, ISearchMediator mediator, ITimeController timeController,
 			final IFinishCallback multiPVCallback, final Go go) {
+		
 		negamax(_bitboardForSetup, mediator, timeController, multiPVCallback, go, false);
 	}
 
@@ -95,10 +103,11 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 			final IFinishCallback multiPVCallback, final Go go, boolean dont_wrap_mediator) {
 		
 		if (stopper != null) {
+			
 			throw new IllegalStateException("MTDSequentialSearch started whithout beeing stopped");
 		}
-		stopper = new Stopper();
 		
+		stopper = new Stopper();
 		
 		searcher.newSearch();
 		
@@ -121,21 +130,18 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 		final int[] final_prevPV = prevPV;
 		
 		if (initialValue == null) {
-			initialValue = 0;
-			/*IEvaluator evaluator = getSharedData().getEvaluatorFactory().create(
-					getBitboardForSetup(),
-					//new EvalCache_Impl1(100, true, new BinarySemaphore_Dummy()),
-					new EvalCache_Impl2(2),
-					getRootSearchConfig().getEvalConfig());
-			initialValue = (int) evaluator.fullEval(0, ISearch.MIN, ISearch.MAX, getBitboardForSetup().getColourToMove());
-			*/
+			
+			initialValue = (int) searcher.getEnv().getEval().fullEval(0, ISearch.MIN, ISearch.MAX, getBitboardForSetup().getColourToMove());
 		}
 		
 		
 		if (!dont_wrap_mediator) {
+			
 			//Original mediator should be an instance of UCISearchMediatorImpl_Base
 			mediator = (mediator instanceof MultiPVMediator) ?
+					
 					new Mediator_AlphaAndBestMoveWindow(mediator) :
+						
 					new NPSCollectorMediator(new Mediator_AlphaAndBestMoveWindow(mediator));
 		}
 		
@@ -149,8 +155,10 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 		
 		
 		executor.execute(new Runnable() {
+			
 			@Override
 			public void run() {
+				
 				try {
 					
 					if (DEBUGSearch.DEBUG_MODE) ChannelManager.getChannel().dump("MTDSequentialSearch before loop");
@@ -159,10 +167,11 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 							&& distribution.getCurrentDepth() <= distribution.getMaxIterations() //Condition for fixed depth
 							) {
 						
+						//if (DEBUGSearch.DEBUG_MODE) ChannelManager.getChannel().dump("MTDSequentialSearch in loop : task.run()");
+						
 						Runnable task = new NullwinSearchTask(searcher, distribution, getBitboardForSetup(), pvman,
 								final_mediator, !go.isPonder(), final_prevPV
 																);
-						//if (DEBUGSearch.DEBUG_MODE) ChannelManager.getChannel().dump("MTDSequentialSearch in loop : task.run()");
 						task.run();
 					}
 					
@@ -175,23 +184,33 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 						ChannelManager.getChannel().dump("MTDSequentialSearch not stopped - stopping searcher ...");
 						
 						if (stopper == null) {
+							
 							throw new IllegalStateException();
 						}
+						
 						stopper.markStopped();
+						
 						stopper = null;
 						
 						
-						if (multiPVCallback == null) {//Non multiPV search
+						if (multiPVCallback == null) {
+							
+							//Non MultiPV search
 							ChannelManager.getChannel().dump("MTDSequentialSearch calling final_mediator.getBestMoveSender().sendBestMove()");
+								
 							final_mediator.getBestMoveSender().sendBestMove();
+							
 						} else {
+							
 							//MultiPV search
 							multiPVCallback.ready();
 						}
 					}
 					
-				} catch(Throwable t) {
+				} catch (Throwable t) {
+					
 					ChannelManager.getChannel().dump(t);
+					
 					ChannelManager.getChannel().dump(t.getMessage());
 				}
 			}
@@ -201,12 +220,15 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 	
 	@Override
 	public void shutDown() {
+		
 		try {
 			
 			executor.shutdownNow();
+			
 			searcher = null;
 			
-		} catch(Throwable t) {
+		} catch (Throwable t) {
+			
 			//Do nothing
 		}
 	}
@@ -214,44 +236,14 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 
 	@Override
 	public int getTPTUsagePercent() {
+		
 		return searcher.getTPTUsagePercent();
 	}
 
 
 	@Override
 	public void decreaseTPTDepths(int reduction) {
+		
 		searcher.getEnv().getTPT().correctAllDepths(reduction);
-	}
-	
-	
-	private void testPV(ISearchInfo info, IBitBoard bitboardForTesting) {
-		
-		if (true) return;
-		
-		//if (!sharedData.getEngineConfiguration().verifyPVAfterSearch()) return;
-		/*
-		int root_colour = bitboardForTesting.getColourToMove();
-		
-		int sign = 1;
-		
-		int[] moves = info.getPV();
-		
-		for (int i=0; i<moves.length; i++) {
-			bitboardForTesting.makeMoveForward(moves[i]);
-			sign *= -1;
-		}
-		
-		int curEval = (int) (sign * evaluator.fullEval(0, ISearch.MIN, ISearch.MAX, root_colour));
-		
-		if (curEval != info.getEval()) {
-			mediator.dump("SearchManager.testPV FAILED > curEval=" + curEval + ",	eval=" + info.getEval());
-		} else {
-			mediator.dump("SearchManager.testPV OK > curEval=" + curEval + ",	eval=" + info.getEval());
-		}
-		
-		for (int i=moves.length - 1; i >= 0; i--) {
-			bitboardForTesting.makeMoveBackward(moves[i]);
-		}
-		*/
 	}
 }

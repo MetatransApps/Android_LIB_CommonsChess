@@ -6,18 +6,11 @@ import static bagaturchess.bitboard.impl1.internal.ChessConstants.WHITE;
 import bagaturchess.bitboard.api.IBoardConfig;
 
 
-/**
- * Values have been tuned using the Texel's tuning method
- */
 public class EvalConstants {
-	//@formatter:off
 	
-	public static final int SIDE_TO_MOVE_BONUS = 16; //cannot be tuned //TODO lower in endgame
+	public static final int SIDE_TO_MOVE_BONUS 				= 0;
 	
 	public static final int SCORE_DRAW 						= 0;
-	public static final int SCORE_DRAWISH					= 10;
-	public static final int SCORE_DRAWISH_KING_CORNERED		= 20;
-	public static final int SCORE_MATE_BOUND 				= 30000;
 	
 	// other
 	public static final int[] OTHER_SCORES = {-8, 16, 18, 8, 18, 12, -158, 12, 56, 20, -44, 28, -8};
@@ -61,12 +54,12 @@ public class EvalConstants {
 	public static final int IX_BISHOP_DOUBLE 				= 1;
 	public static final int IX_QUEEN_NIGHT 					= 2;
 	
-	public static final int[] PHASE 					= {0, 0, 6, 6, 13, 28};
+	public static final int[] PHASE 					= {0, 0, 3, 3, 5, 9};
 	
 	public static final int[] MATERIAL 					= {0, 100, 396, 416, 706, 1302, 3000};
 	public static final int[] MATERIAL_SEE				= {0, 100, 300, 300, 500, 900, 3000};
-	public static final int[] NIGHT_PAWN				= {68, -14, -2, 2, 8, 12, 20, 30, 36};
-	public static final int[] ROOK_PAWN					= {48, -4, -4, -4, -4, 0, 0, 0, 0};
+	public static final int[] NIGHT_PAWN				= {68, -14, -2, 2, 8, 12, 20, 30, 36, 55, 70, 70, 70};
+	public static final int[] ROOK_PAWN					= {48, -4, -4, -4, -4, 0, 0, 0, 0, 0, 0, 0, 0};
 	
 	public static final int[] PINNED 					= {0, 2, -18, -54, -68, -84};
 	public static final int[] DISCOVERED		 		= {0, -14, 128, 110, 180, 0, 28};
@@ -89,7 +82,7 @@ public class EvalConstants {
 
 	public static final int[] PASSED_SCORE_EG			= {0, 14, 18, 34, 62, 128, 238};
 	public static final int[] PASSED_CANDIDATE			= {0, 2, 2, 8, 14, 40};
-	public static final float[] PASSED_KING_MULTI 		= {0, 1.5f, 1.3f, 1.2f, 1.1f, 1.0f, 0.8f, 0.8f};														
+	public static final float[] PASSED_KING_MULTI 		= {0, 1.5f, 1.3f, 1.2f, 1.1f, 1.0f, 0.8f, 0.8f, 0.9f};														
 	public static final float[] PASSED_MULTIPLIERS		= {
 			0.5f,	// blocked
 			1.3f,	// next square attacked

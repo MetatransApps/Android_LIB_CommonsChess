@@ -110,7 +110,7 @@ public abstract class EditBoardActivity extends Activity_Base_Ads_Banner impleme
 
 	@Override
 	protected String getBannerName() {
-		return IAdsConfiguration.AD_ID_BANNER2;
+		return IAdsConfiguration.AD_ID_BANNER1;
 	}
 
 

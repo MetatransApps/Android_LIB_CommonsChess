@@ -146,7 +146,7 @@ public class EngineClient_LocalImpl implements IEngineClient {
 		SharedData sharedData = new SharedData(ChannelManager.getChannel(), cfg);
 		
 		if (USE_OPENNING && OpeningBookFactory.getBook() != null) {
-			saver = new TimeSaver(OpeningBookFactory.getBook());
+			saver = new TimeSaver(null, OpeningBookFactory.getBook());
 		}
 		
 		search = new MTDParallelSearch_ThreadsImpl(new Object[] { cfg, sharedData });
@@ -181,7 +181,7 @@ public class EngineClient_LocalImpl implements IEngineClient {
 		IRunAPIStatus status = new RunAPIStatusImpl1(bitboardForSetup);
 		setCurrentMediator(new RunAPIMediator(status, 24 * 60 * 60 * 1000));
 		
-		boolean moveSent = (saver == null ? false : saver.beforeMove(boardForSetup, OpeningBook.OPENNING_BOOK_MODE_POWER1, getCurrentMediator(), true));
+		boolean moveSent = (saver == null ? false : saver.beforeMove(boardForSetup, OpeningBook.OPENING_BOOK_MODE_POWER1, getCurrentMediator(), true, false, 0));
 		
 		if (!moveSent) {
 			

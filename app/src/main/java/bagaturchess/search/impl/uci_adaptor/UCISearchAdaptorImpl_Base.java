@@ -40,7 +40,7 @@ import bagaturchess.uci.api.IUCISearchAdaptor;
 import bagaturchess.uci.impl.commands.Go;
 
 
-public abstract class UCISearchAdaptorImpl_Base implements IUCISearchAdaptor {
+public abstract class UCISearchAdaptorImpl_Base implements IUCISearchAdaptor_Extension {
 	
 	
 	protected static final int RETRY_COUNT_FOR_GETTING_INFO = 11;
@@ -85,9 +85,7 @@ public abstract class UCISearchAdaptorImpl_Base implements IUCISearchAdaptor {
 		//Should be initialized after the searchers to handle memory in a correct way.
 		sharedData.setMemoryConsumers(new MemoryConsumers(ChannelManager.getChannel(), rootSearchCfg, searchAdaptorCfg.isOwnBookEnabled()));
 		
-		if (sharedData.getOpeningBook() != null) {
-			saver = new TimeSaver(sharedData.getOpeningBook());	
-		}
+		saver = new TimeSaver(this, sharedData.getOpeningBook());	
 	}
 	
 	
@@ -125,7 +123,8 @@ public abstract class UCISearchAdaptorImpl_Base implements IUCISearchAdaptor {
 		}
 	}
 	
-	protected SharedData getSharedData() {
+	
+	public SharedData getSharedData() {
 		return sharedData;
 	}
 	
@@ -160,11 +159,15 @@ public abstract class UCISearchAdaptorImpl_Base implements IUCISearchAdaptor {
 		
 		if (!currentGoCommand.isPonder()) {
 			
-			boolean moveSent = false;
-			if (saver != null) {
-				currentMediator.dump("Using TimeSaver ...");
-				moveSent = saver.beforeMove(boardForSetup, sharedData.getSearchConfig().getOpenningBook_Mode(), currentMediator, searchAdaptorCfg.isOwnBookEnabled());
-			}
+			currentMediator.dump("Using TimeSaver ...");
+			
+			
+			boolean moveSent = saver.beforeMove(boardForSetup,
+					sharedData.getSearchConfig().getOpeningBook_Mode(),
+					currentMediator,
+					searchAdaptorCfg.isOwnBookEnabled(),
+					((IRootSearchConfig) searchAdaptorCfg.getRootSearchConfig()).useOnlineSyzygy(),
+					timeController.getRemainningTime());
 			
 			if (!moveSent) {
 				

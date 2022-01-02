@@ -22,6 +22,8 @@ public interface IBoard {
 	public int genNonCaptureNonPromotionMoves(final IInternalMoveList list);
 	public int genAllMoves_ByFigureID(int fieldID, long excludedToFields, final IInternalMoveList list);
 	
+	public int getEnpassantSquareID();
+	
 	public void makeMoveForward(final int move);
 	public void makeMoveForward(final String ucimove);
 	public void makeMoveBackward(final int move);
@@ -59,7 +61,8 @@ public interface IBoard {
 	
 	public boolean isDraw50movesRule();
 	public int getDraw50movesRule();
-	public boolean hasSufficientMaterial();
+	public boolean hasSufficientMatingMaterial();
+	public boolean hasSufficientMatingMaterial(int color);
 	
 	//public IBoard clone();
 	

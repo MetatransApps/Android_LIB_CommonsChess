@@ -75,7 +75,7 @@ public abstract class MainView extends View implements IMainView {
 	}
 	
 	
-	public BoardView getBoardView() {
+	public IBoardVisualization getBoardView() {
 		return boardView;
 	}
 	
