@@ -23,12 +23,14 @@ import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.cfg.animation.Config_Animation_Base;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.board.BoardUtils;
+import org.metatrans.commons.chess.logic.computer.ComputerPlayer_Engine;
 import org.metatrans.commons.chess.logic.game.GameDataUtils;
 import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.menu.MenuActivity_Promotion;
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.MovingPiece;
+import org.metatrans.commons.chess.model.SearchInfo;
 import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.engagement.leaderboards.View_Achievements_And_Leaderboards_Base;
@@ -1496,8 +1498,23 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 
 							} else {
 
+								SearchInfo last_search_info = null;
+
+								if (getBoardManager().getComputerToMove() instanceof ComputerPlayer_Engine) {
+
+									last_search_info = ((ComputerPlayer_Engine) getBoardManager().getComputerToMove()).getLastSearchInfo();
+
+									if (last_search_info != null) {
+
+										if (last_search_info.first_move_native != move.nativemove) {
+
+											last_search_info = null;
+										}
+									}
+								}
+
 								//Will call start animation code a bit later in the stack
-								activity.getGameController().acceptNewMove(move, null);
+								activity.getGameController().acceptNewMove(move, last_search_info);
 
 							}
 

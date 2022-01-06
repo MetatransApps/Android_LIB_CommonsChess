@@ -14,12 +14,18 @@ public class SearchInfo implements Serializable {
 	public String infoMoves;
 	public String infoDepth;
 	public String infoNPS;
-	
-	public SearchInfo(String infoEval, String infoMoves, String infoDepth, String infoNPS) {
+
+	public long first_move_native;
+
+
+	public SearchInfo(String infoEval, String infoMoves, String infoDepth, String infoNPS, long first_move_native) {
+
 		super();
+
 		this.infoEval = infoEval;
 		this.infoMoves = infoMoves;
 		this.infoDepth = infoDepth;
 		this.infoNPS = infoNPS;
+		this.first_move_native = first_move_native;
 	}
 }

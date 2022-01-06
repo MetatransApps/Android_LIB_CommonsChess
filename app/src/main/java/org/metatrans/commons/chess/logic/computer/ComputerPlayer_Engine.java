@@ -155,6 +155,7 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 		String pv;
 		String depth;
 		String nps;
+		long native_last_move;
 
 		if (native_last_search_info.getDepth() > 0) {
 
@@ -172,15 +173,18 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 			depth = "Depth " + native_last_search_info.getDepth() + "/" + native_last_search_info.getSelDepth();
 			nps   = "NPS " + (int)(native_last_search_info.getSearchedNodes()/((System.currentTimeMillis()- think_start_time)/(double)1000));
 
+			native_last_move = native_last_search_info.getBestMove();
+
 		} else {
 
 			eval  = "0";
 			pv = "Book Move " + board_computer.getMoveOps().moveToString(native_last_search_info.getBestMove());
 			depth = "Depth 0/0";
 			nps   = "NPS 0";
+			native_last_move = 0;
 		}
 
-		return new SearchInfo(eval, pv, depth, nps);
+		return new SearchInfo(eval, pv, depth, nps, native_last_move);
 	}
 
 

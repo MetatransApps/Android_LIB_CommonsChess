@@ -121,13 +121,13 @@ public class GameData extends GameData_Base implements Serializable, GlobalConst
 
 	public boolean isOnTheFirstMove() {
 
-		return currentMoveIndex == -1 || moves.size() == 0 || moves.size() == 1;
+		return currentMoveIndex == -1 || moves.size() == 0;
 	}
 
 
 	public boolean isOnTheLastMove() {
 
-		return currentMoveIndex == moves.size() - 1 || moves.size() == 0 || moves.size() == 1;
+		return currentMoveIndex == moves.size() - 1 || moves.size() == 0;
 	}
 
 
