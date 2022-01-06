@@ -40,9 +40,20 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 
 	public SearchInfo getLastSearchInfo() {
 
-		ISearchInfo native_info = engine.getInfoLine();
+		SearchInfo info;
 
-		return convertInfo(native_info);
+		if (isThinking()) {
+
+			ISearchInfo native_info = engine.getInfoLine();
+
+			info = convertInfo(native_info);
+
+		} else {
+
+			info = last_search_info;
+		}
+
+		return info;
 	}
 
 
@@ -59,6 +70,7 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 		board_computer.revert();
 		
 		for (int i = 0; i <= getBoardManager().getGameData().getCurrentMoveIndex(); i++) {
+
 			board_computer.makeMoveForward(getBoardManager().getGameData().getMoves().get(i).nativemove);
 		}
 
@@ -122,6 +134,7 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 
 		last_search_info = convertInfo(native_last_search_info);
 
+		//System.out.println("last_search_info=" + last_search_info);
 
 		if (result == null) {
 			//throw new IllegalStateException("No move");
