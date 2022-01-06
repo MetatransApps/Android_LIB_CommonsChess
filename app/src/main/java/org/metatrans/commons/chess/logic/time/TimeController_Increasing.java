@@ -1,21 +1,28 @@
 package org.metatrans.commons.chess.logic.time;
 
 
+import android.os.Handler;
+
 import org.metatrans.commons.chess.logic.BoardConstants;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.main.MainActivity;
+import org.metatrans.commons.chess.model.GameData;
+import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
+import org.metatrans.commons.chess.views_and_controllers.IMainView;
+import org.metatrans.commons.chess.views_and_controllers.IPanelsVisualization;
 
 
 public class TimeController_Increasing implements ITimeController, BoardConstants {
 	
 	
-	private MainActivity mainActivity;
+	private IBoardViewActivity mainActivity;
 	private Heartbeat heartbeat;
 	
 	private boolean whiteClock;
 	private boolean blackClock;
 	
 	
-	public TimeController_Increasing(MainActivity _mainActivity) {
+	public TimeController_Increasing(IBoardViewActivity _mainActivity) {
 		
 		mainActivity = _mainActivity;
 		
@@ -110,7 +117,7 @@ public class TimeController_Increasing implements ITimeController, BoardConstant
 		
 		int check_interval = 50;
 		int update_interval = 1000;
-		
+
 		
 		Heartbeat() {
 		}
@@ -122,85 +129,148 @@ public class TimeController_Increasing implements ITimeController, BoardConstant
 			try {
 				
 				while (!stopped) {
+
 					try {
 						Thread.sleep(check_interval);
+
 					} catch (InterruptedException e) {}
-					
+
+
 					if (whiteClock) {
+
 						accumulated_time_white += check_interval;
 						
 						if (accumulated_time_white > accumulated_time_white_old + update_interval) {
 							
 							accumulated_time_white_old = accumulated_time_white;
 							
-							setWhiteTime();	
+							setWhiteTime(mainActivity);
 						}
 					}
-					
+
+
 					if (blackClock) {
+
 						accumulated_time_black += check_interval;
 						
 						if (accumulated_time_black > accumulated_time_black_old + update_interval) {
 							
 							accumulated_time_black_old = accumulated_time_black;
 							
-							setBlackTime();
+							setBlackTime(mainActivity);
 						}
 					}
 				}
+
 			} catch(Exception e) {
+
 				e.printStackTrace();
 			}
 		}
 		
 		
 		private void init() {
-			setWhiteTime();
-			setBlackTime();
+
+			setWhiteTime(mainActivity);
+
+			setBlackTime(mainActivity);
 		}
 		
 		
-		private void setBlackTime() {
+		private void setBlackTime(IBoardViewActivity mainActivity) {
 			
 			if (mainActivity != null) {
-				
-				mainActivity.getBoardManager().getGameData().setAccumulated_time_black(accumulated_time_black);
-				
-				if (mainActivity.getBoardManager() != null) {
-					
-					mainActivity.getUIHandler().post(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								mainActivity.getMainView().getPanelsView().redraw();
-							} catch(Exception e) {
-							
+
+				IBoardManager boardManager = mainActivity.getBoardManager();
+
+				if (boardManager != null) {
+
+					GameData gamedata = boardManager.getGameData();
+
+					if (gamedata != null) {
+
+						gamedata.setAccumulated_time_black(accumulated_time_black);
+					}
+
+					Handler handler = mainActivity.getUIHandler();
+
+					if (handler != null) {
+
+						handler.post(new Runnable() {
+
+							@Override
+							public void run() {
+
+								try {
+
+									IMainView mainView = mainActivity.getMainView();
+
+									if (mainView != null) {
+
+										IPanelsVisualization panelsView = mainView.getPanelsView();
+
+										if (panelsView != null) {
+
+											mainView.getPanelsView().redraw();
+										}
+									}
+
+								} catch (Exception e) {
+
+								}
 							}
-						}
-					});
+						});
+					}
 				}
 			}
 		}
 		
 		
-		private void setWhiteTime() {
-			
+		private void setWhiteTime(IBoardViewActivity mainActivity) {
+
 			if (mainActivity != null) {
-				
-				if (mainActivity.getBoardManager() != null && mainActivity.getBoardManager().getGameData() != null) {
-					mainActivity.getBoardManager().getGameData().setAccumulated_time_white(accumulated_time_white);
-				}
-				
-				if (mainActivity.getUIHandler() != null) mainActivity.getUIHandler().post(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							mainActivity.getMainView().getPanelsView().redraw();
-						} catch(Exception e) {
-							
-						}
+
+				IBoardManager boardManager = mainActivity.getBoardManager();
+
+				if (boardManager != null) {
+
+					GameData gamedata = boardManager.getGameData();
+
+					if (gamedata != null) {
+
+						gamedata.setAccumulated_time_white(accumulated_time_white);
 					}
-				});
+
+					Handler handler = mainActivity.getUIHandler();
+
+					if (handler != null) {
+
+						handler.post(new Runnable() {
+
+							@Override
+							public void run() {
+
+								try {
+
+									IMainView mainView = mainActivity.getMainView();
+
+									if (mainView != null) {
+
+										IPanelsVisualization panelsView = mainView.getPanelsView();
+
+										if (panelsView != null) {
+
+											mainView.getPanelsView().redraw();
+										}
+									}
+
+								} catch (Exception e) {
+
+								}
+							}
+						});
+					}
+				}
 			}
 		}
 	}

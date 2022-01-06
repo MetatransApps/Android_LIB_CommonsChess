@@ -5,7 +5,6 @@ import android.os.RemoteException;
 
 import java.io.InputStream;
 
-import org.metatrans.commons.DeviceUtils;
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.engines.search.IEngineClient;
@@ -244,20 +243,22 @@ public class EngineClient_LocalImpl implements IEngineClient {
 	
 	
 	@Override
-	public synchronized String getInfoLine() throws RemoteException {
-		
-		//System.out.println("EngineClient_LocalImpl: getInfoLine");
-		
-		return "Info Line: " + System.currentTimeMillis();
+	public synchronized ISearchInfo getInfoLine() {
+
+		if (currentMediator == null) {
+
+			return null;
+		}
+
+		return currentMediator.getLastInfo();
 	}
 	
 	
 	@Override
 	public synchronized boolean isDone() throws RemoteException {
-		
-		//System.out.println("EngineClient_LocalImpl: isDone");
-		
+
 		if (getCurrentMediator() == null) {
+
 			return true;
 		}
 		

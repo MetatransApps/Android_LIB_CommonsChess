@@ -41,28 +41,21 @@ import java.util.List;
  * They have to be removed and directly rectangles and buttons have to be used
  * in this class as well as in the inner class OnTouchListener_Panels
  */
-public abstract class PanelsView extends BaseView implements IPanelsVisualization, BoardConstants {
+public abstract class PanelsView extends SearchInfoView implements IPanelsVisualization, BoardConstants {
 	
 	
 	protected static int DELTA_AREAS = 9;
 
 	private static boolean AUTO_BUTTON_BOTTOM_ENABLED = true;
-	
-	private static boolean AREA_BOTTOM2_ENABLED = true;
-	
-	protected int colour_panel;
 
 	protected RectF rectangle_top;
 	protected RectF rectangle_bottom;
-	private RectF rectangle_bottom2;
 	protected float boardSquareSize;
 	
 	protected int[] captured_w;
 	protected int[] captured_b;
 	private int captured_w_size;
 	private int captured_b_size;
-
-	protected Paint default_paint;
 	
 	private RectF rectangle_area_topleft;
 	private RectF rectangle_area_topplayer;
@@ -71,11 +64,6 @@ public abstract class PanelsView extends BaseView implements IPanelsVisualizatio
 
 	private RectF rectangle_area_bottomleft;
 	private RectF rectangle_area_bottomplayer;
-	protected RectF rectangle_area_info;
-
-	private RectF rectangle_area_bottom2left;
-	private RectF rectangle_area_bottom2right1;
-	private RectF rectangle_area_bottom2right2;
 
 
 	private ClockArea textarea_topleft;
@@ -83,24 +71,18 @@ public abstract class PanelsView extends BaseView implements IPanelsVisualizatio
 	protected ButtonAreaClick_Image textarea_menu;
 	protected ButtonAreaSwitch_Image textarea_switch_colors;
 
-	private ButtonAreaSwitch_Image textarea_info;
 	private ButtonAreaSwitch textarea_white_player;
 	private ButtonAreaSwitch textarea_black_player;
-	
-	private TextArea textarea_bottom2left;
-	private TextArea textarea_bottom2right1;
-	private TextArea textarea_bottom2right2;
 
 	protected Bitmap thinkingBitmap;
 
 
 	public PanelsView(Context context, View _parent,  RectF _rectangleTop, RectF _rectangleBottom, RectF _rectangleBottom1,  RectF _rectangleBottom2) {
 		
-		super(context, _parent);
+		super(context, _parent, _rectangleBottom2);
 		
 		rectangle_top = _rectangleTop;
 		rectangle_bottom = _rectangleBottom;
-		rectangle_bottom2 = _rectangleBottom2;
 		
 		captured_w = new int[16];
 		captured_b = new int[16];
@@ -111,22 +93,18 @@ public abstract class PanelsView extends BaseView implements IPanelsVisualizatio
 		rectangle_area_bottomleft = new RectF();
 		
 		rectangle_area_topright = new RectF();
-		rectangle_area_info = new RectF();
 		
 		rectangle_area_topplayer = new RectF();
 		rectangle_area_bottomplayer = new RectF();
 		rectangle_area_switch_colors = new RectF();
-
-		rectangle_area_bottom2left = new RectF();
-		rectangle_area_bottom2right1 = new RectF();
-		rectangle_area_bottom2right2 = new RectF();
-
 
 		colour_panel = getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black();
 	}
 	
 	
 	public void init(String playerName_white, String playerName_black, boolean autotop, boolean autobottom, boolean info_enabled) {
+
+		super.init();
 
 		IConfigurationColours coloursCfg = getActivity().getUIConfiguration().getColoursConfiguration();
 
@@ -173,29 +151,7 @@ public abstract class PanelsView extends BaseView implements IPanelsVisualizatio
 				true,
 				false
 			);
-		
-		
-		if (AREA_BOTTOM2_ENABLED) {
-			
-			rectangle_area_bottom2left.left = rectangle_bottom2.left + delta;
-			rectangle_area_bottom2left.top = rectangle_bottom2.top + delta;
-			rectangle_area_bottom2left.right = rectangle_bottom2.left + boardSquareSize + boardSquareSize - delta;
-			rectangle_area_bottom2left.bottom = rectangle_bottom2.bottom - delta;
-			textarea_bottom2left = new TextArea(rectangle_area_bottom2left, "Messages", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black());
-			
-			rectangle_area_bottom2right1.left = 2 * boardSquareSize + delta;
-			rectangle_area_bottom2right1.top = rectangle_bottom2.top /*+ ((rectangle_area_bottom2left.bottom - rectangle_area_bottom2left.top) / 2)*/ + delta;
-			rectangle_area_bottom2right1.right = rectangle_bottom2.right - delta;
-			rectangle_area_bottom2right1.bottom = rectangle_bottom2.top + ((rectangle_bottom2.bottom - rectangle_bottom2.top) / 2) - delta;
-			textarea_bottom2right1 = new TextArea(rectangle_area_bottom2right1, "Thinking: a2a4", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black());
-			
-			rectangle_area_bottom2right2.left = 2 * boardSquareSize + delta;
-			rectangle_area_bottom2right2.top = rectangle_bottom2.top + ((rectangle_bottom2.bottom - rectangle_bottom2.top) / 2) + delta;
-			rectangle_area_bottom2right2.right = rectangle_bottom.right - delta;
-			rectangle_area_bottom2right2.bottom = rectangle_bottom2.bottom - delta;
-			textarea_bottom2right2 = new TextArea(rectangle_area_bottom2right2, "NPS     : 35", getActivity().getUIConfiguration().getColoursConfiguration().getColour_Delimiter(), getActivity().getUIConfiguration().getColoursConfiguration().getColour_Square_Black());
-		}
-		
+
 		
 		rectangle_area_topplayer.left = 2 * boardSquareSize + delta;
 		rectangle_area_topplayer.top = rectangle_top.top + delta;
@@ -227,19 +183,7 @@ public abstract class PanelsView extends BaseView implements IPanelsVisualizatio
 				settings.auto_player_enabled_black);
 
 
-		float play_and_goto_buttons_border = 30;
-		float play_and_goto_buttons_size_y = 8 * (rectangle_bottom.bottom - rectangle_bottom.top) / 10;
-		//float play_and_goto_buttons_size_x = 1.3f * play_and_goto_buttons_size_y;
-
-		initInfoRectangle(play_and_goto_buttons_border, play_and_goto_buttons_size_y);
-
-		textarea_info = new ButtonAreaSwitch_Image(rectangle_area_info,
-				BitmapUtils.fromResource((Context) getActivity(),R.drawable.ic_action_wizard_white),
-				coloursCfg.getColour_Square_ValidSelection(),
-				coloursCfg.getColour_Delimiter(),
-				coloursCfg.getColour_Square_MarkingSelection(),
-				settings.infoEnabled,
-				false);
+		initInfoRectangle();
 
 
 		int moving_computer_icon_id = ((Application_Chess_BaseImpl) Application_Base.getInstance()).getMovingComputerIconID();
@@ -253,7 +197,7 @@ public abstract class PanelsView extends BaseView implements IPanelsVisualizatio
 	}
 
 
-	protected abstract void initInfoRectangle(float play_and_goto_buttons_border, float play_and_goto_buttons_size_y);
+	protected abstract void initInfoRectangle();
 
 
 	@Override
@@ -262,6 +206,8 @@ public abstract class PanelsView extends BaseView implements IPanelsVisualizatio
 		disableAndEnableRotateBoardButton();
 
 		drawPlayersPanels(canvas);
+
+		super.onDraw(canvas);
 
 		invalidate();
 	}
@@ -418,42 +364,6 @@ public abstract class PanelsView extends BaseView implements IPanelsVisualizatio
 		//Draw player panel
 		paint.setColor(colour_panel);
 		DrawingUtils.drawRoundRectangle(canvas, paint, rectangle_bottom);
-		
-		if (AREA_BOTTOM2_ENABLED
-				&& rectangle_bottom2.height() > 0
-				//&& getActivity().getBoardManager().getGameData().getLastSearchInfo() != null
-				&& getActivity().getUserSettings().infoEnabled) {
-			
-			DrawingUtils.drawRoundRectangle(canvas, paint, rectangle_bottom2);
-
-
-			String value_eval = "  ...  ";
-			String value_moves = "  ...  ";
-			String value_depth = "  ...  ";
-
-			int current_move_index = getActivity().getBoardManager().getGameData().getCurrentMoveIndex();
-
-			if (current_move_index != -1) {
-
-				SearchInfo last_info = getActivity().getBoardManager().getGameData().getSearchInfos().get(current_move_index);
-
-				if (last_info != null) {
-
-					value_eval = last_info.infoEval;
-					value_moves = last_info.infoMoves + "  ";
-					value_depth = last_info.infoDepth + ", " + last_info.infoNPS + "  ";
-				}
-			}
-
-			textarea_bottom2left.setText(value_eval);
-			textarea_bottom2left.draw(canvas);
-			
-			textarea_bottom2right1.setText(value_moves);
-			textarea_bottom2right1.draw(canvas);
-			
-			textarea_bottom2right2.setText(value_depth);
-			textarea_bottom2right2.draw(canvas);
-		}
 		
 		//Draw pieces
 		float max_image_height = (rectangle_bottom.bottom - rectangle_bottom.top) / 2;

@@ -5,6 +5,7 @@ import static org.metatrans.commons.chess.logic.BoardConstants.COLOUR_PIECE_BLAC
 import static org.metatrans.commons.chess.logic.BoardConstants.COLOUR_PIECE_WHITE;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 
 import java.util.concurrent.locks.ReadWriteLock;
@@ -14,18 +15,20 @@ import org.metatrans.commons.chess.Alerts;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.logic.computer.ComputerMove;
 import org.metatrans.commons.chess.logic.computer.IComputer;
+import org.metatrans.commons.chess.logic.time.TimeController_Increasing;
 import org.metatrans.commons.chess.main.MainActivity;
 import org.metatrans.commons.chess.logic.time.ITimeController;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.IPlayer;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.SearchInfo;
+import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
 
 
 public class GameManager implements GlobalConstants {
 
 
-	private MainActivity mainActivity;
+	private IBoardViewActivity mainActivity;
 
 	private ITimeController timeController;
 
@@ -36,7 +39,7 @@ public class GameManager implements GlobalConstants {
 	private ReadWriteLock lock = new ReentrantReadWriteLock();
 
 
-	public GameManager(MainActivity _mainActivity) {
+	public GameManager(IBoardViewActivity _mainActivity) {
 		mainActivity = _mainActivity;
 	}
 
@@ -72,7 +75,7 @@ public class GameManager implements GlobalConstants {
 				//Ask for user acceptance for move sequence change.
 
 				//ALERT FOR GAME CHANGE
-				AlertDialog.Builder adb = Alerts.createAlertDialog_OverrideMoveSequence(mainActivity,
+				AlertDialog.Builder adb = Alerts.createAlertDialog_OverrideMoveSequence((Context) mainActivity,
 
 						new DialogInterface.OnClickListener() {
 
@@ -217,15 +220,13 @@ public class GameManager implements GlobalConstants {
 	ITimeController getTimeController() {
 
 		if (timeController == null) {
-			mainActivity.createTimeController();//Will set timeController field as well
+
+			timeController = new TimeController_Increasing(mainActivity);
+
+			timeController.setData(mainActivity.getBoardManager().getGameData().getAccumulated_time_white(), mainActivity.getBoardManager().getGameData().getAccumulated_time_black());
 		}
 
 		return timeController;
-	}
-
-
-	public void setTimeController(ITimeController _timeController) {
-		timeController = _timeController;
 	}
 
 
@@ -246,13 +247,20 @@ public class GameManager implements GlobalConstants {
 
 	public void scheduleComputerPlayerAutoStart() {
 
+		System.out.println("GameManager.scheduleComputerPlayerAutoStart: called");
+
 		stopThinking();
 
-		getTimeController().pause(mainActivity.getBoardManager().getColourToMove());
+		if (mainActivity.getBoardManager().getPlayerToMove().getType() == PLAYER_TYPE_COMPUTER) {
 
-		mainActivity.getBoard().unlock();
+			System.out.println("GameManager.scheduleComputerPlayerAutoStart: PLAYER_TYPE_COMPUTER");
 
-		recreateAutoPlayCallBack();
+			getTimeController().pause(mainActivity.getBoardManager().getColourToMove());
+
+			mainActivity.getBoard().unlock();
+
+			recreateAutoPlayCallBack();
+		}
 	}
 
 
@@ -297,7 +305,7 @@ public class GameManager implements GlobalConstants {
 
 	public void resumeGame() {
 
-		System.out.println("GameManager resumeGame");
+		System.out.println("GameManager.resumeGame: called");
 
 		lock();
 
@@ -311,11 +319,17 @@ public class GameManager implements GlobalConstants {
 
 			getTimeController().resume(mainActivity.getBoardManager().getColourToMove());
 
+			System.out.println("GameManager.resumeGame: color to move " + mainActivity.getBoardManager().getColourToMove());
+
 			if (mainActivity.getBoardManager().getPlayerToMove().getType() == PLAYER_TYPE_COMPUTER) {
+
+				System.out.println("GameManager.resumeGame: PLAYER_TYPE_COMPUTER");
 
 				startThinking(mainActivity.getBoardManager().getComputerToMove());
 
 			} else {
+
+				System.out.println("GameManager.resumeGame: PLAYER_TYPE_HUMAN");
 
 				//Enable human player to manually select piece and make move via UI.
 				//The UI of the board should be unlocked for this purpose.
@@ -339,6 +353,13 @@ public class GameManager implements GlobalConstants {
 			thinker.stopCurrentJob();
 
 			thinker = null;
+		}
+
+		if (timeController == null) {
+
+			timeController.destroy();
+
+			timeController = null;
 		}
 	}
 

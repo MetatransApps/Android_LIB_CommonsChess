@@ -82,6 +82,8 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 		if (moveAnimationID == 0) {
 
 			moveAnimationID = Config_Animation_Base.ID_NORMAL;
+
+			System.out.println("UserSettings: " + op + " - updating moveAnimation id");
 		}
 	}
 }

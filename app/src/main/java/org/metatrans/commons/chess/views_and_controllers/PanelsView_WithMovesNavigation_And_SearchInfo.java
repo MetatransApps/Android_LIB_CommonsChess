@@ -11,6 +11,7 @@ import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.colours.IConfigurationColours;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.R;
+import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.Move;
@@ -21,7 +22,7 @@ import org.metatrans.commons.ui.utils.DrawingUtils;
 import java.util.List;
 
 
-public class PanelsView_WithMovesNavigation extends PanelsView {
+public class PanelsView_WithMovesNavigation_And_SearchInfo extends SearchInfoView {
 
 
 	public RectF rectangle_bottom1;
@@ -39,9 +40,9 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 	public ButtonAreaSwitch_Image play_last;
 
 
-	public PanelsView_WithMovesNavigation(Context context, View _parent, RectF _rectangleTop, RectF _rectangleBottom, RectF _rectangleBottom1, RectF _rectangleBottom2) {
+	public PanelsView_WithMovesNavigation_And_SearchInfo(Context context, View _parent, RectF _rectangleBottom1, RectF _rectangleBottom2) {
 		
-		super(context, _parent, _rectangleTop, _rectangleBottom, _rectangleBottom1, _rectangleBottom2);
+		super(context, _parent, _rectangleBottom2);
 
 		rectangle_bottom1 = _rectangleBottom1;
 
@@ -54,8 +55,6 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 	
 	
 	public void init(String playerName_white, String playerName_black, boolean autotop, boolean autobottom, boolean info_enabled) {
-
-		super.init(playerName_white, playerName_black, autotop, autobottom, info_enabled);
 
 		//if (true) throw new IllegalStateException();
 
@@ -130,6 +129,9 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 				!gamedata.isOnTheLastMove(),
 				false
 		);
+
+
+		super.init();
 	}
 
 
@@ -156,8 +158,6 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 
 		DrawingUtils.drawRoundRectangle(canvas, default_paint, rectangle_bottom1);
 
-		super.onDraw(canvas);
-
 		disableAndEnableMoveNavigationButtons();
 
 		//Move navigation buttons
@@ -165,6 +165,8 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 		play_prev.draw(canvas);
 		play_next.draw(canvas);
 		play_last.draw(canvas);
+
+		super.onDraw(canvas);
 	}
 
 
@@ -215,6 +217,13 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 
 
 	@Override
+	public void setCapturedPieces(int[] _captured_w, int[] _captured_b, int _captured_w_size, int _captured_b_size) {
+
+		//throw new UnsupportedOperationException();
+	}
+
+
+	@Override
 	public boolean areMovesNavigationButtonsLocked() {
 
 		if (getActivity().getMainView().getBoardView().hasAnimation() != -1) {
@@ -222,10 +231,10 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 			return true;
 		}
 
-		if (getActivity().getGameController().isThinking()) {
+		/*if (getActivity().getGameController().isThinking()) {
 
 			return true;
-		}
+		}*/
 
 		return false;
 	}
@@ -237,8 +246,8 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 		return new OnTouchListener_Panels(boardVisualization, activity);
 	}
 
-
-	public class OnTouchListener_Panels extends PanelsView.OnTouchListener_Panels {
+	//implements OnTouchListener, BoardConstants
+	public class OnTouchListener_Panels implements OnTouchListener, BoardConstants {
 
 
 		private IBoardVisualization boardVisualization;
@@ -248,7 +257,7 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 
 		public OnTouchListener_Panels(IBoardVisualization _boardVisualization, IBoardViewActivity _activity) {
 
-			super(_boardVisualization, _activity);
+			//super(_boardVisualization, _activity);
 
 			boardVisualization = _boardVisualization;
 
@@ -263,7 +272,6 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 			float x = event.getX();
 			float y = event.getY();
 
-
 			if (rectangle_bottom1.contains(x, y)) {
 
 				synchronized (activity) {
@@ -272,16 +280,16 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 
 					if (action == MotionEvent.ACTION_DOWN) {
 
-						return processEvent_DOWN(event) ? true : super.onTouch(view, event);
+						return processEvent_DOWN(event);
 
 					} else if (action == MotionEvent.ACTION_MOVE) {
 
-						return processEvent_MOVE(event) ? true : super.onTouch(view, event);
+						return processEvent_MOVE(event);
 
 					} else if (action == MotionEvent.ACTION_UP
 							|| action == MotionEvent.ACTION_CANCEL) {
 
-						return processEvent_UP(event) ? true : super.onTouch(view, event);
+						return processEvent_UP(event);
 
 					}
 				}
@@ -290,10 +298,9 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 
 				return true;
 
-			} else {
-
-				return super.onTouch(view, event);
 			}
+
+			return false;
 		}
 
 
@@ -327,6 +334,13 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 				play_last.select();
 
 				return true;
+
+			} else if (rectangle_area_info.contains(x, y)) {
+
+				textarea_info.select();
+
+				return true;
+
 			}
 
 			return false;
@@ -346,6 +360,8 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 			play_next.deselect();
 
 			play_last.deselect();
+
+			textarea_info.deselect();
 
 
 			if (rectf_play_first.contains(x, y)) {
@@ -372,6 +388,12 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 
 				return true;
 
+			} else if (rectangle_area_info.contains(x, y)) {
+
+				textarea_info.select();
+
+				return true;
+
 			}
 
 			return false;
@@ -392,6 +414,8 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 			play_next.deselect();
 
 			play_last.deselect();
+
+			textarea_info.deselect();
 
 
 			if (areMovesNavigationButtonsLocked()) {
@@ -607,6 +631,29 @@ public class PanelsView_WithMovesNavigation extends PanelsView {
 				boardVisualization.redraw();
 
 				return true;
+
+			} else if (rectangle_area_info.contains(x, y)) {
+
+				activity.getUserSettings().infoEnabled = !activity.getUserSettings().infoEnabled;
+
+				if (activity.getUserSettings().infoEnabled) {
+
+					textarea_info.activate();
+
+				} else {
+
+					textarea_info.deactivate();
+				}
+
+				Application_Base.getInstance().storeUserSettings(activity.getUserSettings());
+
+
+				activity.getMainView().requestLayout();
+
+				redraw();
+
+				return true;
+
 			}
 
 

@@ -1,12 +1,10 @@
 package org.metatrans.commons.chess.cfg.rules;
 
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 
 public class ConfigurationUtils_Bagatur_AllRules {
@@ -14,8 +12,7 @@ public class ConfigurationUtils_Bagatur_AllRules {
 	
 	private static IConfigurationRule[] ALL_CFGs;
 	private static String[] ALL_Names;
-	
-	@SuppressLint("UseSparseArrays")
+
 	private static final Map<Integer, IConfigurationRule> mapping_id = new HashMap<Integer, IConfigurationRule>();
 	private static final Map<String, IConfigurationRule> mapping_name = new HashMap<String, IConfigurationRule>();
 	

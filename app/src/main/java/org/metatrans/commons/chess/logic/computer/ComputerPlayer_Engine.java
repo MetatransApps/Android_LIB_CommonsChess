@@ -23,6 +23,8 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 
 	private SearchInfo last_search_info;
 
+	private long think_start_time;
+
 
 	public ComputerPlayer_Engine(int colour, BoardManager_NativeBoard boardManager, int thinkTime) {
 
@@ -37,7 +39,10 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 
 
 	public SearchInfo getLastSearchInfo() {
-		return last_search_info;
+
+		ISearchInfo native_info = engine.getInfoLine();
+
+		return convertInfo(native_info);
 	}
 
 
@@ -57,7 +62,7 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 			board_computer.makeMoveForward(getBoardManager().getGameData().getMoves().get(i).nativemove);
 		}
 
-		long start_time = System.currentTimeMillis();
+		think_start_time = System.currentTimeMillis();
 
 		last_search_info = null;
 
@@ -85,7 +90,7 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 				}
 				
 				if (engine.isDone()
-						|| ((System.currentTimeMillis() - start_time) > getThinkTime() && engine.hasAtLeastOneMove())
+						|| ((System.currentTimeMillis() - think_start_time) > getThinkTime() && engine.hasAtLeastOneMove())
 					) {
 
 					native_last_search_info = engine.stopThinkingWithResult();
@@ -114,39 +119,8 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 			}
 		}
 
-		if (native_last_search_info != null) {
 
-			String eval;
-			String pv;
-			String depth;
-			String nps;
-
-			if (native_last_search_info.getDepth() > 0) {
-
-				eval = String.format("%,.2f", (native_last_search_info.getEval() / (double) 100));
-				if (native_last_search_info.isMateScore()) {
-					if (native_last_search_info.getEval() > 0) {
-						eval = "+Mate in " + native_last_search_info.getMateScore();
-					} else {
-						eval = "-Mate in " + Math.abs(native_last_search_info.getMateScore());
-					}
-				} else {
-					eval = ((native_last_search_info.getEval() > 0) ? "+" : "") + eval;
-				}
-				pv = BoardUtils.movesToString(cutPV(native_last_search_info.getPV()), board_computer) + " ...";
-				depth = "Depth " + native_last_search_info.getDepth() + "/" + native_last_search_info.getSelDepth();
-				nps   = "NPS " + (int)(native_last_search_info.getSearchedNodes()/((System.currentTimeMillis()-start_time)/(double)1000));
-
-			} else {
-
-				eval  = "0";
-				pv = "Book Move " + board_computer.getMoveOps().moveToString(native_last_search_info.getBestMove());
-				depth = "Depth 0/0";
-				nps   = "NPS 0";
-			}
-
-			last_search_info = new SearchInfo(eval, pv, depth, nps);
-		}
+		last_search_info = convertInfo(native_last_search_info);
 
 
 		if (result == null) {
@@ -154,6 +128,46 @@ public class ComputerPlayer_Engine extends ComputerPlayer_BaseImpl {
 		}
 		
 		return result;
+	}
+
+
+	private SearchInfo convertInfo(ISearchInfo native_last_search_info) {
+
+		if (native_last_search_info == null) {
+
+			return null;
+		}
+
+		String eval;
+		String pv;
+		String depth;
+		String nps;
+
+		if (native_last_search_info.getDepth() > 0) {
+
+			eval = String.format("%,.2f", (native_last_search_info.getEval() / (double) 100));
+			if (native_last_search_info.isMateScore()) {
+				if (native_last_search_info.getEval() > 0) {
+					eval = "+Mate in " + native_last_search_info.getMateScore();
+				} else {
+					eval = "-Mate in " + Math.abs(native_last_search_info.getMateScore());
+				}
+			} else {
+				eval = ((native_last_search_info.getEval() > 0) ? "+" : "") + eval;
+			}
+			pv = BoardUtils.movesToString(cutPV(native_last_search_info.getPV()), board_computer) + " ...";
+			depth = "Depth " + native_last_search_info.getDepth() + "/" + native_last_search_info.getSelDepth();
+			nps   = "NPS " + (int)(native_last_search_info.getSearchedNodes()/((System.currentTimeMillis()- think_start_time)/(double)1000));
+
+		} else {
+
+			eval  = "0";
+			pv = "Book Move " + board_computer.getMoveOps().moveToString(native_last_search_info.getBestMove());
+			depth = "Depth 0/0";
+			nps   = "NPS 0";
+		}
+
+		return new SearchInfo(eval, pv, depth, nps);
 	}
 
 

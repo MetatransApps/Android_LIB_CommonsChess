@@ -20,7 +20,6 @@ public abstract class MainView extends View implements IMainView {
 
 
 	protected static final float USAGE_PERCENT_BOARD 			= 0.7F;
-	protected static float USAGE_PERCENT_PANEL 				= 0.1F;
 
 
 	protected RectF rectf_main;
@@ -32,12 +31,12 @@ public abstract class MainView extends View implements IMainView {
 	protected float panel_height;
 	protected float panel_border;
 
-	private RectF rectf_banner;
-	private RectF rectf_board;
+	protected RectF rectf_banner;
+	protected RectF rectf_board;
 
 
 	protected BoardView boardView;
-	protected PanelsView panelsView;
+	protected IPanelsVisualization panelsView;
 
 	protected Paint paint;
 
@@ -56,7 +55,7 @@ public abstract class MainView extends View implements IMainView {
 		
 		boardView = createBoardView(rectf_board);
 		
-		panelsView = createPanelsView(rectf_toppanel, rectf_bottompanel0, null, rectf_bottompanel2);
+		panelsView = createPanelsView(rectf_toppanel, null, rectf_bottompanel0, null, rectf_bottompanel2);
 
 		paint = new Paint();
 	}
@@ -67,7 +66,7 @@ public abstract class MainView extends View implements IMainView {
 	}
 
 
-	protected abstract PanelsView createPanelsView(RectF rectf_toppanel, RectF rectf_bottompanel0, RectF rectf_bottompanel1, RectF rectf_bottompanel2);
+	protected abstract IPanelsVisualization createPanelsView(RectF rectf_toppanel, RectF rectf_toppanel1, RectF rectf_bottompanel0, RectF rectf_bottompanel1, RectF rectf_bottompanel2);
 
 
 	protected MainActivity getMainActivity() {
@@ -80,7 +79,7 @@ public abstract class MainView extends View implements IMainView {
 	}
 	
 	
-	public PanelsView getPanelsView() {
+	public IPanelsVisualization getPanelsView() {
 		return panelsView;
 	}
 	
@@ -89,7 +88,7 @@ public abstract class MainView extends View implements IMainView {
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			
+
 		initializeDimensions();
 
 		boardView.init();
@@ -100,7 +99,8 @@ public abstract class MainView extends View implements IMainView {
 				getMainActivity().getUserSettings().infoEnabled
 				);
 		
-		this.setMeasuredDimension( getMeasuredWidth(), (int) (rectf_main.bottom - rectf_main.top) );
+		//this.setMeasuredDimension( getMeasuredWidth(), (int) (rectf_main.bottom - rectf_main.top) );
+		this.setMeasuredDimension( getMeasuredWidth(), getMeasuredHeight());
 
 		setOnTouchListener(new OnTouchListener_Main(getMainActivity(), boardView, panelsView));
 	}
@@ -119,7 +119,7 @@ public abstract class MainView extends View implements IMainView {
 			panel_border = panel_border / 2;
 
 			float board_dimension = main_height * USAGE_PERCENT_BOARD;
-			panel_height = main_height * USAGE_PERCENT_PANEL - panel_border;
+			panel_height = main_height * getUsagePercentPanel() - panel_border;
 
 			rectf_main.left = 0;
 			rectf_main.right = board_dimension;
@@ -179,6 +179,12 @@ public abstract class MainView extends View implements IMainView {
 
 			initInfoAndCustomPanel(board_dimension, rectf_main.left);
 		}
+	}
+
+
+	protected float getUsagePercentPanel() {
+
+		return 0.1F;
 	}
 
 

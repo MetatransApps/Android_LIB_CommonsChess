@@ -1,12 +1,10 @@
 package org.metatrans.commons.chess.main;
 
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -42,11 +40,12 @@ import org.metatrans.commons.chess.views_and_controllers.IPanelsVisualization;
 import org.metatrans.commons.chess.views_and_controllers.MainView_WithMovesNavigation;
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.GameData;
-import org.metatrans.commons.chess.model.IPlayer;
 import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
 import org.metatrans.commons.ui.images.IBitmapCache;
+
+import bagaturchess.uci.api.IUCIOptionAction;
 
 
 public abstract class MainActivity extends Activity_Base_Ads_Banner implements BoardConstants, GlobalConstants, IBoardViewActivity {
@@ -59,10 +58,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 	protected GameManager gameController;
 
-	private ITimeController timeController;
-
-	
-	private ExecutorService executor;
+	protected ExecutorService executor;
 
 	private Handler uiHandler;
 
@@ -143,18 +139,8 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		try {
 
 			if (gameController != null) {
+
 				gameController.stopThinking();
-				gameController.setTimeController(null);
-			}
-
-
-			if (timeController == null) {
-				//throw new IllegalStateException();
-				//May be null if the game is finished
-			} else {
-				timeController.pauseAll();
-				timeController.destroy();
-				timeController = null;
 			}
 
 
@@ -222,18 +208,10 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		System.out.println("MainActivity: onPause: The game has " + manager.getGameData().getMoves().size() +" moves");
 
 		if (gameController != null) {
+
 			gameController.stopThinking();
-			gameController.setTimeController(null);
 		}
 
-
-		if (timeController == null) {
-			//throw new IllegalStateException();
-			//May be null if the game is finished
-		} else {
-			timeController.destroy();
-			timeController = null;
-		}
 
 		Application_Base.getInstance().storeGameData(manager.getGameData());
 
@@ -341,6 +319,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 
 	protected View createMainView() {
+
 		return new MainView_WithMovesNavigation(this, null);
 	}
 
@@ -364,11 +343,6 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 		int gameStatus = getBoardManager().getGameStatus();
 		
 		if (gameStatus == GlobalConstants.GAME_STATUS_NONE) {
-			
-			if (timeController != null) {
-
-				createTimeController();
-			}
 
 			gameController.resumeGame();
 
@@ -442,23 +416,6 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 
 
-	public void createTimeController() {
-		
-		if (timeController != null){
-
-			timeController.destroy();
-
-			timeController = null;
-		}
-		
-		timeController = new TimeController_Increasing(this);
-
-		timeController.setData(getBoardManager().getGameData().getAccumulated_time_white(), getBoardManager().getGameData().getAccumulated_time_black());
-
-		gameController.setTimeController(timeController);
-	}
-
-
 	private GameData getGameData() {
 
 		return (GameData) Application_Base.getInstance().getGameData();
@@ -490,17 +447,6 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 	
 	
-	/*@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		
-		Intent i = new Intent(getApplicationContext(), getMainMenuClass());
-
-		startActivity(i);
-		
-		return false;
-	}*/
-	
-	
 	public void executeJob(Runnable r) {
 
 		try {
@@ -530,5 +476,11 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	public UserSettings getUserSettings() {
 
 		return (UserSettings) Application_Base.getInstance().getUserSettings();
+	}
+
+
+	public ExecutorService getExecutor() {
+
+		return executor;
 	}
 }

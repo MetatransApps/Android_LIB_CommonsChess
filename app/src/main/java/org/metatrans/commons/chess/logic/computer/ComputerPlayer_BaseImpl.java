@@ -75,6 +75,7 @@ public abstract class ComputerPlayer_BaseImpl implements IComputer , BoardConsta
 	public synchronized void setCurrentJob(ComputerMoveResult _currentJob) {
 		
 		if (currentJob != null) {
+
 			throw new IllegalStateException();
 		}
 		

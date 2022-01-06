@@ -9,23 +9,28 @@ import android.util.AttributeSet;
 public class MainView_WithMovesNavigation extends MainView {
 
 
-	private RectF rectf_bottompanel1;
+	protected RectF rectf_bottompanel1;
 
 
 	public MainView_WithMovesNavigation(Context context, AttributeSet attrs) {
 
 		super(context, attrs);
 
-		USAGE_PERCENT_PANEL 				= 0.075F;
-
 		rectf_bottompanel1 = new RectF();
 
-		panelsView = createPanelsView(rectf_toppanel, rectf_bottompanel0, rectf_bottompanel1, rectf_bottompanel2);
+		panelsView = createPanelsView(rectf_toppanel, null, rectf_bottompanel0, rectf_bottompanel1, rectf_bottompanel2);
 	}
 
 
 	@Override
-	protected PanelsView createPanelsView(RectF rectf_toppanel, RectF rectf_bottompanel0, RectF rectf_bottompanel1, RectF rectf_bottompanel2) {
+	protected float getUsagePercentPanel() {
+
+		return 0.075F;
+	}
+
+
+	@Override
+	protected IPanelsVisualization createPanelsView(RectF rectf_toppanel, RectF rectf_toppanel1, RectF rectf_bottompanel0, RectF rectf_bottompanel1, RectF rectf_bottompanel2) {
 
 		return new PanelsView_WithMovesNavigation(getContext(), this,
 				rectf_toppanel,

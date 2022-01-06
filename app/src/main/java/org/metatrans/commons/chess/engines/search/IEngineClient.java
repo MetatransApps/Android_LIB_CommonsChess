@@ -17,6 +17,6 @@ public interface IEngineClient {
 	
 	public boolean isDone() throws Exception;
 	
-	public String getInfoLine() throws Exception;
+	public ISearchInfo getInfoLine();
 	
 }

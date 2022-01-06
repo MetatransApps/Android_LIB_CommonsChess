@@ -1116,6 +1116,61 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 	}
 
 
+	protected boolean canTouchBoard(MotionEvent event) {
+
+
+		if (isLocked()) {
+
+			return false;
+		}
+
+
+		if (getActivity().getGameController().isThinking()) {
+
+			return false;
+		}
+
+		if (getActivity().getBoardManager().getPlayerWhite().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER
+				&& getActivity().getBoardManager().getPlayerBlack().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER) {
+
+			return false;
+		}
+
+		float x = event.getX();
+		float y = event.getY();
+
+		int letter = getLetter(x);
+		int digit =  getDigit(y);
+
+		if (letter >= 0 && letter < 8 && digit >= 0 && digit < 8) {
+
+			int pieceID = getActivity().getBoardManager().getPiece(letter, digit);
+
+			if (pieceID != ID_PIECE_NONE) {
+
+				int colour = BoardUtils.getColour(pieceID);
+
+				if (getActivity().getBoardManager().getColourToMove() == COLOUR_PIECE_WHITE
+						&& colour == COLOUR_PIECE_WHITE
+						&& getActivity().getBoardManager().getPlayerWhite().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER) {
+
+					return false;
+				}
+
+				if (getActivity().getBoardManager().getColourToMove() == COLOUR_PIECE_BLACK
+						&& colour == COLOUR_PIECE_BLACK
+						&& getActivity().getBoardManager().getPlayerBlack().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER) {
+
+					return false;
+				}
+			}
+		}
+
+
+		return true;
+	}
+
+
 	public class MoveAnimation {
 		
 		
@@ -1223,48 +1278,24 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 			//System.out.println("BOARD: onTouch");
 
 			if (boardVisualization.hasAnimation() != -1) {
+
 				return true;
 			}
 
 			if (activity.getBoardManager().getGameStatus() != GlobalConstants.GAME_STATUS_NONE) {
+
 				return true;
 			}
 
-			if (activity.getGameController().isThinking()) {
+
+			if (!canTouchBoard(event)) {
+
 				return true;
 			}
 
-			if (boardVisualization.isLocked()) {
-				return true;
-			}
-
-			if (activity.getBoardManager().getPlayerWhite().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER
-					&& activity.getBoardManager().getPlayerBlack().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER) {
-				return true;
-			}
-
-			float x = event.getX();
-			float y = event.getY();
-			int letter = boardVisualization.getLetter(x);
-			int digit =  boardVisualization.getDigit(y);
-			if (letter >= 0 && letter < 8 && digit >= 0 && digit < 8) {
-				int pieceID = activity.getBoardManager().getPiece(letter, digit);
-				if (pieceID != ID_PIECE_NONE) {
-					int colour = BoardUtils.getColour(pieceID);
-					if (activity.getBoardManager().getColourToMove() == COLOUR_PIECE_WHITE
-							&& colour == COLOUR_PIECE_WHITE
-							&& activity.getBoardManager().getPlayerWhite().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER) {
-						return true;
-					}
-					if (activity.getBoardManager().getColourToMove() == COLOUR_PIECE_BLACK
-							&& colour == COLOUR_PIECE_BLACK
-							&& activity.getBoardManager().getPlayerBlack().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER) {
-						return true;
-					}
-				}
-			}
 
 			synchronized (activity) {
+
 				int action = event.getAction();
 
 				if (action == MotionEvent.ACTION_DOWN) {

@@ -4,6 +4,7 @@ package org.metatrans.commons.chess.edit;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.view.MotionEvent;
 import android.view.View;
 
 

@@ -1,9 +1,9 @@
 package org.metatrans.commons.chess.logic.computer;
 
 
-import org.metatrans.commons.chess.main.MainActivity;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.SearchInfo;
+import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
 
 import android.os.Handler;
 
@@ -11,13 +11,13 @@ import android.os.Handler;
 public class ComputerMove implements Runnable {
 
 
-	private MainActivity mainActivity;
+	private IBoardViewActivity mainActivity;
 	private IComputer computerPlayer;
 	private Handler uiHandler;
 	private ComputerMoveResult thinkJob;
 	
 	
-	public ComputerMove(IComputer _computerPlayer, MainActivity _mainActivity, Handler _uiHandler) {
+	public ComputerMove(IComputer _computerPlayer, IBoardViewActivity _mainActivity, Handler _uiHandler) {
 		mainActivity = _mainActivity;
 		computerPlayer = _computerPlayer;
 		uiHandler = _uiHandler;
@@ -53,7 +53,7 @@ public class ComputerMove implements Runnable {
 	}
 	
 	
-	private final class CheckerJob implements Runnable {
+	public final class CheckerJob implements Runnable {
 		
 		
 		private final ComputerMoveResult thinkJob;
