@@ -14,6 +14,7 @@ import org.metatrans.commons.cfg.menu.Config_MenuMain_Base;
 import org.metatrans.commons.cfg.menu.IConfigurationMenu_Main;
 import org.metatrans.commons.chess.Alerts;
 import org.metatrans.commons.chess.R;
+import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.cfg.animation.ConfigurationUtils_Animation;
 import org.metatrans.commons.chess.cfg.pieces.ConfigurationUtils_Pieces;
 import org.metatrans.commons.chess.cfg.rules.IConfigurationRule;
@@ -130,7 +131,7 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 			
 			@Override
 			public int getIconResID() {
-				return R.drawable.ic_edit_white;
+				return R.drawable.ic_action_edit_white;
 			}
 			
 			@Override
@@ -372,6 +373,7 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 						System.out.println("PASTED FEN " + fen);
 
 						if (fen != null) {
+
 							try {
 								String validationMessage = BoardUtils.validateBoard(fen);
 
@@ -384,17 +386,23 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 								} else {
 
 									UserSettings userSettings = ((UserSettings) Application_Base.getInstance().getUserSettings());
-									GameData gameData = (GameData) GameDataUtils.createGameDataForNewGame(new GameData(), userSettings.playerTypeWhite, userSettings.playerTypeBlack, userSettings.boardManagerID, userSettings.computerModeID, fen);
+									GameData gameData = (GameData) GameDataUtils.createGameDataForNewGame((GameData) Application_Chess_BaseImpl.getInstance().createGameDataObject(), userSettings.playerTypeWhite, userSettings.playerTypeBlack, userSettings.boardManagerID, userSettings.computerModeID, fen);
 									BoardManager_AllRules manager = new BoardManager_AllRules(gameData);
 									Application_Base.getInstance().storeGameData(gameData);
 
 									finish();
 								}
+
 							} catch (Exception e) {
+
 								MessageUtils.showOkDialog("FEN is not valid.", Activity_MenuMain.this);
+
 								e.printStackTrace();
+
 							}
+
 						} else {
+
 							MessageUtils.showOkDialog("Clipboard is empty.", Activity_MenuMain.this);
 						}
 					}
