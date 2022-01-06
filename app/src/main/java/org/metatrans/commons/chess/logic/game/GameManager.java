@@ -355,7 +355,7 @@ public class GameManager implements GlobalConstants {
 			thinker = null;
 		}
 
-		if (timeController == null) {
+		if (timeController != null) {
 
 			timeController.destroy();
 

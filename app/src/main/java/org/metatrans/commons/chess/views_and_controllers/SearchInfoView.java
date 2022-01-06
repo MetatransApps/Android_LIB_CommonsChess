@@ -134,9 +134,16 @@ public abstract class SearchInfoView extends BaseView implements IPanelsVisualiz
 
 			if (thinker.isThinking()) {
 
-				ComputerPlayer_Engine engine = (ComputerPlayer_Engine) thinker;
+				if (thinker instanceof ComputerPlayer_Engine) {
 
-				last_info = engine.getLastSearchInfo();
+					ComputerPlayer_Engine engine = (ComputerPlayer_Engine) thinker;
+
+					last_info = engine.getLastSearchInfo();
+
+				} else {
+
+					last_info = null;
+				}
 
 			} else {
 
