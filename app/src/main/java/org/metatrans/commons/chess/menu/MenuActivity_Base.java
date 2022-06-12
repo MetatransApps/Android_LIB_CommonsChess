@@ -40,12 +40,6 @@ public abstract class MenuActivity_Base extends Activity_Base {
 
 		System.gc();
 	}
-	
-	
-	@Override
-	protected IBitmapCache getBitmapCache() {
-		return CachesBitmap.getSingletonFullSized();
-	}
 
 	
 	public UserSettings getUserSettings() {

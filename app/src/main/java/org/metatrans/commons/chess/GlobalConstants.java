@@ -15,5 +15,5 @@ public interface GlobalConstants {
 	public static final int GAME_STATUS_BLACK_WINS		 			= 3;
 	public static final int GAME_STATUS_DRAW			 			= 4;
 	
-	public static final int ICON_FULL_SIZE							= 150;
+	public static final int ICON_FULL_SIZE							= 256;
 }

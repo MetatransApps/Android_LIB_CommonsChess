@@ -6,7 +6,7 @@ import org.metatrans.commons.chess.R;
 import android.content.Context;
 
 
-public class Config_Pieces_ASCII_dejavu_sans extends Config_PiecesBase {
+public class Config_Pieces_ASCII_dejavu_sans extends Config_Pieces_BaseImpl {
 	
 	
 	public Config_Pieces_ASCII_dejavu_sans(Context _context) {

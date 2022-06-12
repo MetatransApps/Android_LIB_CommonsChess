@@ -82,10 +82,10 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	public abstract Class getMainMenuClass();
 
 
-	@Override
+	/*@Override
 	protected IBitmapCache getBitmapCache() {
 		return CachesBitmap.getSingletonFullSized();
-	}
+	}*/
 	
 	
 	@Override

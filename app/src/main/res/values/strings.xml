@@ -28,7 +28,9 @@
     <string name="menu_rules_desc">Moving Rules Selection</string>
     <string name="menu_rules_allrules">All Chess Rules</string>
     <string name="menu_rules_allrules_desc">All rules of chess are applied</string>
-    
+
+    <string name="pieces_scheme_bagaturs_v1">Bagaturs V1</string>
+    <string name="pieces_scheme_bagaturs_v2">Bagaturs V2</string>
     <string name="menu_pieces_scheme">Pieces</string>
     <string name="pieces_scheme">Pieces Selection</string>
     <string name="pieces_scheme_ascii_droid_sans_fallback_1">Classic \"droid sans fallback\"</string>

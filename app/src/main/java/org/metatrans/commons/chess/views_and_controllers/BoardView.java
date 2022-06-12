@@ -21,6 +21,7 @@ import org.metatrans.commons.cfg.colours.IConfigurationColours;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.cfg.animation.Config_Animation_Base;
+import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.board.BoardUtils;
 import org.metatrans.commons.chess.logic.computer.ComputerPlayer_Engine;
@@ -37,6 +38,7 @@ import org.metatrans.commons.engagement.leaderboards.View_Achievements_And_Leade
 import org.metatrans.commons.ui.ButtonAreaClick_Image;
 import org.metatrans.commons.ui.IButtonArea;
 import org.metatrans.commons.ui.TextArea;
+import org.metatrans.commons.ui.images.BitmapCacheBase;
 import org.metatrans.commons.ui.utils.BitmapUtils;
 import org.metatrans.commons.ui.utils.DrawingUtils;
 
@@ -591,14 +593,30 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 	
 	private void drawPiece(Canvas canvas, Paint paint_piece, float x, float y, int pieceID, boolean infield) {
 
-		//Obtain piece bitmap
-		int imageResID = getActivity().getUIConfiguration().getPiecesConfiguration().getBitmapResID(pieceID);
-		Bitmap bitmap = CachesBitmap.getSingletonPiecesBoard((int) getSquareSize()).getBitmap((Context) getActivity(), imageResID);
+		IConfigurationPieces piecesCfg = getActivity().getUIConfiguration().getPiecesConfiguration();
+
+		int imageResID = piecesCfg.getBitmapResID(pieceID);
+
+		Bitmap bitmap = ((BitmapCacheBase) CachesBitmap.getSingletonPiecesBoard((int) getSquareSize())).getBitmap(
+				(Context) getActivity(),
+				imageResID,
+				piecesCfg.getPieceHeightScaleFactor(pieceID),
+				piecesCfg.getPieceWidthScaleFactor(pieceID)
+			);
+
 		if (bitmap == null) {
-			getActivity().getUIConfiguration().getPiecesConfiguration().getPiece(pieceID); //This call will be added into the cache
-			bitmap = CachesBitmap.getSingletonPiecesBoard((int) getSquareSize()).getBitmap((Context) getActivity(), imageResID);	
+
+			throw new IllegalStateException("bitmap == null");
+
+			//bitmap = BitmapUtils.fromResource(getContext(), imageResID);
+
+			//bitmap = BitmapUtils.cropTransparantPart(bitmap);
+
+			//CachesBitmap.getSingletonPiecesBoard((int) getSquareSize()).addBitmap(imageResID, bitmap);
 		}
-		
+
+		//Bitmap bitmap = getActivity().getUIConfiguration().getPiecesConfiguration().getPiece(pieceID);
+
 		//Draw piece bitmap
 		if (infield) {
 			DrawingUtils.drawInField(canvas, paint_piece, getSquareSize(), x, y, bitmap);

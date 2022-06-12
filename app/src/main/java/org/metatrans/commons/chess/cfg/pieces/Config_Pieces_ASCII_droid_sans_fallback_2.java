@@ -5,13 +5,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
-import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.utils.CachesBitmap;
-import org.metatrans.commons.ui.utils.BitmapUtils;
+import org.metatrans.commons.ui.images.BitmapCacheBase;
 
 
-public class Config_Pieces_ASCII_droid_sans_fallback_2 extends Config_PiecesBase {
+public class Config_Pieces_ASCII_droid_sans_fallback_2 extends Config_Pieces_BaseImpl {
 
 
 	private static String UNICODE_WHITE_KING 	= "\u2654";
@@ -82,19 +81,36 @@ public class Config_Pieces_ASCII_droid_sans_fallback_2 extends Config_PiecesBase
 	public Bitmap getPiece(int pieceID) {
 		
 		int bitmapResID = getBitmapResID(pieceID);
-		
-		Bitmap bitmap = CachesBitmap.getSingletonFullSized().getBitmap(getContext(), bitmapResID);
+
+		Bitmap bitmap = ((BitmapCacheBase) CachesBitmap.getSingletonFullSized()).getBitmap(
+				getContext(),
+				bitmapResID,
+				getPieceHeightScaleFactor(pieceID),
+				getPieceWidthScaleFactor(pieceID)
+			);
+
 		if (bitmap == null) {
-			String ascii = getASCII(pieceID);
+
+			throw new IllegalStateException();
+
+			/*String ascii = getASCII(pieceID);
+
 			int size = GlobalConstants.ICON_FULL_SIZE;// - GlobalConstants.ICON_FULL_SIZE / 10;
+
 			bitmap = BitmapUtils.createFromText(size, ascii, getColour_Piece(pieceID));
+
+			bitmap = BitmapUtils.cropTransparantPart(bitmap);
+
+			bitmap = BitmapUtils.generateTransparantPart(bitmap, getPieceHeightScaleFactor(pieceID));
+
 			CachesBitmap.getSingletonFullSized().addBitmap(bitmapResID, bitmap);
+			*/
 		}
 		
 		return bitmap;
 	}
-	
-	
+
+
 	public String getASCII(int pieceID) {
 		switch(pieceID) {
 			case ID_PIECE_B_KING:

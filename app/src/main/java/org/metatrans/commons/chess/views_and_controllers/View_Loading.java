@@ -15,6 +15,8 @@ import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.loading.View_Loading_Base;
+import org.metatrans.commons.ui.images.BitmapCacheBase;
+import org.metatrans.commons.ui.utils.BitmapUtils;
 
 
 public class View_Loading extends View_Loading_Base {
@@ -104,31 +106,36 @@ public class View_Loading extends View_Loading_Base {
 			createEntry(bitmap_others_arr.get(bitmap_others_arr.size() - 1));
 		}
 	}
-	
+
 	
 	protected Bitmap getPieceBitmap(IConfigurationPieces piecesCfg, int pieceID) {
 		
 		int imageResID = piecesCfg.getBitmapResID(pieceID);
-		Bitmap bitmap = CachesBitmap.getSingletonPiecesBoard((int) getSquareSize()).getBitmap(getContext(), imageResID);
-		if (bitmap == null) {
-			piecesCfg.getPiece(pieceID); //This call will be added into the cache
-			bitmap = CachesBitmap.getSingletonPiecesBoard((int) getSquareSize()).getBitmap(getContext(), imageResID);	
-		}
+
+		Bitmap bitmap = ((BitmapCacheBase) CachesBitmap.getSingletonPiecesBoard((int) getSquareSize())).getBitmap(
+				getContext(),
+				imageResID,
+				piecesCfg.getPieceHeightScaleFactor(pieceID),
+				piecesCfg.getPieceWidthScaleFactor(pieceID)
+			);
+
 		return bitmap;
 	}
 	
-	
+
 	protected Bitmap getImageBitmap(int imageResID) {
-		return getImageBitmap(imageResID, 1);
+
+		return getImageBitmap(imageResID, 1, 1);
 	}
+
 	
-	
-	private Bitmap getImageBitmap(int imageResID, int icon_size_multy) {
-		Bitmap bitmap = CachesBitmap.getSingletonPiecesBoard((int) (icon_size_multy * getSquareSize())).getBitmap(getContext(), imageResID);
-		if (bitmap == null) {
-			bitmap = CachesBitmap.getSingletonFullSized().getBitmap(getContext(), imageResID);
-			bitmap = CachesBitmap.getSingletonPiecesBoard((int) getSquareSize()).getBitmap(getContext(), imageResID);	
-		}
+	private Bitmap getImageBitmap(int imageResID, float scale_height, float scale_width) {
+
+		int square_size = (int) getSquareSize();
+
+		Bitmap bitmap = ((BitmapCacheBase) CachesBitmap.getSingletonPiecesBoard(square_size)).getBitmap(
+				getContext(), imageResID, scale_height, scale_width);
+
 		return bitmap;
 	}
 }

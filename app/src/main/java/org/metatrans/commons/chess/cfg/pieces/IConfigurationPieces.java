@@ -25,8 +25,15 @@ public interface IConfigurationPieces extends IConfigurationEntry {
 	public static int CFG_PIECES_ASCII_freeserif				= 14;
 	public static int CFG_PIECES_ASCII_segoe_ui_symbol			= 15;
 	public static int CFG_PIECES_ASCII_y_oz_font				= 16;
-	
-	
+	public static int CFG_PIECES_BAGATURS_V1					= 17;
+	public static int CFG_PIECES_BAGATURS_V2					= 18;
+
+
 	public int getBitmapResID(int pieceID);
+
 	public Bitmap getPiece(int pieceID);
+
+	public float getPieceHeightScaleFactor(int pieceID);
+
+	public float getPieceWidthScaleFactor(int pieceID);
 }

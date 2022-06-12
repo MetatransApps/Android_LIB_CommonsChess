@@ -60,16 +60,24 @@ public class MenuActivity_Pieces extends MenuActivity_BasePieces {
 		List<RowItem_CIdTD> rowItems = new ArrayList<RowItem_CIdTD>();
 
 		IConfigurationPieces[] piecesCfg = ConfigurationUtils_Pieces.getAll();
-		
-		for (int i = 0; i < piecesCfg.length; i++) {
-			
-			IConfigurationPieces pieceCfg = piecesCfg[i];
-			
-			int bcolour = ConfigurationUtils_Colours.getConfigByID(getUserSettings().uiColoursID).getColour_Square_Black();
 
-			ensureBitmapExists(pieceCfg.getIconResID(), pieceCfg, BoardConstants.ID_PIECE_B_KING, bcolour);
-			
-			Drawable drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, pieceCfg.getIconResID()));
+
+
+		for (int i = 0; i < piecesCfg.length; i++) {
+
+
+			IConfigurationPieces pieceCfg = piecesCfg[i];
+
+			//int pieceID = i % 2 == 0 ? BoardConstants.ID_PIECE_W_KING : BoardConstants.ID_PIECE_B_KING;
+			//int pieceID = BoardConstants.ID_PIECE_W_KNIGHT;
+			int pieceID = BoardConstants.ID_PIECE_W_KING;
+
+
+			//int bcolour = ConfigurationUtils_Colours.getConfigByID(getUserSettings().uiColoursID).getColour_Square_Black();
+			//ensureBitmapExists(pieceCfg.getIconResID(), pieceCfg, BoardConstants.ID_PIECE_B_KING, bcolour);
+
+			Drawable drawable = BitmapUtils.createDrawable(this,
+					CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, pieceCfg.getBitmapResID(pieceID)));
 			
 			RowItem_CIdTD item = new RowItem_CIdTD(i == initialSelection, drawable, getString(pieceCfg.getName()), "");
 			

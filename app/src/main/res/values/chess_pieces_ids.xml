@@ -26,7 +26,9 @@
     <item name="piece_ascii2_bishop_b" type="drawable"/>
     <item name="piece_ascii2_knight_b" type="drawable"/>
     <item name="piece_ascii2_pawn_b" type="drawable"/>
-    
+
+    <item name="ic_pieces_bagaturs_v1" type="drawable"/>
+    <item name="ic_pieces_bagaturs_v2" type="drawable"/>
     <item name="ic_pieces_ascii_droid_sans_fallback_1" type="drawable"/>
     <item name="ic_pieces_ascii_droid_sans_fallback_2" type="drawable"/>
     <item name="ic_pieces_ascii_dejavu_sans" type="drawable"/>

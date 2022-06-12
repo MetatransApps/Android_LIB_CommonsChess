@@ -6,7 +6,7 @@ import org.metatrans.commons.chess.R;
 import android.content.Context;
 
 
-public class Config_Pieces_ASCII_yozfont extends Config_PiecesBase {
+public class Config_Pieces_ASCII_yozfont extends Config_Pieces_BaseImpl {
 	
 	
 	public Config_Pieces_ASCII_yozfont(Context _context) {

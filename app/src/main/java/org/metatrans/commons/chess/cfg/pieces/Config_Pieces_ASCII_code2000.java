@@ -6,7 +6,7 @@ import org.metatrans.commons.chess.R;
 import android.content.Context;
 
 
-public class Config_Pieces_ASCII_code2000 extends Config_PiecesBase {
+public class Config_Pieces_ASCII_code2000 extends Config_Pieces_BaseImpl {
 	
 	
 	public Config_Pieces_ASCII_code2000(Context _context) {

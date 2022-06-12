@@ -34,10 +34,10 @@ public class CachesBitmap {
 	public static IBitmapCache getSingletonIcons(int size) {
 		synchronized (CachesBitmap.class) {
 			if (singleton_icons == null) {
-				singleton_icons = new BitmapCacheSized(size, getSingletonFullSized(), 100);
+				singleton_icons = new BitmapCacheSized(size, 100);
 			} else if (singleton_icons.getBitmapsSize() != size) {
 				System.out.println("DrawableCaches: re-create icons cache");
-				singleton_icons = new BitmapCacheSized(size, getSingletonFullSized(), 100);
+				singleton_icons = new BitmapCacheSized(size, 100);
 			}
 			//System.out.println("DrawableCaches: icons cache size is " + singleton_icons.size());
 			return singleton_icons;
@@ -48,10 +48,10 @@ public class CachesBitmap {
 	public static IBitmapCache getSingletonPiecesBoard(int size) {
 		synchronized (CachesBitmap.class) {
 			if (singleton_pieces_board == null) {
-				singleton_pieces_board = new BitmapCacheSized(size, getSingletonFullSized(), 100);
+				singleton_pieces_board = new BitmapCacheSized(size, 100);
 			} else if (singleton_pieces_board.getBitmapsSize() != size) {
 				System.out.println("DrawableCaches: re-create pieces (board) cache -> old_size=" + size + ", new_size=" + singleton_pieces_board.getBitmapsSize());
-				singleton_pieces_board = new BitmapCacheSized(size, getSingletonFullSized(), 100);
+				singleton_pieces_board = new BitmapCacheSized(size, 100);
 			}
 			//System.out.println("DrawableCaches: icons cache size is " + singleton_icons.size());
 			return singleton_pieces_board;
@@ -62,10 +62,10 @@ public class CachesBitmap {
 	public static IBitmapCache getSingletonPiecesPanel1(int size) {
 		synchronized (CachesBitmap.class) {
 			if (singleton_pieces_panel1 == null) {
-				singleton_pieces_panel1 = new BitmapCacheSized(size, getSingletonFullSized(), 100);
+				singleton_pieces_panel1 = new BitmapCacheSized(size, 100);
 			} else if (singleton_pieces_panel1.getBitmapsSize() != size) {
 				System.out.println("DrawableCaches: re-create pieces (panel1) cache");
-				singleton_pieces_panel1 = new BitmapCacheSized(size, getSingletonFullSized(), 100);
+				singleton_pieces_panel1 = new BitmapCacheSized(size, 100);
 			}
 			//System.out.println("DrawableCaches: icons cache size is " + singleton_icons.size());
 			return singleton_pieces_panel1;
@@ -76,10 +76,10 @@ public class CachesBitmap {
 	public static IBitmapCache getSingletonPiecesPanel2(int size) {
 		synchronized (CachesBitmap.class) {
 			if (singleton_pieces_panel2 == null) {
-				singleton_pieces_panel2 = new BitmapCacheSized(size, getSingletonFullSized(), 100);
+				singleton_pieces_panel2 = new BitmapCacheSized(size, 100);
 			} else if (singleton_pieces_panel2.getBitmapsSize() != size) {
 				System.out.println("DrawableCaches: re-create pieces (panel2) cache");
-				singleton_pieces_panel2 = new BitmapCacheSized(size, getSingletonFullSized(), 100);
+				singleton_pieces_panel2 = new BitmapCacheSized(size, 100);
 			}
 			//System.out.println("DrawableCaches: icons cache size is " + singleton_icons.size());
 			return singleton_pieces_panel2;

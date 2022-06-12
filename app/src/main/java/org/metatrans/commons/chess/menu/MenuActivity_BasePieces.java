@@ -15,19 +15,29 @@ public class MenuActivity_BasePieces extends MenuActivity_Base implements Global
 	
 	protected void ensureBitmapExists(int iconResID, IConfigurationPieces pieceCfg, int pieceID, int bcolour) {
 		
-		Bitmap bitmap = CachesBitmap.getSingletonFullSized().getBitmap(this, iconResID);
+		/*Bitmap bitmap = CachesBitmap.getSingletonFullSized().getBitmap(this, iconResID);
 		
-		if (bitmap == null) { 
+		if (bitmap == null) {
+
 			bitmap = createIconBitmap(this, pieceCfg, GlobalConstants.ICON_FULL_SIZE, pieceID, bcolour);
-			CachesBitmap.getSingletonFullSized().addBitmap(iconResID, bitmap); //The call will add the bitmap to full sized cache
+
+			bitmap = BitmapUtils.cropTransparantPart(bitmap);
+
+			bitmap = BitmapUtils.generateTransparantPart(bitmap, pieceCfg.getPieceHeightScaleFactor(pieceID));
+
+			CachesBitmap.getSingletonFullSized().addBitmap(iconResID, bitmap);
 		}
+		*/
 	}
 	
 	
 	protected Bitmap createIconBitmap(Context context, IConfigurationPieces piecesCfg, int icon_size, int piece_type, int bcolour) {
 		
 		Bitmap bitmap_background = BitmapUtils.createFromColour(icon_size, bcolour);
-        Bitmap bitmap_piece = BitmapUtils.createScaledBitmap(piecesCfg.getPiece(piece_type), icon_size, icon_size, false);
+
+		Bitmap bitmap_piece = piecesCfg.getPiece(piece_type);
+
+        bitmap_piece = BitmapUtils.createScaledBitmap(bitmap_piece, icon_size, icon_size);
 		
 		Bitmap result = BitmapUtils.overlay(bitmap_background, bitmap_piece);
 		
