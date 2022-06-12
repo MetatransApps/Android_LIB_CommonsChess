@@ -27,7 +27,7 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 	public int playerTypeWhite 	= PLAYER_TYPE_HUMAN;
 	public int playerTypeBlack 	= PLAYER_TYPE_COMPUTER;
 
-	public int uiPiecesID 		= IConfigurationPieces.CFG_PIECES_CUSTOM_2;
+	public int uiPiecesID 		= IConfigurationPieces.CFG_PIECES_BAGATURS_V1;
 
 	public boolean infoEnabled 	= true;
 	public boolean rotatedboard	= false;
@@ -78,6 +78,13 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 
 	    	System.out.println("UserSettings: " + op + " - updating colour id");
 	    }
+
+		if (uiPiecesID == 0) {
+
+			uiPiecesID 		= IConfigurationPieces.CFG_PIECES_BAGATURS_V1;
+
+			System.out.println("UserSettings: " + op + " - updating pieces id");
+		}
 
 		if (moveAnimationID == 0) {
 
