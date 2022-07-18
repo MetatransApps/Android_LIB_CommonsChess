@@ -29,6 +29,8 @@ public class ConfigurationUtils_Pieces {
 		if (!initialized) {
 			
 			 ALL_CFGs = new IConfigurationPieces[] {
+					 	new Config_Pieces_ChessForKids_v1(context),
+					 	new Config_Pieces_ChessForKids_v2(context),
 					 	new Config_Pieces_Bagaturs_v1(context),
 					 	new Config_Pieces_Bagaturs_v2(context),
 					 	new Config_Pieces_ASCII_droid_sans_fallback_1(context),
@@ -75,8 +77,8 @@ public class ConfigurationUtils_Pieces {
 			initialized = true;
 		}
 	}
-	
-	
+
+
 	public static IConfigurationPieces[] getAll() {
 		return ALL_CFGs;
 	}

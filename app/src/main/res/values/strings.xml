@@ -31,6 +31,8 @@
 
     <string name="pieces_scheme_bagaturs_v1">Bagaturs V1</string>
     <string name="pieces_scheme_bagaturs_v2">Bagaturs V2</string>
+    <string name="pieces_scheme_chessforkids_v1">Stone Warriors V1</string>
+    <string name="pieces_scheme_chessforkids_v2">Stone Warriors V2</string>
     <string name="menu_pieces_scheme">Pieces</string>
     <string name="pieces_scheme">Pieces Selection</string>
     <string name="pieces_scheme_ascii_droid_sans_fallback_1">Classic \"droid sans fallback\"</string>

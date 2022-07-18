@@ -27,7 +27,8 @@ public interface IConfigurationPieces extends IConfigurationEntry {
 	public static int CFG_PIECES_ASCII_y_oz_font				= 16;
 	public static int CFG_PIECES_BAGATURS_V1					= 17;
 	public static int CFG_PIECES_BAGATURS_V2					= 18;
-
+	public static int CFG_PIECES_CHESSFORKIDS_V1				= 19;
+	public static int CFG_PIECES_CHESSFORKIDS_V2				= 20;
 
 	public int getBitmapResID(int pieceID);
 
