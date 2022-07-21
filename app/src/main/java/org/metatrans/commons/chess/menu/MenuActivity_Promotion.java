@@ -33,7 +33,7 @@ import org.metatrans.commons.ui.list.RowItem_IdT;
 import org.metatrans.commons.ui.utils.BitmapUtils;
 
 
-public class MenuActivity_Promotion extends MenuActivity_BasePieces implements GlobalConstants, BoardConstants {
+public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalConstants, BoardConstants {
 	
 	
 	private int promotion_colour;
@@ -80,41 +80,33 @@ public class MenuActivity_Promotion extends MenuActivity_BasePieces implements G
 		
 		promotion_colour = ((GameData) Application_Base.getInstance().getGameData()).getBoarddata().colourToMove;
 		
-		int bcolour = ConfigurationUtils_Colours.getConfigByID(getUserSettings().uiColoursID).getColour_Background();
+		//int bcolour = ConfigurationUtils_Colours.getConfigByID(getUserSettings().uiColoursID).getColour_Background();
 
 		if (promotion_colour == COLOUR_PIECE_WHITE) { 
-			
-			ensureBitmapExists(R.drawable.ic_promotion_queen_w, piecesCfg, BoardConstants.ID_PIECE_W_QUEEN, bcolour);
-			Drawable drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, R.drawable.ic_promotion_queen_w));
+
+			Drawable drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_W_QUEEN)));
 			rowItems.add(new RowItem_IdT(drawable, getString(R.string.queen)));
-			
-			ensureBitmapExists(R.drawable.ic_promotion_rook_w, piecesCfg, BoardConstants.ID_PIECE_W_ROOK, bcolour);
-			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, R.drawable.ic_promotion_rook_w));
+
+			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_W_ROOK)));
 			rowItems.add(new RowItem_IdT(drawable, getString(R.string.rook)));
-			
-			ensureBitmapExists(R.drawable.ic_promotion_bishop_w, piecesCfg, BoardConstants.ID_PIECE_W_BISHOP, bcolour);			
-			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, R.drawable.ic_promotion_bishop_w));
-			rowItems.add(new RowItem_IdT(drawable, getString(R.string.bishop)));
-			
-			ensureBitmapExists(R.drawable.ic_promotion_knight_w, piecesCfg, BoardConstants.ID_PIECE_W_KNIGHT, bcolour);			
-			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, R.drawable.ic_promotion_knight_w));
-			rowItems.add(new RowItem_IdT(drawable, getString(R.string.knight)));	
-		} else {
-			
-			ensureBitmapExists(R.drawable.ic_promotion_queen_b, piecesCfg, BoardConstants.ID_PIECE_B_QUEEN, bcolour);			
-			Drawable drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, R.drawable.ic_promotion_queen_b));
-			rowItems.add(new RowItem_IdT(drawable, getString(R.string.queen)));
-			
-			ensureBitmapExists(R.drawable.ic_promotion_rook_b, piecesCfg, BoardConstants.ID_PIECE_B_ROOK, bcolour);			
-			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, R.drawable.ic_promotion_rook_b));
-			rowItems.add(new RowItem_IdT(drawable, getString(R.string.rook)));
-			
-			ensureBitmapExists(R.drawable.ic_promotion_bishop_b, piecesCfg, BoardConstants.ID_PIECE_B_BISHOP, bcolour);			
-			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, R.drawable.ic_promotion_bishop_b));
+
+			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_W_BISHOP)));
 			rowItems.add(new RowItem_IdT(drawable, getString(R.string.bishop)));
 
-			ensureBitmapExists(R.drawable.ic_promotion_knight_b, piecesCfg, BoardConstants.ID_PIECE_B_KNIGHT, bcolour);
-			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, R.drawable.ic_promotion_knight_b));
+			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_W_KNIGHT)));
+			rowItems.add(new RowItem_IdT(drawable, getString(R.string.knight)));	
+		} else {
+
+			Drawable drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_B_QUEEN)));
+			rowItems.add(new RowItem_IdT(drawable, getString(R.string.queen)));
+
+			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_B_ROOK)));
+			rowItems.add(new RowItem_IdT(drawable, getString(R.string.rook)));
+
+			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_B_BISHOP)));
+			rowItems.add(new RowItem_IdT(drawable, getString(R.string.bishop)));
+
+			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_B_KNIGHT)));
 			rowItems.add(new RowItem_IdT(drawable, getString(R.string.knight)));
 		}
 		

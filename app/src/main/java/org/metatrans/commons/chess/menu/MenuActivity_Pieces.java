@@ -26,7 +26,7 @@ import org.metatrans.commons.ui.list.RowItem_CIdTD;
 import org.metatrans.commons.ui.utils.BitmapUtils;
 
 
-public class MenuActivity_Pieces extends MenuActivity_BasePieces {
+public class MenuActivity_Pieces extends MenuActivity_Base {
 	
 	
 	@Override
