@@ -46,25 +46,26 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 	
 	private void handleMovingPiece(GameData gamedata) {
 
-		if (gamedata.getMovingPiece() != null) {
+		if (movingPiece != gamedata.getMovingPiece()) {
 
-			//stopHidingPiece(gamedata.getMovingPiece().initial_letter, gamedata.getMovingPiece().initial_digit);
+			throw new IllegalStateException();
+		}
 
-			/*if (gamedata.getMovingPiece().dragging) {
+		if (movingPiece != null) {
 
-				movingPiece.dragging = false;
-				//throw new IllegalStateException("Piece is dragging");
-			}*/
+			stopHidingPiece(movingPiece.initial_letter, movingPiece.initial_digit, true);
 			
 			//FIXME: DURTY FIX: the piece should exists on that square
-			/*if (getPiece(movingPiece.initial_letter, movingPiece.initial_digit) == ID_PIECE_NONE) {
+			if (getPiece(movingPiece.initial_letter, movingPiece.initial_digit) == ID_PIECE_NONE) {
 
 				clearMovingPiece();
 				gamedata.setMovingPiece(null);
-				
-			} else {*/
+				movingPiece = null;
+
+			} else {
+
 				movingPiece.moves = selectToFields(movingPiece.initial_letter, movingPiece.initial_digit);
-			//}
+			}
 		}
 	}
 	

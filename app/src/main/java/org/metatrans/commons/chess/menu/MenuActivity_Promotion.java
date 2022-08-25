@@ -1,6 +1,9 @@
 package org.metatrans.commons.chess.menu;
 
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
@@ -15,17 +18,20 @@ import java.util.Set;
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.colours.ConfigurationUtils_Colours;
 import org.metatrans.commons.cfg.colours.IConfigurationColours;
+import org.metatrans.commons.chess.Alerts;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.cfg.pieces.ConfigurationUtils_Pieces;
 import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.logic.BoardConstants;
+import org.metatrans.commons.chess.logic.board.BoardManager_AllRules;
 import org.metatrans.commons.chess.logic.board.BoardUtils;
 import org.metatrans.commons.chess.logic.game.GameDataUtils;
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.MovingPiece;
+import org.metatrans.commons.chess.model.SearchInfo;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
 import org.metatrans.commons.ui.list.ListAdapter_IdT;
@@ -34,9 +40,6 @@ import org.metatrans.commons.ui.utils.BitmapUtils;
 
 
 public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalConstants, BoardConstants {
-	
-	
-	private int promotion_colour;
 	
 	
 	@Override
@@ -59,28 +62,15 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 	}
 	
 	
-	@Override
-	public void onResume() {
-		
-		System.out.println("MenuActivity_Promotion: onResume()");
-		
-		super.onResume();
-		
-		if (promotion_colour != ((GameData) Application_Base.getInstance().getGameData()).getBoarddata().colourToMove) {
-			buildView();
-		}
-	}
-	
-	
 	public void buildView() {
 		
 		List<RowItem_IdT> rowItems = new ArrayList<RowItem_IdT>();
 		
 		IConfigurationPieces piecesCfg = ConfigurationUtils_Pieces.getConfigByID(getUserSettings().uiPiecesID);
-		
-		promotion_colour = ((GameData) Application_Base.getInstance().getGameData()).getBoarddata().colourToMove;
-		
-		//int bcolour = ConfigurationUtils_Colours.getConfigByID(getUserSettings().uiColoursID).getColour_Background();
+
+		GameData gamedata = (GameData) Application_Base.getInstance().getGameData();
+
+		int promotion_colour = gamedata.getBoarddata().colourToMove;
 
 		if (promotion_colour == COLOUR_PIECE_WHITE) { 
 
@@ -132,15 +122,19 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			
 			System.out.println("MenuActivity_Promotion: selection=" + position);
-			
-			MovingPiece movingPiece = ((GameData) Application_Base.getInstance().getGameData()).getMovingPiece();
+
+			GameData gamedata = (GameData) Application_Base.getInstance().getGameData();
+
+			MovingPiece movingPiece = gamedata.getMovingPiece();
 			
 			if (movingPiece == null) {//Bugfixing for rare cases
+
 				finish();
+
 				return;
 			}
 			
-			int colour = BoardUtils.getColour(movingPiece.pieceID);
+			int colour = gamedata.getBoarddata().colourToMove;
 			
 			int promotedPieceID = -1;
 			switch (position) {
@@ -169,17 +163,21 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 					break;
 				}
 			}
-			
+
+
 			if (move != null) {
 
-				GameData gamedata = ((GameData) Application_Base.getInstance().getGameData());
+				int current_move_index = gamedata.getCurrentMoveIndex();
 
-				gamedata.getMoves().add(move);
-				gamedata.getSearchInfos().add(null);
-				gamedata.setCurrentMoveIndex(gamedata.getMoves().size() - 1);
-				gamedata.save();
+				//Continue by removing moves from the game data:
+				while (current_move_index < gamedata.getMoves().size() - 1) {
+					int remove_index = gamedata.getMoves().size() - 1;
+					gamedata.getMoves().remove(remove_index);
+					gamedata.getSearchInfos().remove(remove_index);
+				}
 
-				gamedata.setMovingPiece(null);
+				updateGameData(gamedata, move);
+
 
 				Set<FieldSelection>[][] selections = GameDataUtils.createEmptySelections();
 				
@@ -201,6 +199,24 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 			}
 			
 			finish();
+		}
+
+
+		private void updateGameData(GameData gamedata, Move move) {
+
+			BoardManager_AllRules manager = new BoardManager_AllRules(gamedata);
+			manager.move(move);
+			gamedata = manager.getGameData();
+
+			gamedata.getMoves().add(move);
+			gamedata.setCurrentMoveIndex(gamedata.getCurrentMoveIndex() + 1);
+
+			gamedata.getSearchInfos().add(null);
+			gamedata.setMovingPiece(null);
+
+			gamedata.getBoarddata().colourToMove = BoardUtils.getColour(move.pieceID) == COLOUR_PIECE_WHITE ? COLOUR_PIECE_BLACK : COLOUR_PIECE_WHITE;
+
+			gamedata.save();
 		}
 	}
 }

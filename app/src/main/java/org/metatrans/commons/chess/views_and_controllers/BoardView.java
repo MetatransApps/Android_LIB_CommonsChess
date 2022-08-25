@@ -1397,6 +1397,7 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 
 								boardVisualization.makeMovingPiece_OnInvalidSquare();
 							}
+
 						} else {
 
 							boardVisualization.makeMovingPiece_OnInvalidSquare();
@@ -1419,6 +1420,7 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 							//selection of piece of side, which is not on move
 							boardVisualization.invalidSelection_Temp_Square(letter, digit);
 						}
+
 					} else {
 
 						//Selection of empty square

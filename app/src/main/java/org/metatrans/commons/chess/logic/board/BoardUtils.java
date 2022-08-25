@@ -9,7 +9,7 @@ import org.metatrans.commons.storage.ObjectUtils;
 public class BoardUtils implements BoardConstants {
 	
 	
-	public static final int getColour( int pid) {
+	public static final int getColour(int pid) {
 		if (pid >= ID_PIECE_W_KING && pid <= ID_PIECE_W_PAWN) {
 			return COLOUR_PIECE_WHITE;
 		} else if (pid >= ID_PIECE_B_KING && pid <= ID_PIECE_B_PAWN) {
