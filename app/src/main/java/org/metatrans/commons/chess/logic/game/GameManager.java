@@ -7,10 +7,12 @@ import static org.metatrans.commons.chess.logic.BoardConstants.COLOUR_PIECE_WHIT
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.CompoundButton;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.chess.Alerts;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.logic.computer.ComputerMove;
@@ -21,6 +23,7 @@ import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.IPlayer;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.SearchInfo;
+import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
 
 
@@ -71,69 +74,104 @@ public class GameManager implements GlobalConstants {
 
 			} else {
 
-				//Ask for user acceptance for move sequence change.
+				if (((UserSettings) Application_Base.getInstance().getUserSettings()).dont_show_alert_move_sequence) {
 
-				//ALERT FOR GAME CHANGE
-				AlertDialog.Builder adb = Alerts.createAlertDialog_OverrideMoveSequence((Context) mainActivity,
+					//User accepted move sequence change - dont_show_alert_move_sequence is set to true
 
-						new DialogInterface.OnClickListener() {
+					lock();
 
-							//User accepted move sequence change
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
+					//TODO: send event for game change:
+					//Events.handleGameEvents_OnExit(mainActivity, (GameData) Application_Base.getInstance().getGameData(),
 
-								lock();
+					//If the user clicked YES than continue by removing moves from the game data:
+					while (current_move_index < gamedata.getMoves().size() - 1) {
+						int remove_index = gamedata.getMoves().size() - 1;
+						gamedata.getMoves().remove(remove_index);
+						gamedata.getSearchInfos().remove(remove_index);
+					}
 
-								//TODO: send event for game change:
-								//Events.handleGameEvents_OnExit(mainActivity, (GameData) Application_Base.getInstance().getGameData(),
+					gamedata.getMoves().add(move);
+					gamedata.getSearchInfos().add((SearchInfo) last_search_info);
 
-								//If the user clicked YES than continue by removing moves from the game data:
-								while (current_move_index < gamedata.getMoves().size() - 1) {
-									int remove_index = gamedata.getMoves().size() - 1;
-									gamedata.getMoves().remove(remove_index);
-									gamedata.getSearchInfos().remove(remove_index);
+					moveAccepted(gamedata, move, current_move_index);
+
+					unlock();
+
+				} else {
+
+					//Ask for user acceptance for move sequence change.
+
+					//ALERT FOR GAME CHANGE
+					AlertDialog.Builder adb = Alerts.createAlertDialog_OverrideMoveSequence((Context) mainActivity,
+
+							new DialogInterface.OnClickListener() {
+
+								//User accepted move sequence change
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+
+									lock();
+
+									//TODO: send event for game change:
+									//Events.handleGameEvents_OnExit(mainActivity, (GameData) Application_Base.getInstance().getGameData(),
+
+									//If the user clicked YES than continue by removing moves from the game data:
+									while (current_move_index < gamedata.getMoves().size() - 1) {
+										int remove_index = gamedata.getMoves().size() - 1;
+										gamedata.getMoves().remove(remove_index);
+										gamedata.getSearchInfos().remove(remove_index);
+									}
+
+									gamedata.getMoves().add(move);
+									gamedata.getSearchInfos().add((SearchInfo) last_search_info);
+
+									moveAccepted(gamedata, move, current_move_index);
+
+									unlock();
 								}
+							},
 
-								gamedata.getMoves().add(move);
-								gamedata.getSearchInfos().add((SearchInfo) last_search_info);
 
-								moveAccepted(gamedata, move, current_move_index);
+							new DialogInterface.OnClickListener() {
 
-								unlock();
+								//User rejected move sequence change
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+
+									lock();
+
+									moveRejected();
+
+									unlock();
+								}
+							},
+
+							new DialogInterface.OnCancelListener() {
+
+								//User canceled the dialog
+								@Override
+								public void onCancel(DialogInterface dialog) {
+
+									lock();
+
+									moveRejected();
+
+									unlock();
+								}
+							},
+
+							new CompoundButton.OnCheckedChangeListener() {
+
+								@Override
+								public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+									((UserSettings) Application_Base.getInstance().getUserSettings()).dont_show_alert_move_sequence = isChecked;
+									Application_Base.getInstance().storeUserSettings();
+								}
 							}
-						},
+					);
 
-
-						new DialogInterface.OnClickListener() {
-
-							//User rejected move sequence change
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-
-								lock();
-
-								moveRejected();
-
-								unlock();
-							}
-						},
-
-						new DialogInterface.OnCancelListener() {
-
-							//User canceled the dialog
-							@Override
-							public void onCancel(DialogInterface dialog) {
-
-								lock();
-
-								moveRejected();
-
-								unlock();
-							}
-						}
-				);
-
-				adb.show();
+					adb.show();
+				}
 			}
 
 		} else if (current_move_index == gamedata.getMoves().size() - 1) {

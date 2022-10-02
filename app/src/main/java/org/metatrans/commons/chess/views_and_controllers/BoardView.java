@@ -1372,6 +1372,7 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 
 						//Re-selection of the same moving piece
 						movingPiece.dragging = true;
+						pieceDeSelected();
 
 					} else {
 
@@ -1488,8 +1489,7 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 					//Re-selection of the same piece
 					if (letter == movingPiece.initial_letter && digit == movingPiece.initial_digit) {
 
-						//activity.getBoardManager().stopHidingPiece(movingPiece.initial_letter, movingPiece.initial_digit);
-						//TODO: re-create moving piece or use the existing one?
+						//Do nothing
 
 					} else {
 

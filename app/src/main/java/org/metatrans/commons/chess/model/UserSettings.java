@@ -34,7 +34,7 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 
 	public boolean auto_player_enabled_white = false;
 	public boolean auto_player_enabled_black = true;
-
+	public boolean dont_show_alert_move_sequence = false;
 
 	public int moveAnimationID = Config_Animation_Base.ID_NORMAL;
 	
