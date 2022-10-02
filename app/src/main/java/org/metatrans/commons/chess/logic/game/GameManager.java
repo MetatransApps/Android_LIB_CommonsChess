@@ -16,7 +16,6 @@ import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.logic.computer.ComputerMove;
 import org.metatrans.commons.chess.logic.computer.IComputer;
 import org.metatrans.commons.chess.logic.time.TimeController_Increasing;
-import org.metatrans.commons.chess.main.MainActivity;
 import org.metatrans.commons.chess.logic.time.ITimeController;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.IPlayer;
@@ -255,7 +254,7 @@ public class GameManager implements GlobalConstants {
 
 			System.out.println("GameManager.scheduleComputerPlayerAutoStart: PLAYER_TYPE_COMPUTER");
 
-			getTimeController().pause(mainActivity.getBoardManager().getColourToMove());
+			getTimeController().pause(mainActivity.getBoardManager().getColorToMove());
 
 			mainActivity.getBoard().unlock();
 
@@ -317,9 +316,9 @@ public class GameManager implements GlobalConstants {
 
 		} else {
 
-			getTimeController().resume(mainActivity.getBoardManager().getColourToMove());
+			getTimeController().resume(mainActivity.getBoardManager().getColorToMove());
 
-			System.out.println("GameManager.resumeGame: color to move " + mainActivity.getBoardManager().getColourToMove());
+			System.out.println("GameManager.resumeGame: color to move " + mainActivity.getBoardManager().getColorToMove());
 
 			if (mainActivity.getBoardManager().getPlayerToMove().getType() == PLAYER_TYPE_COMPUTER) {
 
@@ -416,7 +415,7 @@ public class GameManager implements GlobalConstants {
 
 		if (gameStatus == GAME_STATUS_NONE) {
 
-			if (playerColour == mainActivity.getBoardManager().getColourToMove()) {
+			if (playerColour == mainActivity.getBoardManager().getColorToMove()) {
 
 				if (mainActivity.getMainView().getBoardView().hasAnimation() == -1) {
 
@@ -490,7 +489,7 @@ public class GameManager implements GlobalConstants {
 
 	public boolean isWhitePlayerClockOn() {
 
-		boolean result = mainActivity.getBoardManager().getColourToMove() == COLOUR_PIECE_WHITE
+		boolean result = mainActivity.getBoardManager().getColorToMove() == COLOUR_PIECE_WHITE
 
 				&& mainActivity.getBoardManager().getGameStatus() == GlobalConstants.GAME_STATUS_NONE;
 
@@ -500,7 +499,7 @@ public class GameManager implements GlobalConstants {
 
 	public boolean isBlackPlayerClockOn() {
 
-		boolean result = mainActivity.getBoardManager().getColourToMove() == COLOUR_PIECE_BLACK
+		boolean result = mainActivity.getBoardManager().getColorToMove() == COLOUR_PIECE_BLACK
 
 				&& mainActivity.getBoardManager().getGameStatus() == GlobalConstants.GAME_STATUS_NONE;
 

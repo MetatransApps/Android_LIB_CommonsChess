@@ -133,12 +133,12 @@ public abstract class BoardManager_NativeBoard extends BoardManager_BaseImpl {
 	
 	@Override
 	public boolean isOpponentInCheck() {
-		return getColourToMove() == COLOUR_PIECE_WHITE ? board.isInCheck(Constants.COLOUR_BLACK) : board.isInCheck(Constants.COLOUR_WHITE);
+		return getColorToMove() == COLOUR_PIECE_WHITE ? board.isInCheck(Constants.COLOUR_BLACK) : board.isInCheck(Constants.COLOUR_WHITE);
 	}
 	
 	
 	@Override
-	public int getColourToMove() {
+	public int getColorToMove() {
 		return (board.getColourToMove() == Constants.COLOUR_WHITE) ? COLOUR_PIECE_WHITE : COLOUR_PIECE_BLACK;
 	}
 

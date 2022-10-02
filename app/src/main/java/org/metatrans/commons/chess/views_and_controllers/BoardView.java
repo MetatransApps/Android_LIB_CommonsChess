@@ -1170,14 +1170,14 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 
 				int colour = BoardUtils.getColour(pieceID);
 
-				if (getActivity().getBoardManager().getColourToMove() == COLOUR_PIECE_WHITE
+				if (getActivity().getBoardManager().getColorToMove() == COLOUR_PIECE_WHITE
 						&& colour == COLOUR_PIECE_WHITE
 						&& getActivity().getBoardManager().getPlayerWhite().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER) {
 
 					return false;
 				}
 
-				if (getActivity().getBoardManager().getColourToMove() == COLOUR_PIECE_BLACK
+				if (getActivity().getBoardManager().getColorToMove() == COLOUR_PIECE_BLACK
 						&& colour == COLOUR_PIECE_BLACK
 						&& getActivity().getBoardManager().getPlayerBlack().getType() == GlobalConstants.PLAYER_TYPE_COMPUTER) {
 

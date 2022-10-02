@@ -83,7 +83,7 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 	
 	@Override
 	public int getGameStatus() {
-		int colourToMove = getColourToMove();
+		int colourToMove = getColorToMove();
 		if (hasMovablePieces(colourToMove)) {
 			return GlobalConstants.GAME_STATUS_NONE;
 		} else {
@@ -98,7 +98,7 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 	
 	@Override
 	public IPlayer getPlayerToMove() {
-		return getPlayer(getColourToMove());
+		return getPlayer(getColorToMove());
 	}
 	
 	
@@ -131,10 +131,10 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 
 		} else if (colour == COLOUR_PIECE_ALL) {
 			
-			throw new IllegalStateException("colour=" + getColourToMove());
+			throw new IllegalStateException("colour=" + getColorToMove());
 
 		} else {
-			throw new IllegalStateException("colour=" + getColourToMove());
+			throw new IllegalStateException("colour=" + getColorToMove());
 		}
 	}
 	
@@ -149,7 +149,7 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 	
 	
 	public IComputer getComputerToMove() {
-		return getComputer(getColourToMove());
+		return getComputer(getColorToMove());
 	}
 	
 	
@@ -177,7 +177,7 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 			}
 			//throw new IllegalStateException("colour=" + getColourToMove());
 		} else {
-			throw new IllegalStateException("colour=" + getColourToMove());
+			throw new IllegalStateException("colour=" + getColorToMove());
 		}	
 	}
 	
@@ -382,7 +382,7 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 		data.size_captured_w = getCapturedSize_W();
 		data.size_captured_b = getCapturedSize_B();
 
-		if (getColourToMove() == BoardConstants.COLOUR_PIECE_ALL) {
+		if (getColorToMove() == BoardConstants.COLOUR_PIECE_ALL) {
 
 			GameData gamedata = getGameData();
 			List<Move> moves = gamedata.getMoves();
@@ -400,7 +400,7 @@ public abstract class BoardManager_BaseImpl implements IBoardManager, BoardConst
 			}
 
 		} else {
-			data.colourToMove = getColourToMove();
+			data.colourToMove = getColorToMove();
 		}
 		data.w_kingSideAvailable = getWKingSideAvailable();
 		data.w_queenSideAvailable = getWQueenSideAvailable();

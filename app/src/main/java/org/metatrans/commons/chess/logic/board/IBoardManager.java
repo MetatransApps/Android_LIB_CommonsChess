@@ -21,7 +21,7 @@ public interface IBoardManager {
 	
 	public int getPiece(int letter, int digit);
 	
-	public int getColourToMove();
+	public int getColorToMove();
 
 	public IPlayer getPlayerToMove();
 	public IPlayer getPlayerWhite();
