@@ -252,9 +252,24 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 		System.out.println("MainActivity: recreateControllersAndViews: called");
 
-		GameData gameData = (GameData) Application_Base.getInstance().getGameData();
+		try {
 
-		manager = createBoardManager(gameData);
+			GameData gameData = (GameData) Application_Base.getInstance().getGameData();
+
+			manager = createBoardManager(gameData);
+
+		} catch(Exception e) {
+
+			e.printStackTrace();
+
+			System.out.println("MainActivity.recreateControllersAndViews().createBoardManager(gameData) failed. Creating new GamaData object");
+
+			UserSettings userSettings = ((UserSettings) Application_Base.getInstance().getUserSettings());
+			GameData gameData = GameDataUtils.createGameDataForNewGame(userSettings.playerTypeWhite, userSettings.playerTypeBlack, userSettings.boardManagerID, userSettings.computerModeID);
+
+			manager = createBoardManager(gameData);
+		}
+
 
 		setContentView(getMainLayout());
 
