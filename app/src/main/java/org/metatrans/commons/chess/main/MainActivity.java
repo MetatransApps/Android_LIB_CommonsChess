@@ -258,7 +258,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 			manager = createBoardManager(gameData);
 
-		} catch(Exception e) {
+		} catch (Exception e) {
 
 			e.printStackTrace();
 
@@ -266,6 +266,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 			UserSettings userSettings = ((UserSettings) Application_Base.getInstance().getUserSettings());
 			GameData gameData = GameDataUtils.createGameDataForNewGame(userSettings.playerTypeWhite, userSettings.playerTypeBlack, userSettings.boardManagerID, userSettings.computerModeID);
+			Application_Base.getInstance().storeGameData(gameData);
 
 			manager = createBoardManager(gameData);
 		}
