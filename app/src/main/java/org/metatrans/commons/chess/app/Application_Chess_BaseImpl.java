@@ -36,9 +36,7 @@ import org.metatrans.commons.model.GameData_Base;
 import org.metatrans.commons.model.UserSettings_Base;
 import org.metatrans.commons.ui.utils.DebugUtils;
 
-import bagaturchess.bitboard.impl1.internal.ContinuationHistory;
 import bagaturchess.bitboard.impl1.internal.MoveGenerator;
-import bagaturchess.search.impl.env.MemoryConsumers;
 import bagaturchess.uci.api.ChannelManager;
 import bagaturchess.uci.impl.Channel_Console;
 
