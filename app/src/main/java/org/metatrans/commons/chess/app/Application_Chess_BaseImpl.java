@@ -230,7 +230,7 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 		UserSettings settings = (UserSettings) getUserSettings();
 
-		return GameDataUtils.createGameDataForNewGame(settings.playerTypeWhite, settings.playerTypeBlack, settings.boardManagerID, settings.computerModeID/*, fen*/);
+		return GameDataUtils.createGameDataForNewGame(settings.playerTypeWhite, settings.playerTypeBlack, settings.boardManagerID, settings.computerModeID);
 	}
 
 

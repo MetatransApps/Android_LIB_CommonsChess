@@ -92,5 +92,19 @@ public class UserSettings extends UserSettings_Base implements GlobalConstants, 
 
 			System.out.println("UserSettings: " + op + " - updating moveAnimation id");
 		}
+
+		if (boardManagerID == 0) {
+
+			boardManagerID = IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES;
+
+			System.out.println("UserSettings: " + op + " - updating boardManager id");
+		}
+
+		if (computerModeID == 0) {
+
+			computerModeID = IConfigurationDifficulty.MODE_COMPUTER_ENGINE_1SEC;
+
+			System.out.println("UserSettings: " + op + " - updating computerMode id");
+		}
 	}
 }

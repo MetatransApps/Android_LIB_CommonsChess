@@ -33,14 +33,20 @@ public class GameDataUtils implements BoardConstants, GlobalConstants {
 	public static GameData createGameDataForNewGame(int playerTypeWhite, int playerTypeBlack, int boardManagerID, int computerModeID) {
 		return createGameDataForNewGame(playerTypeWhite, playerTypeBlack, boardManagerID, computerModeID, Constants.INITIAL_BOARD);
 	}
-	
-	
+
+
 	public static GameData createGameDataForNewGame(int playerTypeWhite, int playerTypeBlack, int boardManagerID, int computerModeID, String fen) {
 		GameData data = new GameData();
 		return createGameDataForNewGame(data, playerTypeWhite, playerTypeBlack, boardManagerID, computerModeID, fen);
 	}
-	
-	
+
+
+	public static GameData createGameDataForNewGame(GameData data, int playerTypeWhite, int playerTypeBlack, int boardManagerID, int computerModeID) {
+
+		return createGameDataForNewGame(data, playerTypeWhite, playerTypeBlack, boardManagerID, computerModeID, Constants.INITIAL_BOARD);
+	}
+
+
 	public static GameData createGameDataForNewGame(GameData data, int playerTypeWhite, int playerTypeBlack, int boardManagerID, int computerModeID, String fen) {
 
 		//System.out.println("GameDataUtils.createGameDataForNewGame: playerTypeWhite=" + playerTypeWhite + ", playerTypeBlack=" + playerTypeBlack);

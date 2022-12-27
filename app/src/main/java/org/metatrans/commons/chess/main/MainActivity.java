@@ -147,9 +147,15 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 			if (uiHandler != null) uiHandler.removeCallbacksAndMessages(null);
 
 
-			GameData gameData = GameDataUtils.createGameDataForNewGame(getUserSettings().playerTypeWhite, getUserSettings().playerTypeBlack, getUserSettings().boardManagerID, getUserSettings().computerModeID, fen);
+			Application_Base.getInstance().recreateGameDataObject();
+
+			GameData gameData = GameDataUtils.createGameDataForNewGame(
+					(GameData) Application_Base.getInstance().getGameData(),
+					getUserSettings().playerTypeWhite, getUserSettings().playerTypeBlack,
+					getUserSettings().boardManagerID, getUserSettings().computerModeID);
 
 			Application_Base.getInstance().storeGameData(gameData);
+
 
 			Set<FieldSelection>[][] selections = GameDataUtils.createEmptySelections();
 
@@ -172,9 +178,9 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 				getMainView().getPanelsView().redraw();
 			}
 
+
 			//Resume controller
 			gameController.resumeGame();
-
 
 			Events.handleGameEvents_OnStart(this, gameData);
 
@@ -184,12 +190,28 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 			Application_Base_Ads.getInstance().openInterstitial();
 
+
 		} catch (Exception e) {
+
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
+	@Override
+	public boolean openInterstitial() {
+
+		boolean success = super.openInterstitial();
+
+		if (success) {
+
+			gameController.pauseGame();
+		}
+
+		return success;
+	}
+
+
 	public IBoardManager getBoardManager() {
 		return manager;
 	}
@@ -264,8 +286,15 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 			System.out.println("MainActivity.recreateControllersAndViews().createBoardManager(gameData) failed. Creating new GamaData object");
 
+			Application_Base.getInstance().recreateGameDataObject();
+
 			UserSettings userSettings = ((UserSettings) Application_Base.getInstance().getUserSettings());
-			GameData gameData = GameDataUtils.createGameDataForNewGame(userSettings.playerTypeWhite, userSettings.playerTypeBlack, userSettings.boardManagerID, userSettings.computerModeID);
+
+			GameData gameData = GameDataUtils.createGameDataForNewGame(
+					(GameData) Application_Base.getInstance().getGameData(),
+					userSettings.playerTypeWhite, userSettings.playerTypeBlack,
+					userSettings.boardManagerID, userSettings.computerModeID);
+
 			Application_Base.getInstance().storeGameData(gameData);
 
 			manager = createBoardManager(gameData);
