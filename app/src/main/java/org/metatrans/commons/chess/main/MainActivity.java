@@ -31,8 +31,6 @@ import org.metatrans.commons.chess.logic.board.BoardManager_AllRules;
 import org.metatrans.commons.chess.logic.game.GameDataUtils;
 import org.metatrans.commons.chess.logic.game.GameManager;
 import org.metatrans.commons.chess.logic.board.IBoardManager;
-import org.metatrans.commons.chess.logic.time.ITimeController;
-import org.metatrans.commons.chess.logic.time.TimeController_Increasing;
 import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
 import org.metatrans.commons.chess.views_and_controllers.IBoardVisualization;
 import org.metatrans.commons.chess.views_and_controllers.IMainView;
@@ -43,9 +41,6 @@ import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
-import org.metatrans.commons.ui.images.IBitmapCache;
-
-import bagaturchess.uci.api.IUCIOptionAction;
 
 
 public abstract class MainActivity extends Activity_Base_Ads_Banner implements BoardConstants, GlobalConstants, IBoardViewActivity {
