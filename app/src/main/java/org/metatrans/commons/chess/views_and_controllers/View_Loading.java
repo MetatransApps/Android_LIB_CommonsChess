@@ -16,7 +16,6 @@ import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.loading.View_Loading_Base;
 import org.metatrans.commons.ui.images.BitmapCacheBase;
-import org.metatrans.commons.ui.utils.BitmapUtils;
 
 
 public class View_Loading extends View_Loading_Base {
