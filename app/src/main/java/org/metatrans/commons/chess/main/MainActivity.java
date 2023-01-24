@@ -252,19 +252,6 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 	}
 
 
-	protected IBoardManager createBoardManager(GameData gamedata) {
-
-		if (gamedata.getBoardManagerID() == IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES) {
-
-			return new BoardManager_AllRules(gamedata);
-
-		} else {
-
-			throw new IllegalStateException("boardManagerID=" + gamedata.getBoardManagerID());
-		}
-	}
-
-
 	public void recreateControllersAndViews() {
 
 		System.out.println("MainActivity: recreateControllersAndViews: called");
@@ -273,7 +260,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 			GameData gameData = (GameData) Application_Base.getInstance().getGameData();
 
-			manager = createBoardManager(gameData);
+			manager = ((Application_Chess_BaseImpl) Application_Base.getInstance()).createBoardManager(gameData);
 
 		} catch (Exception e) {
 
@@ -292,7 +279,7 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 			Application_Base.getInstance().storeGameData(gameData);
 
-			manager = createBoardManager(gameData);
+			manager = ((Application_Chess_BaseImpl) Application_Base.getInstance()).createBoardManager(gameData);
 		}
 
 

@@ -17,17 +17,18 @@ import org.metatrans.commons.cfg.colours.ConfigurationUtils_Colours;
 import org.metatrans.commons.cfg.colours.IConfigurationColours;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.R;
+import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.cfg.pieces.ConfigurationUtils_Pieces;
 import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.logic.board.BoardManager_AllRules;
 import org.metatrans.commons.chess.logic.board.BoardUtils;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.logic.game.GameDataUtils;
 import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.Move;
 import org.metatrans.commons.chess.model.MovingPiece;
-import org.metatrans.commons.chess.model.SearchInfo;
 import org.metatrans.commons.chess.utils.CachesBitmap;
 import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
 import org.metatrans.commons.ui.list.ListAdapter_IdT;
@@ -45,7 +46,7 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 		
 		setContentView(R.layout.menu_promotion);
 
-		FrameLayout frame = (FrameLayout) findViewById(R.id.layout_promotion);
+		FrameLayout frame = findViewById(R.id.layout_promotion);
 
 		IConfigurationColours coloursCfg = ConfigurationUtils_Colours.getConfigByID(((Application_Base) getApplication()).getUserSettings().uiColoursID);
 		int color_background = coloursCfg.getColour_Background();
@@ -80,7 +81,8 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 			rowItems.add(new RowItem_IdT(drawable, getString(R.string.bishop)));
 
 			drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_W_KNIGHT)));
-			rowItems.add(new RowItem_IdT(drawable, getString(R.string.knight)));	
+			rowItems.add(new RowItem_IdT(drawable, getString(R.string.knight)));
+
 		} else {
 
 			Drawable drawable = BitmapUtils.createDrawable(this, CachesBitmap.getSingletonIcons(getIconSize()).getBitmap(this, piecesCfg.getBitmapResID(BoardConstants.ID_PIECE_B_QUEEN)));
@@ -100,7 +102,7 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 				R.layout.menu_promotion_list_item,
 				R.id.menu_promotion_listitem_icon, R.id.menu_promotion_listitem_title);
 		
-		ListView list = (ListView) findViewById(R.id.menu_promotion_list);
+		ListView list = findViewById(R.id.menu_promotion_list);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(new OnItemClickListener_Menu());
 	}
@@ -122,14 +124,15 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 			GameData gamedata = (GameData) Application_Base.getInstance().getGameData();
 
 			MovingPiece movingPiece = gamedata.getMovingPiece();
-			
-			if (movingPiece == null) {//Bugfixing for rare cases
+
+			//Bugfixing for rare cases - no explanation currently ...
+			if (movingPiece == null) {
 
 				finish();
 
 				return;
 			}
-			
+
 			int colour = gamedata.getBoarddata().colourToMove;
 			
 			int promotedPieceID = -1;
@@ -200,8 +203,10 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 
 		private void updateGameData(GameData gamedata, Move move) {
 
-			BoardManager_AllRules manager = new BoardManager_AllRules(gamedata);
+			IBoardManager manager = ((Application_Chess_BaseImpl) Application_Base.getInstance()).createBoardManager(gamedata);
+
 			manager.move(move);
+
 			gamedata = manager.getGameData();
 
 			gamedata.getMoves().add(move);

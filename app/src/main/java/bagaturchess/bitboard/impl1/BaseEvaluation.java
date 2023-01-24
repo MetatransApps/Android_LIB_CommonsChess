@@ -434,7 +434,9 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 			inc(color, prom_type);
 			
 			int type = board.getMoveOps().getFigureType(move);
+
 			if (type != Figures.TYPE_PAWN) {
+
 				throw new IllegalStateException();
 			}
 			
@@ -465,7 +467,9 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 			dec(color, prom_type);
 			
 			int type = board.getMoveOps().getFigureType(move);
+
 			if (type != Figures.TYPE_PAWN) {
+
 				throw new IllegalStateException();
 			}
 			

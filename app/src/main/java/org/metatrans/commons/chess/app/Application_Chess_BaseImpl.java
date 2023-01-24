@@ -1,13 +1,6 @@
 package org.metatrans.commons.chess.app;
 
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.Set;
-
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.app.Application_Base_Ads;
 import org.metatrans.commons.cfg.colours.ConfigurationUtils_Colours;
@@ -21,15 +14,16 @@ import org.metatrans.commons.chess.cfg.animation.ConfigurationUtils_Animation;
 import org.metatrans.commons.chess.cfg.pieces.ConfigurationUtils_Pieces;
 import org.metatrans.commons.chess.cfg.pieces.IConfigurationPieces;
 import org.metatrans.commons.chess.cfg.rules.ConfigurationUtils_Bagatur_AllRules;
+import org.metatrans.commons.chess.cfg.rules.IConfigurationRule;
 import org.metatrans.commons.chess.engines.EngineClient_LocalImpl;
 import org.metatrans.commons.chess.events.Events;
+import org.metatrans.commons.chess.logic.board.BoardManager_AllRules;
+import org.metatrans.commons.chess.logic.board.IBoardManager;
 import org.metatrans.commons.chess.logic.game.GameDataUtils;
 import org.metatrans.commons.chess.model.EditBoardData;
-import org.metatrans.commons.chess.model.FieldSelection;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.CachesBitmap;
-import org.metatrans.commons.chess.utils.StorageUtils_BoardSelections;
 import org.metatrans.commons.events.EventsManager_Base;
 import org.metatrans.commons.events.api.IEventsManager;
 import org.metatrans.commons.model.GameData_Base;
@@ -58,8 +52,6 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 		super.onCreate();
 
-		migrateData();
-
 		ConfigurationUtils_Pieces.init(this);
 		ConfigurationUtils_Colours.getAll();
 		ConfigurationUtils_Animation.createInstance();
@@ -84,52 +76,15 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 	}
 
 
-	/**
-	 * This code is for backward compatibility purposes and will be removed in 2022.
-	 * It reads the data from the old file structure (single file) and saves it to the new file structure (1 file per each data category).
-	 */
-	private void migrateData() {
+	public IBoardManager createBoardManager(GameData gamedata) {
 
-		ObjectInputStream input = null;
+		if (gamedata.getBoardManagerID() == IConfigurationRule.BOARD_MANAGER_ID_ALL_RULES) {
 
-		File file = new File(getFilesDir(), "storage");
+			return new BoardManager_AllRules(gamedata);
 
-		try {
+		} else {
 
-			if (file.exists()) {
-
-				//Load from the old structure
-				InputStream is = openFileInput("storage");
-				InputStream buffer = new BufferedInputStream(is);
-				input = new ObjectInputStream(buffer);
-
-				GameData gamedata = (GameData) input.readObject();
-				Set<FieldSelection>[][] selections = (Set<FieldSelection>[][])  input.readObject();
-				UserSettings user_settings = (UserSettings)  input.readObject();
-
-				//Save in the new structure
-				if (user_settings != null) Application_Base.getInstance().storeUserSettings(user_settings);
-
-				if (gamedata != null) Application_Base.getInstance().storeGameData(gamedata);
-
-				if (selections != null) StorageUtils_BoardSelections.writeStore(this, selections);
-			}
-
-		} catch (Throwable t) {
-
-			t.printStackTrace();
-
-		} finally {
-
-			if (input != null) {
-
-				try {
-					input.close();
-
-				} catch (IOException e) {}
-			}
-
-			file.delete();
+			throw new IllegalStateException("boardManagerID=" + gamedata.getBoardManagerID());
 		}
 	}
 
