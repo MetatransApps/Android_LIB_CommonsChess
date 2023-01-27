@@ -40,7 +40,7 @@ public class SearchUtils {
 			
 			int mate_val = getMateVal(depth);
 			
-			System.out.println("SearchUtils.static: depth=" + depth + ", mate_val=" + mate_val);
+			//System.out.println("SearchUtils.static: depth=" + depth + ", mate_val=" + mate_val);
 			
 			if (!isMateVal(mate_val)) {
 				
@@ -113,18 +113,41 @@ public class SearchUtils {
 		
 		if (score > ISearch.MAX) {
 			
-			throw new IllegalStateException("SearchUtils.getMateDepth: score > ISearch.MAX, score=" + score);
+			//throw new IllegalStateException("SearchUtils.getMateDepth: score > ISearch.MAX, score=" + score);
+			
+			score = ISearch.MAX;
 		}
 		
 		if (score < ISearch.MIN) {
 			
-			throw new IllegalStateException("SearchUtils.getMateDepth: score < ISearch.MIN, score=" + score);
+			//throw new IllegalStateException("SearchUtils.getMateDepth: score < ISearch.MIN, score=" + score);
+			
+			/*info string java.lang.IllegalStateException: SearchUtils.getMateDepth: score < ISearch.MIN, score=-12812144
+					info string 	at bagaturchess.search.impl.alg.SearchUtils.getMateDepth(Unknown Source)
+					info string 	at bagaturchess.search.impl.info.SearchInfoImpl.getMateScore(Unknown Source)
+					info string 	at bagaturchess.search.api.internal.SearchInfoUtils.buildMajorInfoCommand(Unknown Source)
+					info string 	at bagaturchess.search.api.internal.SearchInfoUtils.buildMajorInfoCommand(Unknown Source)
+					info string 	at bagaturchess.search.impl.uci_adaptor.UCISearchMediatorImpl_Base.changedMajor(Unknown Source)
+					info string 	at bagaturchess.search.impl.uci_adaptor.UCISearchMediatorImpl_NormalSearch.changedMajor(Unknown Source)
+					info string 	at bagaturchess.search.impl.utils.SearchMediatorProxy.changedMajor(Unknown Source)
+					info string 	at bagaturchess.search.impl.rootsearch.sequential.mtd.Mediator_AlphaAndBestMoveWindow.changedMajor(Unknown Source)
+					info string 	at bagaturchess.search.impl.utils.SearchMediatorProxy.changedMajor(Unknown Source)
+					info string 	at bagaturchess.search.impl.rootsearch.sequential.NPSCollectorMediator.changedMajor(Unknown Source)
+					info string 	at bagaturchess.search.impl.rootsearch.sequential.mtd.SearchManager.increaseLowerBound(Unknown Source)
+					info string 	at bagaturchess.search.impl.rootsearch.sequential.mtd.NullwinSearchTask.run(Unknown Source)
+					info string 	at bagaturchess.search.impl.rootsearch.sequential.SequentialSearch_MTD$1.run(Unknown Source)
+					info string 	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+					info string 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+					info string 	at java.lang.Thread.run(Unknown Source)
+			*/
+					
+			score = ISearch.MIN;
 		}
 		
 		//Between 1 and ISearch.MAX_DEPTH + 1
-		score = Math.abs(score / ISearch.MAX_MAT_INTERVAL);
+		int mate_depth = Math.abs(score / ISearch.MAX_MAT_INTERVAL);
 		
-		int depth = (ISearch.MAX_DEPTH + 1) - score; 
+		int depth = (ISearch.MAX_DEPTH + 1) - mate_depth; 
 		
 		return score > 0 ? depth : -depth;
 	}

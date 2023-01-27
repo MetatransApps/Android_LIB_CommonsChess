@@ -44,6 +44,7 @@ import bagaturchess.bitboard.impl.eval.BaseEvaluation;
 import bagaturchess.bitboard.impl.eval.pawns.model.PawnsModelEval;
 import bagaturchess.bitboard.impl.plies.specials.Castling;
 import bagaturchess.bitboard.impl.state.PiecesLists;
+import bagaturchess.bitboard.impl1.internal.CastlingConfig;
 
 public class DummyBoard implements IBitBoard {
 
@@ -269,10 +270,6 @@ public class DummyBoard implements IBitBoard {
 		throw new UnsupportedOperationException();
 	}
 	
-	
-	public int getCastlingType(int colour) {
-		return 0;
-	}
 
 	public boolean isCheckMove(long[] move) {
 		return false;
@@ -755,5 +752,33 @@ public class DummyBoard implements IBitBoard {
 	public int getSEEFieldScore(int squareID) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	
+	@Override
+	public double[] getNNUEInputs() {
+		
+		throw new UnsupportedOperationException();
+	}
+	
+
+	@Override
+	public CastlingType getCastlingType(int colour) {
+		
+		throw new IllegalStateException();
+	}
+
+	
+	@Override
+	public CastlingPair getCastlingPair() {
+		
+		throw new IllegalStateException();
+	}
+	
+	
+	@Override
+	public CastlingConfig getCastlingConfig() {
+
+		throw new UnsupportedOperationException();
 	}
 }

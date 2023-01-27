@@ -15,55 +15,61 @@ import java.util.Arrays;
 
 public class ChessBoardUtil {
 
-	public static final String ALL_FIELD_NAMES[] = new String[] {"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2", "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4", "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6", "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", };
+	public static final String[] ALL_FIELD_NAMES = new String[] {"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2", "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4", "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6", "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", };
 	
 	public static ChessBoard getNewCB() {
 		return getNewCB(ChessConstants.FEN_START);
 	}
 
 	public static ChessBoard getNewCB(String fen) {
+		
+		String[] fenArray = fen.split(" ");
+		
 		ChessBoard cb = new ChessBoard();
-		setFenValues(fen, cb);
-		init(cb);
+		
+		setFenValues(fenArray, cb);
+		
+		boolean[] castling_rights = new boolean[4];
+		
+		init(cb, castling_rights);		
+		
+		cb.playedBoardStates.inc(cb.zobristKey);
+		
+		setCastling960Configuration(cb);
+		
+		if (fenArray.length > 2) {
+			
+			cb.playedBoardStates.dec(cb.zobristKey);
+			
+			cb.zobristKey ^= Zobrist.castling[cb.castlingRights];
+			
+			getCastlingRights(fenArray[2], cb.castlingConfig, castling_rights);
+			
+			setCastlingRights(castling_rights, cb);
+			
+			cb.zobristKey ^= Zobrist.castling[cb.castlingRights];
+			
+			cb.playedBoardStates.inc(cb.zobristKey);
+		}
+		
 		return cb;
 	}
+	
 
-	public static void setFenValues(String fen, ChessBoard cb) {
+	private static void setFenValues(String[] fenArray, ChessBoard cb) {
+		
+		
 		cb.moveCounter = 0;
 
-		String[] fenArray = fen.split(" ");
-
+		
 		// 1: pieces: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
 		setPieces(cb, fenArray[0]);
 
+		
 		// 2: active-color: w
 		cb.colorToMove = fenArray[1].equals("w") ? WHITE : BLACK;
 
-		// 3: castling: KQkq
-		cb.castlingRights = 15;
-		if (fenArray.length > 2) {
-			if (!fenArray[2].contains("K")) {
-				cb.castlingRights &= 7;
-			}
-			if (!fenArray[2].contains("Q")) {
-				cb.castlingRights &= 11;
-			}
-			if (!fenArray[2].contains("k")) {
-				cb.castlingRights &= 13;
-			}
-			if (!fenArray[2].contains("q")) {
-				cb.castlingRights &= 14;
-			}
-		} else {
-			// try to guess the castling rights
-			if (cb.kingIndex[WHITE] != 3) {
-				cb.castlingRights &= 3; // 0011
-			}
-			if (cb.kingIndex[BLACK] != 59) {
-				cb.castlingRights &= 12; // 1100
-			}
-		}
-
+		
 		if (fenArray.length > 3) {
 			// 4: en-passant: -
 			if (fenArray[3].equals("-") || fenArray[3].equals("–")) {
@@ -72,6 +78,7 @@ public class ChessBoardUtil {
 				cb.epIndex = 104 - fenArray[3].charAt(0) + 8 * (Integer.parseInt(fenArray[3].substring(1)) - 1);
 			}
 		}
+		
 		
 		if (fenArray.length > 4) {
 			
@@ -94,7 +101,115 @@ public class ChessBoardUtil {
 		}
 	}
 
-	public static void calculateZobristKeys(ChessBoard cb) {
+	
+	private static void setCastlingRights(boolean[] rights, ChessBoard cb) {
+			
+		cb.castlingRights = 15;
+		
+		if (!rights[0]) {
+			
+			cb.castlingRights &= 7;
+		}
+		
+		if (!rights[1]) {
+			
+			cb.castlingRights &= 11;
+		}
+		
+		if (!rights[2]) {
+			
+			cb.castlingRights &= 13;
+		}
+		
+		if (!rights[3]) {
+			
+			cb.castlingRights &= 14;
+		}
+	}
+	
+	
+	private static final void getCastlingRights(String str, CastlingConfig castlingConfig, boolean[] result) {
+		
+		
+		if (str.length() == 0) {
+			
+			return;
+		}
+		
+		
+		if (str.contains("K") || str.contains("Q") || str.contains("k") || str.contains("q")) {
+			
+			if (str.contains("K")) {
+				
+				result[0] = true;
+			}
+			
+			if (str.contains("Q")) {
+				
+				result[1] = true;
+			}
+			
+			if (str.contains("k")) {
+				
+				result[2] = true;
+			}
+			
+			if (str.contains("q")) {
+				
+				result[3] = true;
+			}
+			
+		} else {
+			
+			String rook_file_kingside_w 	= "" + (char) (104 - castlingConfig.from_SquareID_rook_kingside_w % 8);
+			String rook_file_queenside_w 	= "" + (char) (104 - castlingConfig.from_SquareID_rook_queenside_w % 8);
+			String rook_file_kingside_b 	= "" + (char) (104 - castlingConfig.from_SquareID_rook_kingside_b % 8);
+			String rook_file_queenside_b 	= "" + (char) (104 - castlingConfig.from_SquareID_rook_queenside_b % 8);
+			
+			//System.out.println("getCastlingRights: rook_file_kingside_w=" + rook_file_kingside_w);
+			//System.out.println("getCastlingRights: rook_file_queenside_w=" + rook_file_queenside_w);
+			//System.out.println("getCastlingRights: rook_file_kingside_b=" + rook_file_kingside_b);
+			//System.out.println("getCastlingRights: rook_file_queenside_b=" + rook_file_queenside_b);
+			
+			
+			for (int i = 0; i < str.length(); i++) {
+				
+				String current_file_name = str.substring(i, i + 1);
+				
+				//System.out.println("getCastlingRights: current_file_name=" + current_file_name);
+				
+				if (current_file_name.equals(current_file_name.toUpperCase())) {
+					
+					current_file_name = current_file_name.toLowerCase();
+					
+					if (current_file_name.equals(rook_file_kingside_w)) {
+						
+						result[0] = true;
+					}
+					
+					if (current_file_name.equals(rook_file_queenside_w)) {
+						
+						result[1] = true;
+					}
+					
+				} else {
+					
+					if (current_file_name.equals(rook_file_kingside_b)) {
+						
+						result[2] = true;
+					}
+					
+					if (current_file_name.equals(rook_file_queenside_b)) {
+						
+						result[3] = true;
+					}
+				}
+			}
+		}
+	}
+	
+	
+	private static void calculateZobristKeys(ChessBoard cb) {
 		cb.zobristKey = 0;
 
 		for (int color = 0; color < 2; color++) {
@@ -114,7 +229,7 @@ public class ChessBoardUtil {
 		cb.zobristKey ^= Zobrist.epIndex[cb.epIndex];
 	}
 
-	public static void calculatePawnZobristKeys(ChessBoard cb) {
+	private static void calculatePawnZobristKeys(ChessBoard cb) {
 		cb.pawnZobristKey = 0;
 
 		long pieces = cb.pieces[WHITE][PAWN];
@@ -197,7 +312,7 @@ public class ChessBoardUtil {
 	}
 	
 	
-	public static void init(ChessBoard cb) {
+	static void init(ChessBoard cb, boolean[] rights) {
 
 		calculateMaterialZobrist(cb);
 
@@ -241,14 +356,136 @@ public class ChessBoardUtil {
 				+ Long.bitCount(cb.pieces[BLACK][ROOK]) * EvalConstants.PHASE[ROOK]
 				+ Long.bitCount(cb.pieces[BLACK][QUEEN]) * EvalConstants.PHASE[QUEEN]);
 		
-		calculatePawnZobristKeys(cb);
-		calculateZobristKeys(cb);
 		
-		cb.playedBoardStates.inc(cb.zobristKey);
+		setCastlingRights(rights, cb);
+		
+		
+		calculatePawnZobristKeys(cb);
+		
+		calculateZobristKeys(cb);
 	}
 	
 	
-	public static void calculatePositionScores(final ChessBoard cb) {
+	private static final void setCastling960Configuration(final ChessBoard cb) {
+		
+		
+		long bb_king_w = cb.pieces[WHITE][KING];
+		long bb_king_b = cb.pieces[BLACK][KING];
+		
+		if (bb_king_w == 0) {
+			
+			throw new IllegalStateException("No white king");
+		}
+		
+		if (bb_king_w == 0) {
+			
+			throw new IllegalStateException("No black king");
+		}
+		
+		
+		int king_w_square_id = CastlingConfig.E1;
+		int king_b_square_id = CastlingConfig.E8;
+		
+		
+		int count_w_kings = 0;
+		while (bb_king_w != 0) {
+			
+			king_w_square_id = Long.numberOfTrailingZeros(bb_king_w);
+			
+			bb_king_w &= bb_king_w - 1;
+			
+			count_w_kings++;
+		}
+		
+		int count_b_kings = 0;
+		while (bb_king_b != 0) {
+			
+			king_b_square_id = Long.numberOfTrailingZeros(bb_king_b);
+			
+			bb_king_b &= bb_king_b - 1;
+			
+			count_b_kings++;
+		}
+		
+		if (count_w_kings > 1) {
+			
+			throw new IllegalStateException("More than 1 white king");
+		}
+		
+		if (count_b_kings > 1) {
+			
+			throw new IllegalStateException("More than 1 black king");
+		}
+		
+		
+		int rook_kingside_w = CastlingConfig.H1;
+		
+			
+		for (int square_id = king_w_square_id; square_id >= CastlingConfig.H1; square_id--) {
+			
+			int source_piece_type = cb.pieceIndexes[square_id];
+			
+			if (source_piece_type == ROOK) {
+			
+				rook_kingside_w = square_id;
+				
+				break;
+			}
+		}
+		
+		
+		int rook_queenside_w = CastlingConfig.A1;
+			
+		for (int square_id = king_w_square_id; square_id <= CastlingConfig.A1; square_id++) {
+			
+			int source_piece_type = cb.pieceIndexes[square_id];
+			
+			if (source_piece_type == ROOK) {
+			
+				rook_queenside_w = square_id;
+				
+				break;
+			}
+		}
+		
+		
+		int rook_kingside_b = CastlingConfig.H8;
+		
+		for (int square_id = king_b_square_id; square_id >= CastlingConfig.H8; square_id--) {
+			
+			int source_piece_type = cb.pieceIndexes[square_id];
+			
+			if (source_piece_type == ROOK) {
+			
+				rook_kingside_b = square_id;
+				
+				break;
+			}
+		}
+		
+		
+		int rook_queenside_b = CastlingConfig.A8;
+			
+		for (int square_id = king_b_square_id; square_id <= CastlingConfig.A8; square_id++) {
+			
+			int source_piece_type = cb.pieceIndexes[square_id];
+			
+			if (source_piece_type == ROOK) {
+			
+				rook_queenside_b = square_id;
+				
+				break;
+			}
+		}
+		
+		
+		CastlingConfig castlingConfig = new CastlingConfig(king_w_square_id, rook_kingside_w, rook_queenside_w, king_b_square_id, rook_kingside_b, rook_queenside_b);
+		
+		cb.castlingConfig = castlingConfig;
+	}
+	
+	
+	private static void calculatePositionScores(final ChessBoard cb) {
 		
 		for (int color = WHITE; color <= BLACK; color++) {
 			for (int pieceType = PAWN; pieceType <= KING; pieceType++) {
@@ -273,6 +510,7 @@ public class ChessBoardUtil {
 	}
 
 	public static String toString(ChessBoard cb, boolean add_ep) {
+		
 		// TODO castling, EP, moves
 		StringBuilder sb = new StringBuilder();
 		for (int i = 63; i >= 0; i--) {
@@ -290,6 +528,8 @@ public class ChessBoardUtil {
 		String colorToMove = cb.colorToMove == WHITE ? "w" : "b";
 		sb.append(" ").append(colorToMove).append(" ");
 
+		//System.out.println("Board.toString: cb.castlingRights=" + cb.castlingRights);
+		
 		// castling rights
 		if (cb.castlingRights == 0) {
 			sb.append("-");
@@ -331,7 +571,8 @@ public class ChessBoardUtil {
 		fen += ((cb.playedMovesCount + 1) / 2 + 1);
 
 		
+		//System.out.println("Board.toString: fen=" + fen);
+		
 		return fen;
 	}
-
 }

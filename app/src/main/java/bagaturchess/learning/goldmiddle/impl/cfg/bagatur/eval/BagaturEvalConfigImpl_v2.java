@@ -205,6 +205,12 @@ public class BagaturEvalConfigImpl_v2 implements IEvalConfig, IBagaturEvalConfig
 	}
 	
 	
+	@Override
+	public boolean isTrainingMode() {
+		return false;
+	}
+	
+	
 	public String getEvaluatorFactoryClassName() {
 		return BagaturEvaluatorFactory.class.getName();
 	}

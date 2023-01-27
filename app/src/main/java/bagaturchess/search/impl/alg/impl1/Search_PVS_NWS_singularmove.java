@@ -96,12 +96,6 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 	}
 	
 	
-	@Override
-	public int getTPTUsagePercent() {
-		return (int) env.getTPT().getUsage();
-	}
-	
-	
 	public void newSearch() {
 		
 		super.newSearch();
@@ -170,7 +164,7 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 	    // if the opponent had an alternative move earlier to this position.
 	    if (/*alpha < EvalConstants.SCORE_DRAW
 	        &&*/ ply > 0
-	        && isDraw()
+	        && isDraw(isPv)
 	        ) {
 			node.eval = EvalConstants.SCORE_DRAW;
 			return node.eval;
@@ -255,11 +249,11 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 				}
 			}
 			
-			int result = SyzygyTBProbing.getSingleton().probeDTZ(env.getBitboard());
+			int result = SyzygyTBProbing.getSingleton().probeWDL(env.getBitboard());
 			if (result != -1) {
 				int dtz = (result & SyzygyConstants.TB_RESULT_DTZ_MASK) >> SyzygyConstants.TB_RESULT_DTZ_SHIFT;
 				int wdl = (result & SyzygyConstants.TB_RESULT_WDL_MASK) >> SyzygyConstants.TB_RESULT_WDL_SHIFT;
-				int egtbscore =  SyzygyTBProbing.getSingleton().getWDLScore(wdl, ply);
+				int egtbscore =  SyzygyTBProbing.getWDLScore(wdl, ply);
 				if (egtbscore > 0) {
 					int distanceToDraw = 100 - env.getBitboard().getDraw50movesRule();
 					if (distanceToDraw > dtz) {
@@ -428,19 +422,19 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 					moveGen.sort();
 					break;
 				case PHASE_KILLER_1:
-					killer1Move = moveGen.getKiller1(ply);
+					killer1Move = moveGen.getKiller1(cb.colorToMove, ply);
 					if (killer1Move != 0 && killer1Move != ttMove && cb.isValidMove(killer1Move)) {
 						moveGen.addMove(killer1Move);
 					}
 					break;
 				case PHASE_KILLER_2:
-					killer2Move = moveGen.getKiller2(ply);
+					killer2Move = moveGen.getKiller2(cb.colorToMove, ply);
 					if (killer2Move != 0 && killer2Move != ttMove && cb.isValidMove(killer2Move)) {
 						moveGen.addMove(killer2Move);
 					}
 					break;
 				case PHASE_COUNTER:
-					counterMove = moveGen.getCounter(cb.colorToMove, parentMove);
+					counterMove = moveGen.getCounter1(cb.colorToMove, parentMove);
 					if (counterMove != 0 && counterMove != ttMove && counterMove != killer1Move && counterMove != killer2Move && cb.isValidMove(counterMove)) {
 						moveGen.addMove(counterMove);
 					}
@@ -623,7 +617,7 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 					if (alpha >= beta) {
 						
 						if (MoveUtil.isQuiet(bestMove) && cb.checkingPieces == 0) {
-							moveGen.addKillerMove(bestMove, ply);
+							moveGen.addKillerMove(cb.colorToMove, bestMove, ply);
 							moveGen.addHHValue(cb.colorToMove, bestMove, parentMove, depth);
 						}
 
@@ -826,7 +820,7 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 		
 		result.leaf = true;
 		
-		if (ply > 0 && isDraw()) {
+		if (ply > 0 && isDraw(isPv)) {
 			result.eval = EvalConstants.SCORE_DRAW;
 			result.bestmove = 0;
 			return true;
@@ -895,7 +889,7 @@ public class Search_PVS_NWS_singularmove extends SearchImpl {
 		
 		if (actualDepth < expectedDepth) {
 			if (isPv) {
-				if (!isDraw()) {
+				if (!isDraw(isPv)) {
 					if (env.getBitboard().isInCheck()) {
 						if (env.getBitboard().hasMoveInCheck()) {
 							//throw new IllegalStateException("actualDepth=" + actualDepth + ", expectedDepth=" + expectedDepth);

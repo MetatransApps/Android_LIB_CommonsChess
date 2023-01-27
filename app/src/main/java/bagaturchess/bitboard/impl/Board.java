@@ -27,6 +27,7 @@ import java.util.Arrays;
 import bagaturchess.bitboard.api.IAttackListener;
 import bagaturchess.bitboard.api.IBaseEval;
 import bagaturchess.bitboard.api.IBitBoard;
+import bagaturchess.bitboard.api.IBoard;
 import bagaturchess.bitboard.api.IBoardConfig;
 import bagaturchess.bitboard.api.IFieldsAttacks;
 import bagaturchess.bitboard.api.IGameStatus;
@@ -40,7 +41,6 @@ import bagaturchess.bitboard.api.IPlayerAttacks;
 import bagaturchess.bitboard.api.PawnsEvalCache;
 import bagaturchess.bitboard.common.BackupInfo;
 import bagaturchess.bitboard.common.BoardStat;
-import bagaturchess.bitboard.common.CastlingType;
 import bagaturchess.bitboard.common.Fen;
 import bagaturchess.bitboard.common.GlobalConstants;
 import bagaturchess.bitboard.common.MoveListener;
@@ -86,6 +86,7 @@ import bagaturchess.bitboard.impl.plies.specials.Enpassanting;
 import bagaturchess.bitboard.impl.state.PiecesList;
 import bagaturchess.bitboard.impl.state.PiecesLists;
 import bagaturchess.bitboard.impl.zobrist.ConstantStructure;
+import bagaturchess.bitboard.impl1.internal.CastlingConfig;
 
 
 public class Board extends Fields implements IBitBoard, Cloneable {
@@ -123,7 +124,7 @@ public class Board extends Fields implements IBitBoard, Cloneable {
 	protected long hashkey = Bits.NUMBER_0;
 	protected long pawnskey = Bits.NUMBER_0;
 	
-	protected int[] castledByColour;
+	protected IBoard.CastlingType[] castledByColour;
 	protected int lastCastledColour = Figures.COLOUR_UNSPECIFIED;
 	
 	protected int lastCaptureOrPawnMoveBefore = 0;
@@ -207,7 +208,7 @@ public class Board extends Fields implements IBitBoard, Cloneable {
 		allByColour = new long[Figures.COLOUR_MAX];
 		allByColourAndType = new long[Figures.COLOUR_MAX][Figures.TYPE_MAX];
 		board = new int[Fields.ID_MAX];
-		castledByColour = new int[Figures.COLOUR_MAX];
+		castledByColour = new IBoard.CastlingType[Figures.COLOUR_MAX];
 		
 		//hasEnpassant = false;
 		//hashkey ^= ConstantStructure.HAS_ENPASSANT; there is no enpasant at initial position
@@ -1237,7 +1238,7 @@ public class Board extends Fields implements IBitBoard, Cloneable {
 			hashkey ^= ConstantStructure.MOVES_KEYS[castlePID][fromCastleFieldID];
 			hashkey ^= ConstantStructure.MOVES_KEYS[castlePID][toCastleFieldID];
 			
-			castledByColour[figureColour] = MoveInt.isCastleKingSide(move) ? CastlingType.KING_SIDE : CastlingType.QUEEN_SIDE;
+			castledByColour[figureColour] = MoveInt.isCastleKingSide(move) ? IBoard.CastlingType.KINGSIDE : IBoard.CastlingType.QUEENSIDE;
 		}
 		
 		if (MoveInt.isPromotion(move)) {
@@ -1544,7 +1545,7 @@ public class Board extends Fields implements IBitBoard, Cloneable {
 			//hashkey ^= MOVES_KEYS[castlePID][fromCastleFieldID];
 			//hashkey ^= MOVES_KEYS[castlePID][toCastleFieldID];
 			
-			castledByColour[figureColour] = CastlingType.NONE;
+			castledByColour[figureColour] = IBoard.CastlingType.NONE;
 		}
 		
 		/*if (Castling.castleSideInvolvedFiguresIDsByColour[figureColour][pid]) {
@@ -4715,11 +4716,12 @@ public class Board extends Fields implements IBitBoard, Cloneable {
 			board[fieldID] = pid;
 			
 			if (pid != Constants.PID_NONE) {
+				
 				pieces.add(pid, fieldID);
 				
-				materialFactor.initially_addPiece(pid, fieldID);
-				materialState.initially_addPiece(pid, fieldID);
-				if (eval != null) eval.initially_addPiece(pid, fieldID);
+				materialFactor.initially_addPiece(pid, fieldID, 0);
+				materialState.initially_addPiece(pid, fieldID, 0);
+				if (eval != null) eval.initially_addPiece(pid, fieldID, 0);
 				/*if (moveListeners.length > 0) {
 					for (int i=0; i<moveListeners.length; i++) {
 						moveListeners[i].initially_addPiece(pid, fieldID);
@@ -4892,9 +4894,94 @@ public class Board extends Fields implements IBitBoard, Cloneable {
 	}
 	
 	
-	public int getCastlingType(int colour) {
+	@Override
+	public IBoard.CastlingType getCastlingType(int colour) {
+		
 		return castledByColour[colour];
 	}
+	
+	
+	@Override
+	public CastlingPair getCastlingPair() {
+		
+		
+		if (castledByColour[Constants.COLOUR_WHITE] == null || castledByColour[Constants.COLOUR_BLACK] == null) {
+			
+			throw new IllegalStateException();
+		}
+		
+		
+		switch (castledByColour[Constants.COLOUR_WHITE]) {
+		
+			case NONE:
+				
+				switch (castledByColour[Constants.COLOUR_BLACK]) {
+				
+					case NONE:
+						
+						return CastlingPair.NONE_NONE;
+						
+					case KINGSIDE:
+						
+						return CastlingPair.NONE_KINGSIDE;
+						
+					case QUEENSIDE:
+						
+						return CastlingPair.NONE_QUEENSIDE;
+						
+					default:
+						
+						throw new IllegalStateException();
+				}
+				
+			case KINGSIDE:
+				
+				switch (castledByColour[Constants.COLOUR_BLACK]) {
+				
+					case NONE:
+						
+						return CastlingPair.KINGSIDE_NONE;
+						
+					case KINGSIDE:
+						
+						return CastlingPair.KINGSIDE_KINGSIDE;
+						
+					case QUEENSIDE:
+						
+						return CastlingPair.KINGSIDE_QUEENSIDE;
+						
+					default:
+						
+						throw new IllegalStateException();
+				}
+				
+			case QUEENSIDE:
+				
+				switch (castledByColour[Constants.COLOUR_BLACK]) {
+				
+					case NONE:
+						
+						return CastlingPair.QUEENSIDE_NONE;
+						
+					case KINGSIDE:
+						
+						return CastlingPair.QUEENSIDE_KINGSIDE;
+						
+					case QUEENSIDE:
+						
+						return CastlingPair.QUEENSIDE_QUEENSIDE;
+						
+					default:
+						
+						throw new IllegalStateException();
+				}
+				
+			default:
+				
+				throw new IllegalStateException();
+		}
+	}
+	
 
 	public boolean hasRightsToKingCastle(int colour) {
 		return colour == Figures.COLOUR_WHITE ? backupInfo[playedMovesCount].w_kingSideAvailable : backupInfo[playedMovesCount].b_kingSideAvailable;
@@ -4963,7 +5050,7 @@ public class Board extends Fields implements IBitBoard, Cloneable {
 		//clone.possibleQueenCastleSideByColour = Utils.copy(possibleQueenCastleSideByColour);
 		//clone.possibleKingCastleSideByColour = Utils.copy(possibleKingCastleSideByColour);
 		clone.lastMoveColour = lastMoveColour;
-		clone.castledByColour = Utils.copy(castledByColour);
+		//clone.castledByColour = Utils.copy(castledByColour);
 		clone.hashkey = hashkey;
 		clone.pawnskey = pawnskey;
 		//clone.material = material.clone();
@@ -5358,6 +5445,20 @@ public class Board extends Fields implements IBitBoard, Cloneable {
 	
 	@Override
 	public int getEnpassantSquareID() {
+		throw new UnsupportedOperationException();
+	}
+	
+	
+	@Override
+	public double[] getNNUEInputs() {
+		
+		throw new UnsupportedOperationException();
+	}
+	
+	
+	@Override
+	public CastlingConfig getCastlingConfig() {
+		
 		throw new UnsupportedOperationException();
 	}
 }

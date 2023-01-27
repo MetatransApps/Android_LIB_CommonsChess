@@ -33,10 +33,8 @@ import bagaturchess.search.api.IFinishCallback;
 import bagaturchess.search.api.IRootSearchConfig;
 import bagaturchess.search.api.internal.CompositeStopper;
 import bagaturchess.search.api.internal.ISearch;
-import bagaturchess.search.api.internal.ISearchInfo;
 import bagaturchess.search.api.internal.ISearchMediator;
 import bagaturchess.search.api.internal.ISearchStopper;
-import bagaturchess.search.impl.env.SearchEnv;
 import bagaturchess.search.impl.pv.PVManager;
 import bagaturchess.search.impl.rootsearch.RootSearch_BaseImpl;
 import bagaturchess.search.impl.rootsearch.multipv.MultiPVMediator;
@@ -72,6 +70,13 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 	public IRootSearchConfig getRootSearchConfig() {
 		
 		return (IRootSearchConfig) super.getRootSearchConfig();
+	}
+	
+	
+	@Override
+	public void recreateEvaluator() {
+
+		searcher.getEnv().recreateEvaluator();
 	}
 	
 	
@@ -237,7 +242,12 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 	@Override
 	public int getTPTUsagePercent() {
 		
-		return searcher.getTPTUsagePercent();
+		if (searcher.getEnv().getTPT() == null) {
+			
+			return 0;
+		}
+		
+		return searcher.getEnv().getTPT().getUsage();
 	}
 
 

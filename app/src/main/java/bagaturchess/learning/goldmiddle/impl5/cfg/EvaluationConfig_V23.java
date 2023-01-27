@@ -20,6 +20,10 @@ public class EvaluationConfig_V23 implements IEvalConfig {
 		return true;
 	}
 	
+	@Override
+	public boolean isTrainingMode() {
+		return false;
+	}
 	
 	@Override
 	public String getEvaluatorFactoryClassName() {

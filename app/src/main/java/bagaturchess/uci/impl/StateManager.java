@@ -29,6 +29,7 @@ import java.util.List;
 
 import bagaturchess.bitboard.api.BoardUtils;
 import bagaturchess.bitboard.api.IBitBoard;
+import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.uci.api.BestMoveSender;
 import bagaturchess.uci.api.IChannel;
 import bagaturchess.uci.api.IUCIConfig;
@@ -37,6 +38,7 @@ import bagaturchess.uci.api.UCISearchAdaptorFactory;
 import bagaturchess.uci.impl.commands.Go;
 import bagaturchess.uci.impl.commands.Position;
 import bagaturchess.uci.impl.commands.options.SetOption;
+import bagaturchess.uci.impl.commands.options.UCIOptions;
 import bagaturchess.uci.impl.commands.options.actions.OptionsManager;
 
 
@@ -44,7 +46,7 @@ public class StateManager extends Protocol implements BestMoveSender {
 	
 	
 	//Disabled.
-	//ATTENTION: Should be definitely disabled for openning book moves! (otherwise causes perpetual GC calls)
+	//ATTENTION: Should be definitely disabled for opening book moves! (otherwise causes perpetual GC calls)
 	private boolean GC_AFTER_MOVE = false;
 	
 	
@@ -58,10 +60,16 @@ public class StateManager extends Protocol implements BestMoveSender {
 	
 	private String lastFEN;
 	
+	private boolean mustCreateSearchAdaptor;
+	
 	
 	public StateManager(IUCIConfig _engineBootCfg) {
+		
 		engineBootCfg = _engineBootCfg;
+		
 		board = BoardUtils.createBoard_WithPawnsCache();
+		
+		mustCreateSearchAdaptor = true;
 	}
 	
 	
@@ -75,6 +83,125 @@ public class StateManager extends Protocol implements BestMoveSender {
 	}
 	
 	
+	public void communicate() throws Exception {
+		
+		sendHello();
+			
+		while (true) {
+			
+			try {
+				
+				//fromGUILine is null if end of the stream is reached
+				String fromGUILine = channel.receiveCommandFromGUI();
+				
+				if (fromGUILine == null) {
+					
+					channel.sendLogToGUI("StateManager: System.exit(0), because the end of stream is reached");
+					Thread.sleep(111);//Wait to write the log
+					System.exit(0);
+					
+					return;
+				}
+				
+				String fromGUICommand = getFromGUICommand(fromGUILine);
+				int fromGUICommandID = getToEngineCommandID(fromGUICommand);
+				
+				if (fromGUICommandID == Protocol.COMMAND_UNDEFINED) {
+					
+					channel.sendLogToGUI("StateManager: Command " + fromGUICommand + " UNSUPPORTED from Bagatur Chess Engine");
+					
+				} else {
+					
+					channel.sendLogToGUI("StateManager: exec command " + fromGUICommandID + " > '" + fromGUILine + "'");
+					
+					switch (fromGUICommandID) {
+					
+						case COMMAND_TO_ENGINE_UCI:
+							
+							sendEngineID();
+							
+							sendOptions();
+							
+							sendUCIOK();
+							
+							break;
+							
+						case COMMAND_TO_ENGINE_ISREADY:
+							
+							handleSearchAdaptor();
+							
+							sendReadyOK();
+							
+							break;
+							
+						case COMMAND_TO_ENGINE_NEWGAME:
+							
+							createNewGame();
+							
+							break;
+							
+						case COMMAND_TO_ENGINE_POSITION:
+							
+							setupBoard(fromGUILine);
+							
+							break;
+							
+						case COMMAND_TO_ENGINE_GO:
+							
+							handleSearchAdaptor();
+							
+							goSearch(fromGUILine);
+							
+							break;
+							
+						case COMMAND_TO_ENGINE_PONDERHIT:
+							
+							ponderHit(fromGUILine);
+							
+							break;
+							
+						case COMMAND_TO_ENGINE_SETOPTION:
+							
+							setOption(fromGUILine);
+							
+							break;
+							
+						case COMMAND_TO_ENGINE_STOP:
+							
+							sendBestMove();
+							
+							break;
+							
+						case COMMAND_TO_ENGINE_QUIT:
+							
+							channel.sendLogToGUI("StateManager: System.exit(0), because of QUIT command");
+							
+							Thread.sleep(111); //Wait to write the log
+							
+							System.exit(0);
+							
+							break;
+							
+						default:
+							
+							throw new IllegalStateException();
+					}
+				}
+				
+				sendNewline();
+				
+			} catch(Throwable  t) {
+				
+				channel.dump(t);
+				
+				channel.sendLogToGUI("StateManager: Error: " + t.getMessage());
+				
+				Thread.sleep(111);
+			}
+		}
+	}
+
+
 	public void createSearchAdaptor() throws FileNotFoundException {
 		
 		channel.sendLogToGUI("StateManager: Creating search adaptor ...");
@@ -95,6 +222,7 @@ public class StateManager extends Protocol implements BestMoveSender {
 		searchAdaptor = null;
 		
 		if (lastAdaptor != null) {
+			
 			channel.sendLogToGUI("StateManager: Stoping old search adaptor ...");
 			lastAdaptor.stopSearch();
 			lastAdaptor.shutDown();
@@ -106,7 +234,9 @@ public class StateManager extends Protocol implements BestMoveSender {
 			
 			//Wait GC to free up the memory
 			try {
+				
 				Thread.sleep(1000);
+				
 			} catch (InterruptedException e) {}
 			
 			destroyed = true;
@@ -118,98 +248,23 @@ public class StateManager extends Protocol implements BestMoveSender {
 	}
 	
 	
-	public void communicate() throws Exception {
+	private void handleSearchAdaptor() throws FileNotFoundException {
 		
-		sendHello();
+		if (searchAdaptor == null) {
 			
-		while (true) {
+			createSearchAdaptor();
 			
-			try {
+		} else if (mustCreateSearchAdaptor) {
+			
+			destroySearchAdaptor();
 				
-				//fromGUILine is null if end of the stream is reached
-				String fromGUILine = channel.receiveCommandFromGUI();
-				if (fromGUILine == null) {
-					channel.sendLogToGUI("StateManager: System.exit(0), because the end of stream is reached");
-					Thread.sleep(333);//Wait to write the log
-					System.exit(0);
-					return;
-				}
-				
-				String fromGUICommand = getFromGUICommand(fromGUILine);
-				int fromGUICommandID = getToEngineCommandID(fromGUICommand);
-				
-				if (fromGUICommandID == Protocol.COMMAND_UNDEFINED) {
-					channel.sendLogToGUI("StateManager: Command " + fromGUICommand + " UNSUPPORTED from Bagatur Chess Engine");
-					//Thread.sleep(100);
-				} else {
-					channel.sendLogToGUI("StateManager: exec command " + fromGUICommandID + " > '" + fromGUILine + "'");
-					switch (fromGUICommandID) {
-						case COMMAND_TO_ENGINE_UCI:
-							sendEngineID();
-							sendOptions();
-							sendUCIOK();
-							break;
-						case COMMAND_TO_ENGINE_ISREADY:
-							//Can be commented as after the later call with ucinewgame command, the search adaptor will be re-created anyway
-							if (searchAdaptor == null) {
-								createSearchAdaptor();
-							}
-							sendReadyOK();
-							break;
-						case COMMAND_TO_ENGINE_NEWGAME:
-							//waitAndExecute();
-							createNewGame();
-							break;
-						case COMMAND_TO_ENGINE_POSITION:
-							//waitAndExecute();
-							setupBoard(fromGUILine);
-							break;
-						case COMMAND_TO_ENGINE_GO:
-							if (searchAdaptor == null) {
-								createSearchAdaptor();
-							}
-							goSearch(fromGUILine);
-							break;
-						case COMMAND_TO_ENGINE_PONDERHIT:
-							if (searchAdaptor != null) {
-								ponderHit(fromGUILine);
-							} else {
-								channel.sendLogToGUI("StateManager: command ponderhit skiped, because searchadpator is null");
-							}
-							break;
-						case COMMAND_TO_ENGINE_SETOPTION:
-							//waitAndExecute();
-							setOption(fromGUILine);
-							break;
-						case COMMAND_TO_ENGINE_STOP:
-							//waitAndExecute();
-							if (searchAdaptor != null) {
-								sendBestMove();
-							} else {
-								channel.sendLogToGUI("StateManager: command stop skiped, because searchadpator is null");
-							}
-							break;
-						case COMMAND_TO_ENGINE_QUIT:
-							channel.sendLogToGUI("StateManager: System.exit(0), because of QUIT command");
-							Thread.sleep(333);//Wait to write the log
-							System.exit(0);
-							break;
-						default:
-							throw new IllegalStateException();
-					}
-				}
-				
-				sendNewline();
-				
-			} catch(Throwable  t) {
-				channel.dump(t);
-				channel.sendLogToGUI("StateManager: Error: " + t.getMessage());
-				Thread.sleep(500);
-			}
+			createSearchAdaptor();
 		}
+		
+		mustCreateSearchAdaptor = false;
 	}
-
-
+	
+	
 	private String getFromGUICommand(String fromGUILine) {
 		String command = fromGUILine;
 		if (command != null) {
@@ -279,6 +334,11 @@ public class StateManager extends Protocol implements BestMoveSender {
 		SetOption setoption = new SetOption(channel, fromGUILine);
 		channel.sendLogToGUI("StateManager: Set-option parsed: " + setoption);
 		
+		if (UCIOptions.needsRestart(setoption.getName())) {
+			
+			mustCreateSearchAdaptor = true;
+		}
+		
 		optionsManager.set(setoption);
 	}
 	
@@ -303,41 +363,48 @@ public class StateManager extends Protocol implements BestMoveSender {
 	
 	private void setupBoard(String fromGUILine) throws FileNotFoundException {
 		
+		
 		channel.sendLogToGUI("StateManager: setupBoard called with " + fromGUILine);
 		
+		
 		/*
-		 * Setup startup board with FEN or played moves
+		 * Setup startup board with FEN and played moves
 		 */
 		Position position = new Position(channel, fromGUILine);
 		
-		if (position.getFen() != null) {
+		String current_fen = position.getFen();
+		
+		if (current_fen == null) {
 			
-			if (lastFEN == null || !lastFEN.equals(position.getFen())) {
-				
-				board = BoardUtils.createBoard_WithPawnsCache(position.getFen(), null);
-				destroySearchAdaptor();
-				
-				lastFEN = position.getFen();
-			}
-			
-		} else {
-			
-			if (lastFEN != null) {
-				board = BoardUtils.createBoard_WithPawnsCache();
-				destroySearchAdaptor();
-				
-				lastFEN = null;	
-			}
-			
-			revertGame();
+			current_fen = Constants.INITIAL_BOARD;
 		}
 		
-		playMoves(position);
+		
+		channel.sendLogToGUI("StateManager: setupBoard: current_fen=" + current_fen + ", lastFEN=" + lastFEN);
+		
+		
+		if (lastFEN == null || !lastFEN.equals(current_fen)) {
+			
+			channel.sendLogToGUI("StateManager: setupBoard: re-create board, because (lastFEN == null || !lastFEN.equals(current_fen))");
+			
+			lastFEN = current_fen;
+			
+			channel.sendLogToGUI("StateManager: setupBoard: BoardUtils.isFRC=" + BoardUtils.isFRC);
+			
+			board = BoardUtils.createBoard_WithPawnsCache(lastFEN);
+			
+			destroySearchAdaptor();
+		}
+		
+		
+		revertGame();
+		
+		
+		playMoves(position.getMoves());
 	}
 
 
-	private void playMoves(Position position) {
-		List<String> moves = position.getMoves();
+	private void playMoves(List<String> moves) {
 		for (int i = 0; i < moves.size(); i++ ) {
 			String moveSign = moves.get(i);
 			if (!moveSign.equals("...")) {
@@ -391,16 +458,20 @@ public class StateManager extends Protocol implements BestMoveSender {
 			
 			
 			try {
+				
 				channel.sendCommandToGUI(bestMoveCommand);
 				
 				channel.sendLogToGUI("StateManager: bestMoveCommand send");
 				
 			} catch (IOException e) {
+				
 				channel.dump(e);
 			}
+			
 		} else {
-			throw new IllegalStateException("StateManager: ERROR: move returned from UCI Search adaptor is '0' and is not sent to the UCI platform");
-			//channel.sendLogToGUI("StateManager: WARNING: StateManager -> move returned from UCI Search adaptor is '0' and is not sent to the UCI platform");
+			
+			//throw new IllegalStateException("StateManager: ERROR: move returned from UCI Search adaptor is '0' and is not sent to the UCI platform");
+			channel.sendLogToGUI("StateManager: WARNING: StateManager -> move returned from UCI Search adaptor is '0' and is not sent to the UCI platform");
 		}
 		
 		

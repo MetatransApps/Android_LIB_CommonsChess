@@ -132,12 +132,6 @@ public class Search_PVS_NWS extends SearchImpl {
 	}
 	
 	
-	@Override
-	public int getTPTUsagePercent() {
-		return (int) TTUtil.getUsagePercentage() / 10;
-	}
-	
-	
 	public void newSearch() {
 		
 		super.newSearch();
@@ -200,7 +194,7 @@ public class Search_PVS_NWS extends SearchImpl {
 		node.leaf = true;
 		
 		
-		if (ply > 0 && isDraw()) {
+		if (ply > 0 && isDraw(isPv)) {
 			node.eval = EvalConstants.SCORE_DRAW;
 			return node.eval;
 		}
@@ -276,11 +270,11 @@ public class Search_PVS_NWS extends SearchImpl {
 				}
 			}
 			
-			int result = SyzygyTBProbing.getSingleton().probeDTZ(env.getBitboard());
+			int result = SyzygyTBProbing.getSingleton().probeWDL(env.getBitboard());
 			if (result != -1) {
 				int dtz = (result & SyzygyConstants.TB_RESULT_DTZ_MASK) >> SyzygyConstants.TB_RESULT_DTZ_SHIFT;
 				int wdl = (result & SyzygyConstants.TB_RESULT_WDL_MASK) >> SyzygyConstants.TB_RESULT_WDL_SHIFT;
-				int egtbscore =  SyzygyTBProbing.getSingleton().getWDLScore(wdl, ply);
+				int egtbscore =  SyzygyTBProbing.getWDLScore(wdl, ply);
 				if (egtbscore > 0) {
 					int distanceToDraw = 100 - env.getBitboard().getDraw50movesRule();
 					if (distanceToDraw > dtz) {
@@ -435,7 +429,8 @@ public class Search_PVS_NWS extends SearchImpl {
 				lastSentMinorInfo_nodesCount = info.getSearchedNodes();
 			}
 
-			if(!cb.isLegal(move)) {
+			if(!getEnv().getBitboard().isPossible(move)) {
+				
 				continue;
 			}
 			
@@ -524,7 +519,7 @@ public class Search_PVS_NWS extends SearchImpl {
 					
 					if (MoveUtil.isQuiet(move) && cb.checkingPieces == 0) {
 						moveGen.addCounterMove(cb.colorToMove, parentMove, move);
-						moveGen.addKillerMove(move, ply);
+						moveGen.addKillerMove(cb.colorToMove, move, ply);
 						moveGen.addHHValue(cb.colorToMove, move, parentMove, depth);
 					}
 					break;
@@ -738,7 +733,7 @@ public class Search_PVS_NWS extends SearchImpl {
 					}
 				}
 				
-				if (!cb.isLegal(move)) {
+				if (!getEnv().getBitboard().isPossible(move)) {
 					continue;
 				}
 				
@@ -814,7 +809,7 @@ public class Search_PVS_NWS extends SearchImpl {
 		
 		result.leaf = true;
 		
-		if (ply > 0 && isDraw()) {
+		if (ply > 0 && isDraw(isPv)) {
 			result.eval = EvalConstants.SCORE_DRAW;
 			result.bestmove = 0;
 			return true;

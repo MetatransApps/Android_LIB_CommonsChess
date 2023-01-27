@@ -36,7 +36,6 @@ import bagaturchess.search.impl.uci_adaptor.timemanagement.ITimeController;
 import bagaturchess.uci.api.BestMoveSender;
 import bagaturchess.uci.api.ChannelManager;
 import bagaturchess.uci.api.ISearchAdaptorConfig;
-import bagaturchess.uci.api.IUCISearchAdaptor;
 import bagaturchess.uci.impl.commands.Go;
 
 
@@ -67,6 +66,7 @@ public abstract class UCISearchAdaptorImpl_Base implements IUCISearchAdaptor_Ext
 		searchAdaptorCfg = (ISearchAdaptorConfig) args[0];
 		boardForSetup = (IBitBoard) args[1];
 		rootSearchCfg = (IRootSearchConfig) searchAdaptorCfg.getRootSearchConfig();
+		
 		
 		sharedData = new SharedData(rootSearchCfg, null);
 		
@@ -160,7 +160,6 @@ public abstract class UCISearchAdaptorImpl_Base implements IUCISearchAdaptor_Ext
 		if (!currentGoCommand.isPonder()) {
 			
 			currentMediator.dump("Using TimeSaver ...");
-			
 			
 			boolean moveSent = saver.beforeMove(boardForSetup,
 					sharedData.getSearchConfig().getOpeningBook_Mode(),

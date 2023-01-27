@@ -64,11 +64,9 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 		//Do not use dedicated memory under Android as it works different than desktop computers.
 		EngineClient_LocalImpl.STATIC_JVM_MEMORY 	= 0;
-
-		MoveGenerator.USE_ContinuationHistory = false;
-
 		//Meaning: use 50% of the available memory
-		EngineClient_LocalImpl.MEMORY_USAGE_PERCENT = 0.50;
+		//EngineClient_LocalImpl.MEMORY_USAGE_PERCENT = 0.50;
+		MoveGenerator.USE_ContinuationHistory = false;
 
 		ChannelManager.setChannel(new Channel_Console(System.in, System.out, System.out));
 

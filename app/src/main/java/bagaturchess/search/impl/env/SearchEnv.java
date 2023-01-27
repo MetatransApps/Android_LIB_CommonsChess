@@ -26,7 +26,6 @@ package bagaturchess.search.impl.env;
 
 
 import bagaturchess.bitboard.api.IBitBoard;
-import bagaturchess.bitboard.api.PawnsEvalCache;
 import bagaturchess.opening.api.OpeningBook;
 import bagaturchess.search.api.IEvaluator;
 import bagaturchess.search.api.IRootSearchConfig;
@@ -47,14 +46,20 @@ public class SearchEnv {
 	private SharedData shared;
 	
 	private IBitBoard bitboard;
+	
 	private IEvaluator eval;
+	
 	private Tactics tactics;
 	
+	
+	private ITTable tpt;
 	private IEvalCache evalCache;
 	private IEvalCache syzygyDTZCache;
-	private PawnsEvalCache pawnsCache;
-	private ITTable tpt;
 
+	private boolean checked_tpt;
+	private boolean checked_evalCache;
+	private boolean checked_syzygyDTZCache;
+	
 	
 	private IHistoryTable history_all;
 	private IHistoryTable history_incheck;
@@ -66,78 +71,136 @@ public class SearchEnv {
 
 	public SearchEnv(IBitBoard _bitboard, SharedData _shared) {
 		
-		shared = _shared;
-		bitboard = _bitboard;
-		tactics = new Tactics(bitboard);
+		shared 					= _shared;
 		
-		//history = new HistoryTable_FromTo(new BinarySemaphore_Dummy());
-		history_all = new HistoryTable_PieceTo(bitboard);
-		history_incheck = new HistoryTable_PieceTo(bitboard);
+		bitboard 				= _bitboard;
 		
-		moveListFactory = new SearchMoveListFactory();
+		tactics 				= new Tactics(bitboard);
 		
-		orderingStatistics = new OrderingStatistics();
+		//history 				= new HistoryTable_FromTo(new BinarySemaphore_Dummy());
+		history_all 			= new HistoryTable_PieceTo(bitboard);
+		history_incheck 		= new HistoryTable_PieceTo(bitboard);
+		
+		moveListFactory 		= new SearchMoveListFactory();
+		
+		orderingStatistics 		= new OrderingStatistics();
+		
+		checked_tpt 			= false;
+		checked_evalCache 		= false;
+		checked_syzygyDTZCache 	= false;
 	}
 	
 	
 	public OrderingStatistics getOrderingStatistics() {
+		
 		return orderingStatistics;
 	}
 	
 	
 	public ISearchMoveListFactory getMoveListFactory() {
+		
 		return moveListFactory;
 	}
 	
 	
 	public OpeningBook getOpeningBook() {
+		
 		return shared.getOpeningBook();
 	}
 
+	
 	public IHistoryTable getHistory_All() {
+		
 		return history_all;
 	}
 
+	
 	public IHistoryTable getHistory_InCheck() {
+		
 		return history_incheck;
-	}
-	
-	public PawnsEvalCache getPawnsCache() {
-		if (pawnsCache == null) {
-			pawnsCache = shared.getAndRemovePawnsCache();
-		}
-		return pawnsCache;
-	}
-	
-	public int getTPTUsagePercent() {
-		if (tpt == null) {
-			return 0;
-		} else {
-			return tpt.getUsage();
-		}
 	}
 	
 	
 	public ITTable getTPT() {
-		return shared.getTranspositionTableProvider().getTPT();
+		
+		if (!checked_tpt && tpt == null) {
+			
+			System.out.println("SearchEnv.getTPT: checked_tpt=" + checked_tpt + ", tpt=" + tpt);	
+			
+			synchronized (shared) {
+			
+				if (tpt == null) {
+
+					tpt = shared.getAndRemoveTranspositionTable();
+					
+					System.out.println("SearchEnv.getTPT: TPT initialized to " + tpt);	
+					
+					checked_tpt = true;
+				}
+			}
+		}
+		
+		return tpt;
+	}
+	
+	
+	public IEvalCache getEvalCache() {
+		
+		if (!checked_evalCache && evalCache == null) {
+			
+			synchronized (shared) {
+				
+				if (evalCache == null) {
+					
+					evalCache = shared.getAndRemoveEvalCache();
+					
+					System.out.println("SearchEnv.getEvalCache: evalCache initialized to " + evalCache);
+					
+					checked_evalCache = true;
+				}
+			}
+		}
+		
+		return evalCache;
+	}
+	
+	
+	public IEvalCache getSyzygyDTZCache() {
+		
+		if (!checked_syzygyDTZCache && syzygyDTZCache == null) {
+			
+			synchronized (shared) {
+				
+				if (syzygyDTZCache == null) {
+					
+					syzygyDTZCache = shared.getSyzygyDTZCache();
+					
+					System.out.println("SearchEnv.getSyzygyDTZCache: checked_syzygyDTZCache initialized to " + checked_syzygyDTZCache);
+					
+					checked_syzygyDTZCache = true;
+				}
+			}
+		}
+		
+		return syzygyDTZCache;
 	}
 	
 	
 	public ITTable getTPTQS() {
+		
 		throw new IllegalStateException();
 	}
 	
 	
 	public IBitBoard getBitboard() {
-		if (bitboard.getPawnsCache() != getPawnsCache()) {
-			bitboard.setPawnsCache(getPawnsCache());
-		}
+		
 		return bitboard;
 	}
 	
+	
 	public IEvaluator getEval() {
 		if (eval == null) {
-			eval = shared.getEvaluatorFactory().create(bitboard, getEvalCache(), shared.getEngineConfiguration().getEvalConfig());
+			recreateEvaluator();
 		}
 		return eval;
 	}
@@ -146,26 +209,16 @@ public class SearchEnv {
 		eval = _eval;
 	}
 	
+	public void recreateEvaluator() {
+		eval = shared.getEvaluatorFactory().create(bitboard, getEvalCache(), shared.getEngineConfiguration().getEvalConfig());
+	}
+	
 	public void clear() {
 		shared.clear();
 	}
 
 	public Tactics getTactics() {
 		return tactics;
-	}
-
-	public IEvalCache getEvalCache() {
-		if (evalCache == null) {
-			evalCache = shared.getAndRemoveEvalCache();
-		}
-		return evalCache;
-	}
-	
-	public IEvalCache getSyzygyDTZCache() {
-		if (syzygyDTZCache == null) {
-			syzygyDTZCache = shared.getSyzygyDTZCache();
-		}
-		return syzygyDTZCache;
 	}
 	
 	public IRootSearchConfig getEngineConfiguration() {
@@ -182,7 +235,7 @@ public class SearchEnv {
 		String result = "";
 		//result += shared.toString();
 		result += "Eval Cache HIT RATE is: " + getEvalCache().getHitRate();
-		result += "; Pawn Cache HIT RATE is: " + getPawnsCache().getHitRate();
+		//result += "; Pawn Cache HIT RATE is: " + getPawnsCache().getHitRate();
 		result += "\r\nMOVE ORDERING STATISTICS\r\n" + getMoveListFactory().toString();
 		
 		return result;

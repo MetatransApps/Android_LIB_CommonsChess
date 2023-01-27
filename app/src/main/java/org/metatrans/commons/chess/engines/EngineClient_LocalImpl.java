@@ -39,7 +39,7 @@ public class EngineClient_LocalImpl implements IEngineClient {
 	
 	public static boolean USE_OPENNING = true;
 	
-	public static double MEMORY_USAGE_PERCENT = 0.25;
+	private static double MEMORY_USAGE_PERCENT = 0.5;
 
 	public static int STATIC_JVM_MEMORY = 0;
 

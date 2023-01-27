@@ -2,8 +2,6 @@ package bagaturchess.learning.impl.features.advanced;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import bagaturchess.bitboard.impl.utils.StringUtils;
 import bagaturchess.bitboard.impl.utils.VarStatistic;
@@ -12,21 +10,29 @@ import bagaturchess.bitboard.impl.utils.VarStatistic;
 class Weight implements Serializable {
 	
 	
-	private static final long serialVersionUID = 3805221518234137798L;
-	
-	private static final double MAX_ADJUSTMENT = 100;
+	private static final long serialVersionUID 	= 3805221518234137798L;
 	
 	
-	private double initialVal;
-	private double min_weight;
-	private double max_weight;
-	private double cur_weight;
+	private static final double LEARNING_RATE 	= 0.25f; //1f; //0.5f; //0.01; //0.02; //0.1; //1;
 	
-	private double max_adjustment;
+	private static final double MIN_WEIGHT 		= 0.1;
 	
-	private VarStatistic varstat;
+	private static final int STEPS_COUNT 		= 100;
 	
-	private List<Double> appliedMultipliers;
+	
+	private double initial;
+	
+	private double min;
+	
+	private double max;
+	
+	private VarStatistic total;
+	
+	private VarStatistic total_movements;
+	
+	private VarStatistic current;
+	
+	private double STEP = 1 / (double) STEPS_COUNT;
 	
 	
 	public Weight(double min, double max, double _initialVal, boolean _norm_adjustment) {
@@ -37,166 +43,174 @@ class Weight implements Serializable {
 	
 	public Weight(double min, double max, double _initialVal) {
 		
-		initialVal = _initialVal;
-		
-		if (min > max)	throw new IllegalStateException();
-		
-		min_weight = min;
-		max_weight = max;
-		max_adjustment = (max_weight - min_weight) / MAX_ADJUSTMENT;
-		
-		if (max_adjustment < 0) throw new IllegalStateException();
-		
-		cur_weight = initialVal;
-		
-		if (initialVal < min_weight || initialVal > max_weight) throw new IllegalStateException("initialVal=" + initialVal);
-		
-		if (cur_weight < min) throw new IllegalStateException("cur_weight=" + cur_weight + " min=" + min);
-		if (cur_weight > max) throw new IllegalStateException();
-		
-		varstat = new VarStatistic(false);
-		
-		if (min == max) {
-			varstat.setEntropy(min);
+		if (min > max)	{
+			
+			throw new IllegalStateException("min > max: min=" + min + ", max=" + max);
 		}
 		
-		appliedMultipliers = new ArrayList<Double>();
+		if (min < 0) {
+			
+			throw new IllegalStateException("min < 0: min=" + min);
+		}
+		
+		if (_initialVal < 0) {
+			
+			throw new IllegalStateException("initialVal < 0: initialVal=" + initial);
+		}
+		
+		initial = _initialVal;
+		
+		
+		this.min = min;
+		
+		this.max = max;
+
+		STEP = Math.abs(max - min) / (double) STEPS_COUNT;
+		
+		
+		if (initial < min || initial > max) throw new IllegalStateException("initialVal=" + initial);
+		
+		
+		total = new VarStatistic();
+		
+		total_movements = new VarStatistic();
+		
+		reset();
+		
+		
+		current = new VarStatistic();
 	}
 	
 	
 	protected void merge(Weight other) {
-		if (other.min_weight != min_weight) min_weight = other.min_weight;
-		if (other.max_weight != max_weight) max_weight = other.max_weight;
+		
+		throw new UnsupportedOperationException();
 	}
 	
 	
 	public void clear() {
-		varstat = new VarStatistic(false);
+		
+		current = new VarStatistic();
 	}
 	
 	
 	public void multiplyCurrentWeightByAmountAndDirection() {
 		
 		
-		if (varstat.getTotalAmount() == 0) {
+		if (current.getTotalAmount() == 0) {
 			
 			return;
 		}
 		
 		
-		double multiplier = (varstat.getTotalDirection() / varstat.getTotalAmount());
+		double current_movement = (current.getTotalDirection() / current.getTotalAmount());
+		//double current_movement = current.getEntropy() / 2;
 		
-		if (multiplier == 0) {
+		//System.out.println("current_movement=" + current_movement);
+		
+		
+		//total_movements.addValue(current_movement);
+		
+		if (current_movement > 0) {
 			
-			return;
+			total_movements.addValue(+1);
+			
+			//current_movement = STEP;
+			
+		} else if (current_movement < 0) {
+			
+			total_movements.addValue(-1);
+			
+			//current_movement = -STEP;
 		}
 		
+		current_movement *= getLearningSpeed();
+		//current_movement *= LEARNING_RATE;
 		
-		//Should be added before changing
-		appliedMultipliers.add(multiplier);
 		
-		/*while (appliedMultipliers.size() > 15) {
+		double avg = total.getEntropy();
+		
+		if (avg > 0) {
 			
-			appliedMultipliers.remove(0);
-		}*/
-		
-		double all = 0;
-		
-		double dir = 0;
-		
-		for (Double cur: appliedMultipliers) {
+			total.addValue(avg + avg * current_movement);
 			
-			all += Math.abs(cur);
+		} else if (avg < 0) {
 			
-			dir += cur;
-		}
-		
-		if (all > 0 && dir != 0) {
+			if (true) throw new IllegalStateException();
 			
-			multiplier *= Math.abs(dir / all);
-		}
-		
-		
-		//Multiply the weight
-		if (cur_weight > 0) {
-			
-			cur_weight += cur_weight * multiplier;
-			
-		} else if (cur_weight < 0) {
-			
-			cur_weight -= cur_weight * multiplier;
+			total.addValue(avg - -current_movement);
 			
 		} else {
 			
-			//Initialize the weight
-			if (multiplier > 0) {
-				
-				cur_weight = 1;
-				
-			} else if (multiplier < 0) {
-				
-				cur_weight = -1;
-			}
+			if (true) throw new IllegalStateException();
+			
+			reset();
 		}
 		
 		
-		//Make sign change if necessary
-		//SWITCHED ON:  +7%, +9%, +2%, +0.5%, +0.4%, -1.6%, +0.8%, -0.35%, +0.35%, -0.26%
-		//SWITCHED OFF: +7%, +9%, +1.7%, -0.26%, 
-		
-		double LOWEST = 1 / 100.0;
-		
-		if (cur_weight > 0 && cur_weight < LOWEST) {
+		if (total.getEntropy() < min) {
 			
-			cur_weight = -LOWEST;
+			if (true) throw new IllegalStateException();
+			
+			total = new VarStatistic();
+			
+			reset();
 		}
+	}
+	
+	
+	private void reset() {
 		
-		if (cur_weight < 0 && cur_weight > -LOWEST) {
+		if (initial == 0) {
 			
-			cur_weight = LOWEST;
-		}
-		
-		
-		//Keep it in bounds
-		if (cur_weight < min_weight) {
+			total.addValue(Math.max(MIN_WEIGHT, Math.random()));
 			
-			cur_weight = min_weight;
-		}
-		
-		if (cur_weight > max_weight) {
+		} else {
 			
-			cur_weight = max_weight;
+			total.addValue(Math.max(MIN_WEIGHT, initial));
 		}
 	}
 	
 	
 	public double getWeight() {
-		//if (useAverageWeights) {
-		//	return varstat.getEntropy();
-		//} else {
-		return cur_weight;
-		//}
+		
+		return total.getEntropy();
 	}
+	
+	
+	public double getLearningSpeed() {
+		
+		if (total_movements.getTotalAmount() == 0) {
+			
+			return 1;
+		}
+		
+		return Math.abs(total_movements.getTotalDirection() / total_movements.getTotalAmount());
+	}
+	
 	
 	strictfp void adjust(double amount) {
 		
-		/*if (amount != 1 && amount != -1) {
+		//1 and -1 are probably derivatives of the liner function. we use 1 and -1 and we apply them in Epochs of at least 100 games into the dataset and also use learning rate.
+		if (amount != 1 && amount != -1) {
+			
 			throw new IllegalStateException();
-		}*/
+		}
 		
-		varstat.addValue(amount, amount);
+		current.addValue(amount);
 	}
 	
 	
 	@Override
 	public String toString() {
+		
 		String result = "";
 		
-		result += StringUtils.fill("[" + min_weight + "-" + max_weight + "] ", 8);
-		result += "init: " + StringUtils.align(initialVal);
+		result += StringUtils.fill("[" + min + "-" + max + "] ", 8);
+		result += "initial: " + StringUtils.align(initial);
 		//result += ", avg: " + StringUtils.align(avg());
-		result += ", cur: " + StringUtils.align(cur_weight);
-		result += ", [" + varstat + "]";
+		result += ", current: " + StringUtils.align(total.getEntropy());
+		//result += ", [" + current + "]";
 		/*result += " cur=" + cut("" + cur_weight) + ", avgidx=" + avg + ", avg=" + cut("" + (max_adjustment * avg));
 		result += ", prec=" + max_adjustment;
 		result += "	[";
@@ -206,9 +220,5 @@ class Weight implements Serializable {
 		result += "]";*/
 		
 		return result;
-	}
-
-	public VarStatistic getVarstat() {
-		return varstat;
 	}
 }

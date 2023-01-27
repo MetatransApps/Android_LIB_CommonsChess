@@ -17,6 +17,11 @@ public class EvaluationConfig implements IEvalConfig {
 	}
 
 	@Override
+	public boolean isTrainingMode() {
+		return false;
+	}
+	
+	@Override
 	public String getEvaluatorFactoryClassName() {
 		return WeightsEvaluatorFactory.class.getName();
 	}

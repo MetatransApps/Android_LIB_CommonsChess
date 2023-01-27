@@ -22,6 +22,7 @@
  */
 package bagaturchess.bitboard.impl.datastructs.numbers;
 
+
 import bagaturchess.bitboard.common.Properties;
 
 

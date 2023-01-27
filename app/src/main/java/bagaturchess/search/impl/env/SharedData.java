@@ -29,6 +29,7 @@ import bagaturchess.search.api.IEvaluatorFactory;
 import bagaturchess.search.api.IRootSearchConfig;
 import bagaturchess.search.api.ISearchConfig_AB;
 import bagaturchess.search.impl.eval.cache.IEvalCache;
+import bagaturchess.search.impl.tpt.ITTable;
 import bagaturchess.search.impl.tpt.TranspositionTableProvider;
 import bagaturchess.uci.api.IChannel;
 
@@ -56,14 +57,21 @@ public class SharedData {
 	
 	
 	private void init(IRootSearchConfig _engineConfiguration) {
+		
 		engineConfiguration = _engineConfiguration;
+		
 		searchConfig = engineConfiguration.getSearchConfig();
 		
 		try {
+			
 			String className = engineConfiguration.getEvalConfig().getEvaluatorFactoryClassName();
+			
 			evaluatorFactory = (IEvaluatorFactory) SharedData.class.getClassLoader().loadClass(className).newInstance();
+			
 		} catch (Exception e) {
+			
 			e.printStackTrace();
+			
 			throw new IllegalStateException(e);
 		}
 	}
@@ -79,15 +87,15 @@ public class SharedData {
 	}
 	
 	
-	public TranspositionTableProvider getTranspositionTableProvider() {
-		return memoryConsumers.getTPTProvider();
+	public ITTable getAndRemoveTranspositionTable() {
+		return memoryConsumers.getTPTProvider().remove(0);
 	}
 	
 	
-	public PawnsEvalCache getAndRemovePawnsCache() {
+	/*public PawnsEvalCache getAndRemovePawnsCache() {
 		return memoryConsumers.getPawnsCache().remove(0);
 	}
-
+	 */
 	
 	public IEvalCache getAndRemoveEvalCache() {
 		return memoryConsumers.getEvalCache().remove(0);

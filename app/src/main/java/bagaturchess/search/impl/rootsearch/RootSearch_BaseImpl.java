@@ -55,12 +55,17 @@ public abstract class RootSearch_BaseImpl implements IRootSearch {
 		
 		rootSearchConfig = (IRootSearchConfig) args[0];
 		
-		sharedData = (SharedData) (args[1] == null ? new SharedData(ChannelManager.getChannel(), rootSearchConfig) : args[1]);
+		if (args[1] == null) {
+		
+			throw new IllegalStateException();
+		}
+		
+		sharedData = (SharedData) args[1];
 	}
 	
 	
 	public void createBoard(IBitBoard _bitboardForSetup) {
-		
+				
 		int movesCount = _bitboardForSetup.getPlayedMovesCount();
 		
 		int[] moves = Utils.copy(_bitboardForSetup.getPlayedMoves());
@@ -71,17 +76,18 @@ public abstract class RootSearch_BaseImpl implements IRootSearch {
 		
 		//bitboardForSetup = new Board(_bitboardForSetup.toEPD(), getRootSearchConfig().getBoardConfig());
 		
-		bitboardForSetup = BoardUtils.createBoard_WithPawnsCache(_bitboardForSetup.toEPD(),
-				getRootSearchConfig().getEvalConfig().getPawnsCacheFactoryClassName(),
-				getRootSearchConfig().getBoardConfig(),
-				10000);
+		bitboardForSetup = BoardUtils.createBoard_WithPawnsCache(_bitboardForSetup.toEPD(), getRootSearchConfig().getBoardConfig());
 		
+		ChannelManager.getChannel().dump("RootSearch_BaseImpl.createBoard: [Chess960/FRC] Castling Configuration is " + bitboardForSetup.getCastlingConfig());
+
 		for (int i=0; i<movesCount; i++) {
 			
 			_bitboardForSetup.makeMoveForward(moves[i]);
 			
 			bitboardForSetup.makeMoveForward(moves[i]);
 		}
+		
+		
 	}
 	
 	
@@ -164,6 +170,13 @@ public abstract class RootSearch_BaseImpl implements IRootSearch {
 	public String toString() {
 		
 		return sharedData.toString();
+	}
+	
+	
+	@Override
+	public void recreateEvaluator() {
+
+		throw new UnsupportedOperationException();
 	}
 	
 	

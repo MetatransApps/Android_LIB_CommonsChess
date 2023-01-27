@@ -39,7 +39,7 @@ public class VarStatistic implements Serializable {
 	private double count;
 	private double countNonNull;
 	private double entropy;
-	private double disperse;
+	private double variance;
 	private double total_amount;
 	private double total_direction;
 	private double max_val;
@@ -84,7 +84,12 @@ public class VarStatistic implements Serializable {
 	
 	
 	public double getDisperse() {
-		return Math.sqrt(disperse);
+		return Math.sqrt(variance);
+	}
+	
+	
+	public double getVariance() {
+		return variance;
 	}
 	
 	
@@ -121,7 +126,7 @@ public class VarStatistic implements Serializable {
 		count = 0;
 		countNonNull = 0;
 		entropy = 0;
-		disperse = 0;
+		variance = 0;
 		total_amount = 0;
 		total_direction = 0;
 		old_val = 0;
@@ -149,18 +154,32 @@ public class VarStatistic implements Serializable {
 	
 	
 	public strictfp void addValue(double nv, double adjustment) {
-		/*if (nv < 0) {
-			throw new IllegalStateException();
-		}*/
 		
 		if (nv != 0) {
 			countNonNull++;
 		}
 		
-		entropy = (count * entropy + nv) / (count + 1);
-		if (count > 0) {
-			disperse = (1 / count) * (	(count - 1) * disperse	 + 	(nv - entropy) * (nv - entropy)	);
+		
+		count++;
+		
+		
+		/*entropy = entropy + (nv - entropy) / (double) count;
+		
+		if (count == 1) {
+			
+			variance = ((nv - entropy) * (nv - entropy)) / (double) count;
+			
+		} else {
+			
+			variance = ((count - 2) / (double) (count - 1)) * variance * variance + ((nv - entropy) * (nv - entropy)) / (double) count;
 		}
+		 */
+
+		
+		entropy = (count * entropy + nv) / (count + 1);
+		
+		variance = (1 / count) * (	(count - 1) * variance	 + 	(nv - entropy) * (nv - entropy)	);
+		
 		
 		//path += Math.sqrt(0.01 + Math.pow(nv - old_val, 2));
 		path += Math.abs(nv - old_val);
@@ -176,7 +195,6 @@ public class VarStatistic implements Serializable {
 		total_amount += Math.abs(adjustment);
 		total_direction += adjustment;
 		
-		count++;
 		old_val = nv;
 		
 		/*
@@ -209,12 +227,12 @@ public class VarStatistic implements Serializable {
 	public String toString() {
 		String result = "";
 		
-		result += StringUtils.fill("" + count, 6);
-		result += "  " + StringUtils.align(entropy);
-		result += "  " + StringUtils.align(getDisperse());
-		result += "  " + StringUtils.align(getTotalAmount());
-		result += "  " + StringUtils.align(getTotalDirection());
-		result += "  " + StringUtils.align(getChaos());
+		result += StringUtils.fill("SAMPLES_COUNT=" + count, 6);
+		result += ", MEAN=" + StringUtils.align(entropy);
+		result += ", STDEV=" + StringUtils.align(getDisperse());
+		result += ", AMOUNT=" + StringUtils.align(getTotalAmount());
+		result += ", DIRECTION=" + StringUtils.align(getTotalDirection());
+		result += ", CHAOS=" + StringUtils.align(getChaos());
 		
 		return result;
 	}
@@ -247,7 +265,7 @@ public class VarStatistic implements Serializable {
 	}
 
 	public void setDisperse(double disperse) {
-		this.disperse = disperse;
+		this.variance = disperse;
 	}
 
 	public double getCountNonNull() {

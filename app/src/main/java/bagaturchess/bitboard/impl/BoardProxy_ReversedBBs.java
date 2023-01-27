@@ -19,6 +19,7 @@
  */
 package bagaturchess.bitboard.impl;
 
+
 import bagaturchess.bitboard.api.IBaseEval;
 import bagaturchess.bitboard.api.IBitBoard;
 import bagaturchess.bitboard.api.IBoardConfig;
@@ -33,11 +34,9 @@ import bagaturchess.bitboard.api.IPlayerAttacks;
 import bagaturchess.bitboard.api.ISEE;
 import bagaturchess.bitboard.api.PawnsEvalCache;
 import bagaturchess.bitboard.impl.eval.pawns.model.PawnsModelEval;
+import bagaturchess.bitboard.impl1.internal.CastlingConfig;
 
-/**
- * @author i027638
- *
- */
+
 public class BoardProxy_ReversedBBs implements IBitBoard {
 	
 	
@@ -435,14 +434,6 @@ public class BoardProxy_ReversedBBs implements IBitBoard {
 	}
 
 	/* (non-Javadoc)
-	 * @see bagaturchess.bitboard.api.IBoard#getCastlingType(int)
-	 */
-	@Override
-	public int getCastlingType(int colour) {
-		return bitboard.getCastlingType(colour);
-	}
-
-	/* (non-Javadoc)
 	 * @see bagaturchess.bitboard.api.IBoard#hasRightsToKingCastle(int)
 	 */
 	@Override
@@ -582,5 +573,33 @@ public class BoardProxy_ReversedBBs implements IBitBoard {
 	@Override
 	public int getSEEFieldScore(int squareID) {
 		return bitboard.getSEEFieldScore(squareID);
+	}
+	
+	
+	@Override
+	public Object getNNUEInputs() {
+		
+		return bitboard.getNNUEInputs();
+	}
+
+
+	@Override
+	public CastlingType getCastlingType(int colour) {
+		
+		return bitboard.getCastlingType(colour);
+	}
+
+
+	@Override
+	public CastlingPair getCastlingPair() {
+		
+		return bitboard.getCastlingPair();
+	}
+	
+	
+	@Override
+	public CastlingConfig getCastlingConfig() {
+		
+		return bitboard.getCastlingConfig();
 	}
 }

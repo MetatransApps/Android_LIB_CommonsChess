@@ -3,8 +3,8 @@ package bagaturchess.learning.goldmiddle.impl.cfg.bagatur.filler;
 
 import bagaturchess.bitboard.api.IBaseEval;
 import bagaturchess.bitboard.api.IBitBoard;
+import bagaturchess.bitboard.api.IBoard;
 import bagaturchess.bitboard.api.IMaterialFactor;
-import bagaturchess.bitboard.common.CastlingType;
 import bagaturchess.bitboard.common.Utils;
 import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.bitboard.impl.Fields;
@@ -1543,7 +1543,7 @@ public class BagaturEval_SignalFiller implements BagaturEval_FeaturesConstants, 
 	
 	private int castling(int colour) {
 		int result = 0;
-		if (bitboard.getCastlingType(colour) != CastlingType.NONE) {
+		if (bitboard.getCastlingType(colour) != IBoard.CastlingType.NONE) {
 			result += 3;
 		} else {
 			if (bitboard.hasRightsToKingCastle(colour)) {
@@ -1810,7 +1810,7 @@ public class BagaturEval_SignalFiller implements BagaturEval_FeaturesConstants, 
 	 * @see bagaturchess.search.api.IEvaluator#fullEval(int, int, int, int)
 	 */
 	@Override
-	public double fullEval(int depth, int alpha, int beta, int rootColour) {
+	public int fullEval(int depth, int alpha, int beta, int rootColour) {
 		throw new UnsupportedOperationException();
 	}
 }

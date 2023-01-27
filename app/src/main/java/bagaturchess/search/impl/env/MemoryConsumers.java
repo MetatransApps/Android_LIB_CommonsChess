@@ -4,26 +4,18 @@ package bagaturchess.search.impl.env;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import bagaturchess.bitboard.api.PawnsEvalCache;
-import bagaturchess.bitboard.impl.datastructs.lrmmap.DataObjectFactory;
-import bagaturchess.bitboard.impl.eval.pawns.model.PawnsModelEval;
-import bagaturchess.bitboard.impl.utils.BinarySemaphore_Dummy;
-import bagaturchess.bitboard.impl.utils.ReflectionUtils;
 import bagaturchess.egtb.syzygy.SyzygyTBProbing;
 import bagaturchess.opening.api.OpeningBook;
 import bagaturchess.opening.api.OpeningBookFactory;
 import bagaturchess.search.api.IRootSearchConfig;
-import bagaturchess.search.impl.eval.cache.EvalCache_Impl1;
 import bagaturchess.search.impl.eval.cache.EvalCache_Impl2;
 import bagaturchess.search.impl.eval.cache.IEvalCache;
 import bagaturchess.search.impl.tpt.ITTable;
-import bagaturchess.search.impl.tpt.TTable_Impl1;
 import bagaturchess.search.impl.tpt.TTable_Impl2;
-import bagaturchess.search.impl.tpt.TranspositionTableProvider;
+import bagaturchess.search.impl.tpt.TTable_StaticArrays;
 import bagaturchess.uci.api.ChannelManager;
 import bagaturchess.uci.api.IChannel;
 
@@ -31,7 +23,9 @@ import bagaturchess.uci.api.IChannel;
 public class MemoryConsumers {
 	
 	
-	private static double MEMORY_USAGE_PERCENT 							= 0;
+	private static final double DEFAULT_MEMORY_USAGE_PERCENT 			= 0.5;
+	
+	private static double MEMORY_USAGE_PERCENT 							= DEFAULT_MEMORY_USAGE_PERCENT;
 	
 	//The static memory is between 128MB and 384MB for desktop computers.
 	//Under Android it should be less even close or equal to 0.
@@ -49,22 +43,29 @@ public class MemoryConsumers {
 	
 	
 	public static void set_MEMORY_USAGE_PERCENT(double val) {
+		
 		MEMORY_USAGE_PERCENT = val;	
 	}
 	
 	
 	public static void set_STATIC_JVM_MEMORY(int static_jvm_memory_in_megabytes) {
+		
 		STATIC_JVM_MEMORY_IN_MEGABYTES = static_jvm_memory_in_megabytes;	
 	}
 	
 	
 	static {
+		
 		try {
+			
 			if (OpeningBookFactory.getBook() == null) {
+				
 				InputStream is_w_openning_book = new FileInputStream("./data/w.ob");
 				InputStream is_b_openning_book = new FileInputStream("./data/b.ob");
+				
 				OpeningBookFactory.initBook(is_w_openning_book, is_b_openning_book);				
 			}
+			
 		} catch(Throwable t) {
 			
 			if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump("Unable to load Openning Book. Error while openning file streams: " + t.getMessage());
@@ -74,13 +75,11 @@ public class MemoryConsumers {
 	
 	private IRootSearchConfig engineConfiguration;
 	
-	//private SeeMetadata seeMetadata;
 	private OpeningBook openingBook;
 	
-	private TranspositionTableProvider ttable_provider;
+	private List<ITTable> ttable_provider;
 	private List<IEvalCache> evalCache;
 	private List<IEvalCache> syzygyDTZCache;
-	private List<PawnsEvalCache> pawnsCache;
 	
 	private IChannel channel;
 	
@@ -104,11 +103,12 @@ public class MemoryConsumers {
 		 * The selection bellow is optimized for long games.
 		 */
 		
-		if (MEMORY_USAGE_PERCENT == 0) {
+		//Set only if not set statically
+		//if (MEMORY_USAGE_PERCENT == 0) {
 			//0.29 for short games (e.g. 1/1), 0.69 for long games (e.g. 40/40)
-			double memoryUsagePercent = 1.00;//(engineConfiguration.getTimeControlOptimizationType() == IRootSearchConfig.TIME_CONTROL_OPTIMIZATION_TYPE_40_40) ? 0.69 : 0.29;
-			MEMORY_USAGE_PERCENT = memoryUsagePercent;//Set only if not set statically
-		}
+			double memoryUsagePercent = engineConfiguration.get_MEMORY_USAGE_PERCENT(); //0.90;//(engineConfiguration.getTimeControlOptimizationType() == IRootSearchConfig.TIME_CONTROL_OPTIMIZATION_TYPE_40_40) ? 0.69 : 0.29;
+			set_MEMORY_USAGE_PERCENT(memoryUsagePercent);
+		//}
 		
 		
 		//ChannelManager.getChannel().dump(new Exception());
@@ -149,11 +149,23 @@ public class MemoryConsumers {
 		
 		if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump("Loading modules for Endgame Tablebases support ... ");
 		
-		//int threadsCount = engineConfiguration.getThreadsCount();
+		//if (engineConfiguration.getThreadsCount() > 1) {
+			
+			//If there are many threads than switch off syzygy calls, because of crashes:
+			
+			/*230018 <Bagatur 3.1(0): # A fatal error has been detected by the Java Runtime Environment:
+				230018 <Bagatur 3.1(0): #
+				230018 <Bagatur 3.1(0): #  SIGSEGV (0xb) at pc=0x00007fcea1f29513, pid=102795, tid=0x00007fce8b7f7700
+				230018 <Bagatur 3.1(0): #
+				230018 <Bagatur 3.1(0): # JRE version: OpenJDK Runtime Environment (8.0_312-b07) (build 1.8.0_312-b07)
+				230018 <Bagatur 3.1(0): # Java VM: OpenJDK 64-Bit Server VM (25.312-b07 mixed mode linux-amd64 )
+				230018 <Bagatur 3.1(0): # Problematic frame:
+				230018 <Bagatur 3.1(0): # C  [libJSyzygy.so+0x6513]  probe_dtz+0x403*/
+			
+			//SyzygyTBProbing.disableSingleton();
+		//}
 		
 		if (SyzygyTBProbing.getSingleton() != null) {
-			
-			//SyzygyTBProbing.getSingleton().load("C:/Users/i027638/OneDrive - SAP SE/DATA/OWN/chess/EGTB/syzygy");
 			
 			if (engineConfiguration.getTbPath() != null) {
 			
@@ -222,47 +234,77 @@ public class MemoryConsumers {
 		
 		
 		int THREADS_COUNT 				= engineConfiguration.getThreadsCount();
-		int TRANSPOSITION_TABLES_COUNT 	= Math.max(1, THREADS_COUNT / 32);
 		
-		if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump("Threads are " + THREADS_COUNT);
-		if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump(TRANSPOSITION_TABLES_COUNT + " Transposition Table will be created.");
+		int TRANSPOSITION_TABLES_COUNT 	= 1; //Math.max(1, THREADS_COUNT / 32);
 		
-		long size_tpt = Math.max(SIZE_MIN_ENTRIES_TPT, (long) ((engineConfiguration.getTPTUsagePercent() * availableMemoryInBytes) / TRANSPOSITION_TABLES_COUNT));
-		
-		List<ITTable> ttables = new ArrayList<ITTable>();
-		
-		for (int i = 0; i < TRANSPOSITION_TABLES_COUNT; i++) {
+		if (ChannelManager.getChannel() != null) {
 			
-			if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump("Creating Transposition Table for the current Threads Group ...");
-			ITTable current_ttable = new TTable_Impl2(size_tpt);
-			if (ChannelManager.getChannel() != null) ChannelManager.getChannel().dump("Transposition Table created.");
+			ChannelManager.getChannel().dump("Threads are " + THREADS_COUNT);
 			
-			ttables.add(current_ttable);
+			//ChannelManager.getChannel().dump(TRANSPOSITION_TABLES_COUNT + " Transposition Table will be created.");
+			
+			ChannelManager.getChannel().dump("engineConfiguration.useTPT()=" + engineConfiguration.useTPT());
+			
+			ChannelManager.getChannel().dump("engineConfiguration.useGlobalTPT()=" + engineConfiguration.useGlobalTPT());
+			
+			ChannelManager.getChannel().dump("engineConfiguration.useEvalCache()=" + engineConfiguration.useEvalCache());
+			
+			ChannelManager.getChannel().dump("engineConfiguration.useSyzygyDTZCache()=" + engineConfiguration.useSyzygyDTZCache());
 		}
 		
-		ttable_provider = new TranspositionTableProvider(ttables);
+		
+		/**
+		 * Initialize caches
+		 */
+		long size_tpt 			= Math.max(SIZE_MIN_ENTRIES_TPT, (long) ((engineConfiguration.getTPTUsagePercent() * availableMemoryInBytes) / TRANSPOSITION_TABLES_COUNT));
+		
+		long size_ec 			= Math.max(SIZE_MIN_ENTRIES_EC, (long) ((engineConfiguration.getEvalCacheUsagePercent() * availableMemoryInBytes) / THREADS_COUNT));
+		
+		long syzygy_ec 			= Math.max(SIZE_MIN_ENTRIES_EC, (long) ((MEM_USAGE_SYZYGY_DTZ_CACHE * availableMemoryInBytes) / THREADS_COUNT));
 		
 		
-		long size_ec = Math.max(SIZE_MIN_ENTRIES_EC, (long) ((engineConfiguration.getEvalCacheUsagePercent() * availableMemoryInBytes) / THREADS_COUNT));
-		long syzygy_ec = Math.max(SIZE_MIN_ENTRIES_EC, (long) ((MEM_USAGE_SYZYGY_DTZ_CACHE * availableMemoryInBytes) / THREADS_COUNT));
+		//ITTable global_ttable 	= engineConfiguration.useGlobalTPT() ? new TTable_Impl2(size_tpt) : null;
+		ITTable global_ttable 	= engineConfiguration.useGlobalTPT() ? new TTable_StaticArrays(size_tpt) : null;
 		
-		int size_pc = SIZE_MIN_ENTRIES_PEC;
+		ttable_provider 		= new Vector<ITTable>();
 		
+		evalCache 				= new Vector<IEvalCache>();
 		
-		//Eval caches
-		evalCache 		= new Vector<IEvalCache>();
-		syzygyDTZCache  = new Vector<IEvalCache>();
-		pawnsCache		= new Vector<PawnsEvalCache>();
+		syzygyDTZCache  		= new Vector<IEvalCache>();
+		
 		
 		for (int i = 0; i < THREADS_COUNT; i++) {
 			
-			evalCache.add(new EvalCache_Impl2(size_ec));
+			ttable_provider.add(engineConfiguration.useTPT() ? (engineConfiguration.useGlobalTPT() ? global_ttable : new TTable_Impl2(size_tpt / THREADS_COUNT)) : null);
 			
-			syzygyDTZCache.add(new EvalCache_Impl2(syzygy_ec));
+			evalCache.add(engineConfiguration.useEvalCache() ? new EvalCache_Impl2(size_ec) : null);
 			
-			DataObjectFactory<PawnsModelEval> pawnsCacheFactory = (DataObjectFactory<PawnsModelEval>) ReflectionUtils.createObjectByClassName_NoArgsConstructor(engineConfiguration.getEvalConfig().getPawnsCacheFactoryClassName());
-			pawnsCache.add(new PawnsEvalCache(pawnsCacheFactory, size_pc, false, new BinarySemaphore_Dummy()));
+			syzygyDTZCache.add(engineConfiguration.useSyzygyDTZCache() ? new EvalCache_Impl2(syzygy_ec) : null);
 		}		
+	}
+	
+	
+	public OpeningBook getOpeningBook() {
+		
+		return openingBook;
+	}
+	
+	
+	public List<ITTable> getTPTProvider() {
+		
+		return ttable_provider;
+	}
+	
+	
+	public List<IEvalCache> getEvalCache() {
+		
+		return evalCache;
+	}
+
+	
+	public List<IEvalCache> getSyzygyDTZCache() {
+		
+		return syzygyDTZCache;
 	}
 	
 	
@@ -289,39 +331,17 @@ public class MemoryConsumers {
                 return code;
             }
         }
+        
         return 32;
-	}
-
-
-	public OpeningBook getOpeningBook() {
-		return openingBook;
-	}
-
-
-	public TranspositionTableProvider getTPTProvider() {
-		return ttable_provider;
-	}
-	
-	
-	public List<IEvalCache> getEvalCache() {
-		return evalCache;
-	}
-
-	
-	public List<IEvalCache> getSyzygyDTZCache() {
-		return syzygyDTZCache;
-	}
-	
-	
-	public List<PawnsEvalCache> getPawnsCache() {
-		return pawnsCache;
 	}
 	
 	
 	public void clear() {
+		
 		if (ttable_provider != null) ttable_provider.clear();
+		
 		if (evalCache != null) evalCache.clear();
+		
 		if (syzygyDTZCache != null) syzygyDTZCache.clear(); 
-		if (pawnsCache != null) pawnsCache.clear();
 	}
 }

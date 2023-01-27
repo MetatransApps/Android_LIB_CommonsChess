@@ -49,9 +49,11 @@ import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.bitboard.impl.Fields;
 import bagaturchess.bitboard.impl.Figures;
 import bagaturchess.bitboard.impl.eval.pawns.model.PawnsModelEval;
+import bagaturchess.bitboard.impl.movegen.MoveInt;
 import bagaturchess.bitboard.impl.movelist.BaseMoveList;
 import bagaturchess.bitboard.impl.movelist.IMoveList;
 import bagaturchess.bitboard.impl.state.PiecesList;
+import bagaturchess.bitboard.impl1.internal.CastlingConfig;
 import bagaturchess.bitboard.impl1.internal.CheckUtil;
 import bagaturchess.bitboard.impl1.internal.ChessBoard;
 import bagaturchess.bitboard.impl1.internal.ChessBoardUtil;
@@ -64,8 +66,8 @@ import bagaturchess.bitboard.impl1.internal.SEEUtil;
 
 
 public class BoardImpl implements IBitBoard {
-	
-	
+
+
 	private ChessBoard chessBoard;
 	private MoveGenerator generator;
 	
@@ -80,10 +82,20 @@ public class BoardImpl implements IBitBoard {
 	
 	private MoveListener[] moveListeners;
 	
+	private NNUE_Input nnue_input;
 	
-	public BoardImpl(String fen, IBoardConfig _boardConfig) {
+	private boolean enable_NNUE_Input = true;
+	
+	protected IBoard.CastlingType[] castledByColour;
+	
+	private boolean isFRC;
+	
+	
+	public BoardImpl(String fen, IBoardConfig _boardConfig, boolean _isFRC) {
 		
 		boardConfig = _boardConfig;
+		
+		isFRC = _isFRC;
 		
 		generator = new MoveGenerator();
 		
@@ -95,17 +107,22 @@ public class BoardImpl implements IBitBoard {
 		
 		moveOps = new MoveOpsImpl();
 		
-		chessBoard = ChessBoardUtil.getNewCB(fen);
-		
 		hasMovesList = new BaseMoveList(250);
+		
+		castledByColour = new IBoard.CastlingType[2];
+		castledByColour[Constants.COLOUR_WHITE] = IBoard.CastlingType.NONE;
+		castledByColour[Constants.COLOUR_BLACK] = IBoard.CastlingType.NONE;
 		
 		moveListeners = new MoveListener[0];
 		
 		addMoveListener(materialFactor);
 		
+		
 		if (boardConfig != null) {
 			
 			EvalConstants.initPSQT(boardConfig);
+			
+			chessBoard = ChessBoardUtil.getNewCB(fen);
 			
 			baseEval = new BaseEvaluation(boardConfig, this);
 			
@@ -113,14 +130,39 @@ public class BoardImpl implements IBitBoard {
 				for (int piece = PAWN; piece <= KING; piece++) {
 					long pieces = chessBoard.pieces[color][piece];
 					while (pieces != 0) {
-						baseEval.initially_addPiece(color, piece);
+						baseEval.initially_addPiece(color, piece, pieces);
 						pieces &= pieces - 1;
 					}
 				}
 			}
 			
 			addMoveListener(baseEval);
+			
+		} else {
+			
+			chessBoard = ChessBoardUtil.getNewCB(fen);
 		}
+		
+		
+		if (enable_NNUE_Input) {
+			
+			nnue_input = new NNUE_Input(this);
+			
+			for (int color = 0; color < 2; color++) {
+				for (int piece = PAWN; piece <= KING; piece++) {
+					long pieces = chessBoard.pieces[color][piece];
+					nnue_input.initially_addPiece(color, piece, pieces);
+				}
+			}
+			
+			addMoveListener(nnue_input);
+		}
+	}
+	
+	
+	public boolean isFRC() {
+		
+		return isFRC;
 	}
 	
 	
@@ -163,7 +205,14 @@ public class BoardImpl implements IBitBoard {
 	
 	@Override
 	public String toString() {
-		return chessBoard.toString();
+		
+		String moves_str = "";
+		int[] moves = chessBoard.playedMoves;
+		for (int i = 0; i < chessBoard.playedMovesCount; i++) {
+			moves_str += moveOps.moveToString(moves[i]) + " ";
+		}
+		
+		return chessBoard.toString() + " moves " + moves_str;
 	}
 	
 	
@@ -178,7 +227,7 @@ public class BoardImpl implements IBitBoard {
 		int counter = 0;
 		while (generator.hasNext()) {
 			int cur_move = generator.next();
-			if (!chessBoard.isLegal(cur_move)) {
+			if (!isPossible(cur_move)) {
 				continue;
 			}
 			list.reserved_add(cur_move);
@@ -206,7 +255,7 @@ public class BoardImpl implements IBitBoard {
 		int counter = 0;
 		while (generator.hasNext()) {
 			int cur_move = generator.next();
-			if (!chessBoard.isLegal(cur_move)) {
+			if (!isPossible(cur_move)) {
 				continue;
 			}
 			list.reserved_add(cur_move);
@@ -222,18 +271,40 @@ public class BoardImpl implements IBitBoard {
 	@Override
 	public void makeMoveForward(int move) {
 		
-		if (moveListeners.length > 0) {
-			for (int i=0; i<moveListeners.length; i++) {
-				moveListeners[i].preForwardMove(chessBoard.colorToMove, move);
-			}
-		}
 		
-		chessBoard.doMove(move);
-		
-		if (moveListeners.length > 0) {
-			for (int i=0; i<moveListeners.length; i++) {
-				moveListeners[i].postForwardMove(chessBoard.colorToMoveInverse, move);
+		try {
+			
+			
+			if (moveOps.isCastling(move)) {
+				
+				castledByColour[getColourToMove()] = moveOps.isCastlingKingSide(move) ? IBoard.CastlingType.KINGSIDE : IBoard.CastlingType.QUEENSIDE;
 			}
+			
+			
+			if (moveListeners.length > 0) {
+				
+				for (int i=0; i<moveListeners.length; i++) {
+					
+					moveListeners[i].preForwardMove(chessBoard.colorToMove, move);
+				}
+			}
+			
+
+		
+			chessBoard.doMove(move);
+			
+			
+			if (moveListeners.length > 0) {
+				
+				for (int i=0; i<moveListeners.length; i++) {
+					
+					moveListeners[i].postForwardMove(chessBoard.colorToMoveInverse, move);
+				}
+			}
+		
+		} catch(Exception cause) {
+			
+			throw new IllegalStateException(this.toString(), cause);
 		}
 	}
 	
@@ -241,25 +312,42 @@ public class BoardImpl implements IBitBoard {
 	@Override
 	public void makeMoveBackward(int move) {
 		
-		if (moveListeners.length > 0) {
-			for (int i=0; i<moveListeners.length; i++) {
-				moveListeners[i].preBackwardMove(chessBoard.colorToMoveInverse, move);
-			}
-		}
 		
-		chessBoard.undoMove(move);
-		
-		if (moveListeners.length > 0) {
-			for (int i=0; i<moveListeners.length; i++) {
-				moveListeners[i].postBackwardMove(chessBoard.colorToMove, move);
+		try {
+			
+			
+			if (moveListeners.length > 0) {
+				for (int i=0; i<moveListeners.length; i++) {
+					moveListeners[i].preBackwardMove(chessBoard.colorToMoveInverse, move);
+				}
 			}
+		
+		
+			chessBoard.undoMove(move);
+			
+			
+			if (moveOps.isCastling(move)) {
+				
+				castledByColour[getColourToMove()] = IBoard.CastlingType.NONE;
+			}
+			
+			
+			if (moveListeners.length > 0) {
+				for (int i=0; i<moveListeners.length; i++) {
+					moveListeners[i].postBackwardMove(getColourToMove(), move);
+				}
+			}
+		
+		} catch(Exception cause) {
+			
+			throw new IllegalStateException(this.toString(), cause);
 		}
 	}
 	
 	
 	@Override
 	public void makeMoveForward(String ucimove) {
-		MoveWrapper move = new MoveWrapper(ucimove, chessBoard);
+		MoveWrapper move = new MoveWrapper(ucimove, chessBoard, isFRC);
 		makeMoveForward(move.move);
 	}
 	
@@ -377,6 +465,102 @@ public class BoardImpl implements IBitBoard {
 		} else {
 			return (chessBoard.castlingRights & 1) != 0;
 		}
+	}
+	
+	
+	@Override
+	public IBoard.CastlingType getCastlingType(int colour) {
+		
+		return castledByColour[colour];
+	}
+	
+	
+	@Override
+	public CastlingPair getCastlingPair() {
+		
+		
+		if (castledByColour[Constants.COLOUR_WHITE] == null || castledByColour[Constants.COLOUR_BLACK] == null) {
+			
+			throw new IllegalStateException();
+		}
+		
+		
+		switch (castledByColour[Constants.COLOUR_WHITE]) {
+		
+			case NONE:
+				
+				switch (castledByColour[Constants.COLOUR_BLACK]) {
+				
+					case NONE:
+						
+						return CastlingPair.NONE_NONE;
+						
+					case KINGSIDE:
+						
+						return CastlingPair.NONE_KINGSIDE;
+						
+					case QUEENSIDE:
+						
+						return CastlingPair.NONE_QUEENSIDE;
+						
+					default:
+						
+						throw new IllegalStateException();
+				}
+				
+			case KINGSIDE:
+				
+				switch (castledByColour[Constants.COLOUR_BLACK]) {
+				
+					case NONE:
+						
+						return CastlingPair.KINGSIDE_NONE;
+						
+					case KINGSIDE:
+						
+						return CastlingPair.KINGSIDE_KINGSIDE;
+						
+					case QUEENSIDE:
+						
+						return CastlingPair.KINGSIDE_QUEENSIDE;
+						
+					default:
+						
+						throw new IllegalStateException();
+				}
+				
+			case QUEENSIDE:
+				
+				switch (castledByColour[Constants.COLOUR_BLACK]) {
+				
+					case NONE:
+						
+						return CastlingPair.QUEENSIDE_NONE;
+						
+					case KINGSIDE:
+						
+						return CastlingPair.QUEENSIDE_KINGSIDE;
+						
+					case QUEENSIDE:
+						
+						return CastlingPair.QUEENSIDE_QUEENSIDE;
+						
+					default:
+						
+						throw new IllegalStateException();
+				}
+				
+			default:
+				
+				throw new IllegalStateException();
+		}
+	}
+	
+	
+	@Override
+	public CastlingConfig getCastlingConfig() {
+		
+		return chessBoard.castlingConfig;
 	}
 	
 	
@@ -604,6 +788,7 @@ public class BoardImpl implements IBitBoard {
 	
 	@Override
 	public String toEPD() {
+
 		return chessBoard.toString();
 	}
 	
@@ -661,6 +846,18 @@ public class BoardImpl implements IBitBoard {
 		}
 		
 		return IGameStatus.NONE;
+	}
+	
+	
+	@Override
+	public float[] getNNUEInputs() {
+		
+		if (!enable_NNUE_Input) {
+			
+			throw new UnsupportedOperationException();
+		}
+		
+		return nnue_input.getInputs();
 	}
 	
 	
@@ -735,14 +932,6 @@ public class BoardImpl implements IBitBoard {
 	 */
 	@Override
 	public int getUnstoppablePasser() {
-		throw new UnsupportedOperationException();
-	}
-
-	/* (non-Javadoc)
-	 * @see bagaturchess.bitboard.api.IBoard#getCastlingType(int)
-	 */
-	@Override
-	public int getCastlingType(int colour) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -868,13 +1057,6 @@ public class BoardImpl implements IBitBoard {
 
 
 		@Override
-		public void initially_addPiece(int pid, int fieldID) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
 		public void preForwardMove(int color, int move) {
 			// TODO Auto-generated method stub
 			
@@ -897,6 +1079,13 @@ public class BoardImpl implements IBitBoard {
 
 		@Override
 		public void postBackwardMove(int color, int move) {
+			// TODO Auto-generated method stub
+			
+		}
+
+
+		@Override
+		public void initially_addPiece(int color, int type, long bb_pieces) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -1030,7 +1219,7 @@ public class BoardImpl implements IBitBoard {
 		public boolean isCastlingKingSide(int move) {
 			if (isCastling(move)) {
 				int index = MoveUtil.getToIndex(move);
-				return index == 1 || index == 57;
+				return index == CastlingConfig.G1 || index == CastlingConfig.G8;
 			}
 			
 			return false;
@@ -1042,7 +1231,7 @@ public class BoardImpl implements IBitBoard {
 			
 			if (isCastling(move)) {
 				int index = MoveUtil.getToIndex(move);
-				return index == 5 || index == 61; 
+				return index == CastlingConfig.C1 || index == CastlingConfig.C8; 
 			}
 			
 			return false;
@@ -1072,12 +1261,19 @@ public class BoardImpl implements IBitBoard {
 		
 		@Override
 		public String moveToString(int move) {
-			return (new MoveWrapper(move)).toString();
+			return (new MoveWrapper(move, isFRC, chessBoard.castlingConfig)).toString();
 		}
+		
+		
+		@Override
+		public void moveToString(int move, StringBuilder text_buffer) {
+			(new MoveWrapper(move, isFRC, chessBoard.castlingConfig)).toString(text_buffer);
+		}
+		
 		
 		@Override
 		public int stringToMove(String move) {
-			MoveWrapper moveObj = new MoveWrapper(move, chessBoard);
+			MoveWrapper moveObj = new MoveWrapper(move, chessBoard, isFRC);
 			return moveObj.move;
 		}
 		

@@ -3,8 +3,8 @@ package bagaturchess.learning.goldmiddle.impl.cfg.bagatur_allfeatures.eval;
 
 import bagaturchess.bitboard.api.IBaseEval;
 import bagaturchess.bitboard.api.IBitBoard;
+import bagaturchess.bitboard.api.IBoard;
 import bagaturchess.bitboard.api.IMaterialFactor;
-import bagaturchess.bitboard.common.CastlingType;
 import bagaturchess.bitboard.common.Utils;
 import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.bitboard.impl.Fields;
@@ -83,7 +83,7 @@ public class BagaturEvaluator extends BaseEvaluator implements FeatureWeights {
 	
 	
 	@Override
-	protected double phase1() {
+	protected int phase1() {
 		int eval = 0;
 		
 		evalInfo.clear_short();
@@ -100,7 +100,7 @@ public class BagaturEvaluator extends BaseEvaluator implements FeatureWeights {
 	
 	
 	@Override
-	protected double phase2() {
+	protected int phase2() {
 
 		int eval = 0;
 		
@@ -121,7 +121,7 @@ public class BagaturEvaluator extends BaseEvaluator implements FeatureWeights {
 	
 	
 	@Override
-	protected double phase3() {
+	protected int phase3() {
 		
 		int eval = 0;
 				
@@ -145,7 +145,7 @@ public class BagaturEvaluator extends BaseEvaluator implements FeatureWeights {
 	
 	
 	@Override
-	protected double phase4() {
+	protected int phase4() {
 		
 		int eval = 0;
 		
@@ -172,7 +172,7 @@ public class BagaturEvaluator extends BaseEvaluator implements FeatureWeights {
 	
 	
 	@Override
-	protected double phase5() {
+	protected int phase5() {
 		
 		int eval = 0;
 		
@@ -1447,7 +1447,7 @@ public class BagaturEvaluator extends BaseEvaluator implements FeatureWeights {
 	
 	private int castling(int colour) {
 		int result = 0;
-		if (bitboard.getCastlingType(colour) != CastlingType.NONE) {
+		if (bitboard.getCastlingType(colour) != IBoard.CastlingType.NONE) {
 			result += 3;
 		} else {
 			if (bitboard.hasRightsToKingCastle(colour)) {

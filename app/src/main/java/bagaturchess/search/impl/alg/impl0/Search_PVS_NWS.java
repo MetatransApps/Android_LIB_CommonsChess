@@ -96,12 +96,6 @@ public class Search_PVS_NWS extends SearchImpl {
 	
 	
 	@Override
-	public int getTPTUsagePercent() {
-		return getEnv().getTPTUsagePercent();
-	}
-	
-	
-	@Override
 	public String toString() {
 		String result = "";//"" + this + " ";
 		
@@ -184,7 +178,7 @@ public class Search_PVS_NWS extends SearchImpl {
 		node.leaf = true;
 		
 		
-		if (isDrawPV(depth)) {
+		if (isDraw(true)) {
 			node.eval = getDrawScores(rootColour);
 			return node.eval;
 		}
@@ -218,11 +212,11 @@ public class Search_PVS_NWS extends SearchImpl {
 				}
 			}
 			
-			int result = SyzygyTBProbing.getSingleton().probeDTZ(env.getBitboard());
+			int result = SyzygyTBProbing.getSingleton().probeWDL(env.getBitboard());
 			if (result != -1) {
 				int dtz = (result & SyzygyConstants.TB_RESULT_DTZ_MASK) >> SyzygyConstants.TB_RESULT_DTZ_SHIFT;
 				int wdl = (result & SyzygyConstants.TB_RESULT_WDL_MASK) >> SyzygyConstants.TB_RESULT_WDL_SHIFT;
-				int egtbscore =  SyzygyTBProbing.getSingleton().getWDLScore(wdl, depth);
+				int egtbscore =  SyzygyTBProbing.getWDLScore(wdl, depth);
 				if (egtbscore > 0) {
 					int distanceToDraw = 100 - env.getBitboard().getDraw50movesRule();
 					if (distanceToDraw > dtz) {
@@ -545,7 +539,7 @@ public class Search_PVS_NWS extends SearchImpl {
 		if (mediator != null && mediator.getStopper() != null) mediator.getStopper().stopIfNecessary(SearchUtils.normDepth(initial_maxdepth), colourToMove, alpha_org, beta);
 		
 		
-		if (isDraw()) {
+		if (isDraw(true)) {
 			return getDrawScores(rootColour);
 		}
     	
@@ -578,11 +572,11 @@ public class Search_PVS_NWS extends SearchImpl {
 				}
 			}
 			
-			int result = SyzygyTBProbing.getSingleton().probeDTZ(env.getBitboard());
+			int result = SyzygyTBProbing.getSingleton().probeWDL(env.getBitboard());
 			if (result != -1) {
 				int dtz = (result & SyzygyConstants.TB_RESULT_DTZ_MASK) >> SyzygyConstants.TB_RESULT_DTZ_SHIFT;
 				int wdl = (result & SyzygyConstants.TB_RESULT_WDL_MASK) >> SyzygyConstants.TB_RESULT_WDL_SHIFT;
-				int egtbscore =  SyzygyTBProbing.getSingleton().getWDLScore(wdl, depth);
+				int egtbscore =  SyzygyTBProbing.getWDLScore(wdl, depth);
 				if (egtbscore > 0) {
 					int distanceToDraw = 100 - env.getBitboard().getDraw50movesRule();
 					if (distanceToDraw > dtz) {
@@ -1000,7 +994,7 @@ public class Search_PVS_NWS extends SearchImpl {
 		node.leaf = true;
 		
 		
-		if (isDrawPV(depth)) {
+		if (isDraw(true)) {
 			node.eval = getDrawScores(rootColour);
 			return node.eval;
 		}
@@ -1140,7 +1134,7 @@ public class Search_PVS_NWS extends SearchImpl {
 		
 		if (mediator != null && mediator.getStopper() != null) mediator.getStopper().stopIfNecessary(SearchUtils.normDepth(initial_maxdepth), colourToMove, alpha_org, beta);
 		
-		if (isDraw()) {
+		if (isDraw(true)) {
 			return getDrawScores(rootColour);
 		}
 		

@@ -28,6 +28,7 @@ import bagaturchess.bitboard.api.IBitBoard;
 import bagaturchess.bitboard.api.IBoardConfig;
 import bagaturchess.bitboard.common.MoveListener;
 import bagaturchess.bitboard.impl.Figures;
+import bagaturchess.bitboard.impl.eval.PSTs;
 
 
 public class BaseEvaluation implements MoveListener, IBaseEval {
@@ -49,7 +50,7 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 	
 	private IBoardConfig boardConfig;
 	
-	//private PSTs pst;
+	private PSTs psts;
 	
 	private double w_material_nopawns_o;
 	private double b_material_nopawns_o;
@@ -412,7 +413,7 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 	
 	
 	@Override
-	public void initially_addPiece(int color, int type) {
+	public void initially_addPiece(int color, int type, long bb_pieces) {
 		inc(color, type);
 	}
 
@@ -434,9 +435,7 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 			inc(color, prom_type);
 			
 			int type = board.getMoveOps().getFigureType(move);
-
 			if (type != Figures.TYPE_PAWN) {
-
 				throw new IllegalStateException();
 			}
 			
@@ -467,9 +466,7 @@ public class BaseEvaluation implements MoveListener, IBaseEval {
 			dec(color, prom_type);
 			
 			int type = board.getMoveOps().getFigureType(move);
-
 			if (type != Figures.TYPE_PAWN) {
-
 				throw new IllegalStateException();
 			}
 			

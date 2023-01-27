@@ -128,7 +128,8 @@ public abstract class SearchImpl implements ISearch {
 		
 		if (args[2] == null) {
 			
-			return new SharedData(ChannelManager.getChannel(), (IEngineConfig) args[1]);
+			throw new IllegalStateException();
+			//return new SharedData(ChannelManager.getChannel(), (IEngineConfig) args[1]);
 			
 		} else {
 			
@@ -165,18 +166,11 @@ public abstract class SearchImpl implements ISearch {
 	}
 	
 	
-	protected boolean isDraw() {
+	protected boolean isDraw(boolean isPV) {
 		
-		return env.getBitboard().getStateRepetition() >= 2 || isDrawPV(1);
-	}
-	
-	
-	protected boolean isDrawPV(int depth) {
-		
-		//Skip the draw check for the root, we need at least one move in the pv
-		if (depth == 0) {
+		if (!isPV && env.getBitboard().getStateRepetition() >= 2) {
 			
-			return false;
+			return true;
 		}
 		
 		if (env.getBitboard().getStateRepetition() >= 3
@@ -189,6 +183,7 @@ public abstract class SearchImpl implements ISearch {
 			
 			return true;
 		}
+		
 		
 		return false;
 	}

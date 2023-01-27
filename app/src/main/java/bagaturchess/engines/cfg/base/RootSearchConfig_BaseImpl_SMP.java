@@ -24,41 +24,57 @@ import bagaturchess.search.api.IRootSearchConfig_SMP;
 import bagaturchess.uci.api.IUCIOptionsProvider;
 import bagaturchess.uci.impl.commands.options.UCIOption;
 import bagaturchess.uci.impl.commands.options.UCIOptionSpin_Integer;
+import bagaturchess.uci.impl.commands.options.UCIOptions;
 
 
 public abstract class RootSearchConfig_BaseImpl_SMP extends RootSearchConfig_BaseImpl implements IRootSearchConfig_SMP, IUCIOptionsProvider {
 	
 	
-	private int currentThreadsCount = getDefaultThreadsCount();
+	private static final int DEFAULT_SMP_Threads 					= getDefaultThreadsCount();
 	
-	//setoption name SMP Threads value 16
+	private static final boolean DEFAULT_GlobalTranspositionTable 	= true;
+	
+	
+	//setoption name UCIOptions.OPTION_NAME_SMP_Threads value 16
 	private UCIOption[] options = new UCIOption[] {
-			new UCIOptionSpin_Integer("SMP Threads", currentThreadsCount,
-					"type spin default " + currentThreadsCount
+			new UCIOption(UCIOptions.OPTION_NAME_IsGlobalTranspositionTable		, DEFAULT_GlobalTranspositionTable	, "type check default " + DEFAULT_GlobalTranspositionTable),
+			new UCIOptionSpin_Integer(UCIOptions.OPTION_NAME_SMP_Threads		, DEFAULT_SMP_Threads,
+					"type spin default " + DEFAULT_SMP_Threads
 											+ " min 1"
-											+ " max 256"),
+											+ " max " + Math.max(2, 2 * DEFAULT_SMP_Threads)),
 	};
 	
 	
 	public RootSearchConfig_BaseImpl_SMP(String[] args) {
+		
 		super(args);
 	}
 	
 	
 	@Override
 	public String getSemaphoreFactoryClassName() {
+		
 		return bagaturchess.bitboard.impl.utils.BinarySemaphoreFactory.class.getName();
 	}
 	
 	
 	@Override
 	public int getThreadsCount() {
-		return currentThreadsCount;
+		
+		return (Integer) options[1].getValue();
+	}
+	
+	
+	@Override
+	public boolean useGlobalTPT() {
+		
+		return (Boolean) options[0].getValue();
 	}
 	
 	
 	@Override
 	public UCIOption[] getSupportedOptions() {
+		
 		UCIOption[] parentOptions = super.getSupportedOptions();
 		
 		UCIOption[] result = new UCIOption[parentOptions.length + options.length];
@@ -72,9 +88,15 @@ public abstract class RootSearchConfig_BaseImpl_SMP extends RootSearchConfig_Bas
 	
 	@Override
 	public boolean applyOption(UCIOption option) {
-		if ("SMP Threads".equals(option.getName())) {
-			currentThreadsCount = (Integer) option.getValue();
+		
+		if (UCIOptions.OPTION_NAME_SMP_Threads.equals(option.getName())) {
+			
 			return true;
+			
+		} else if (UCIOptions.OPTION_NAME_IsGlobalTranspositionTable.equals(option.getName())) {
+			
+			return true;
+		
 		}
 		
 		return super.applyOption(option);

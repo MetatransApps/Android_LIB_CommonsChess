@@ -1,9 +1,12 @@
 package bagaturchess.bitboard.api;
 
 import bagaturchess.bitboard.impl.eval.pawns.model.PawnsModelEval;
+import bagaturchess.bitboard.impl1.internal.CastlingConfig;
 
 
 public interface IBoard {
+	
+	public CastlingConfig getCastlingConfig();
 	
 	public int[] getMatrix();
 	
@@ -76,7 +79,8 @@ public interface IBoard {
 	
 	public boolean hasSingleMove();
 	
-	public int getCastlingType(int colour);
+	public CastlingType getCastlingType(int colour);
+	public CastlingPair getCastlingPair();
 	public boolean hasRightsToKingCastle(int colour);
 	public boolean hasRightsToQueenCastle(int colour);
 	
@@ -87,4 +91,26 @@ public interface IBoard {
 	public int[] getPlayedMoves();
 	public int getLastMove();
 	public IGameStatus getStatus();
+	
+	public Object getNNUEInputs();
+	
+	
+	public static enum CastlingType {
+		NONE,
+		KINGSIDE,
+		QUEENSIDE,
+	}
+	
+	
+	public static enum CastlingPair {
+		NONE_NONE,
+		NONE_KINGSIDE,
+		KINGSIDE_NONE,
+		KINGSIDE_KINGSIDE,
+		NONE_QUEENSIDE,
+		QUEENSIDE_NONE,
+		QUEENSIDE_QUEENSIDE,
+		KINGSIDE_QUEENSIDE,
+		QUEENSIDE_KINGSIDE,
+	}
 }
