@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.UserSettings;
-import org.metatrans.commons.events.Event_Base;
 import org.metatrans.commons.events.EventsData_Base;
 import org.metatrans.commons.events.api.IEvent_Base;
 import org.metatrans.commons.events.api.IEventsManager;
@@ -41,7 +40,7 @@ public class Events {
 	}
 	
 	
-	public static IEvent_Base create(int id, String name) {
+	/*public static IEvent_Base create(int id, String name) {
 		return eventsmanager.create(id, name);
 	}
 	
@@ -63,7 +62,7 @@ public class Events {
 	
 	public static IEvent_Base create(int id, int subid, int subsubid, String name, String subname, String subsubname, long value) {
 		return new Event_Base(id, subid, subsubid, name, subname, subsubname, value);
-	}
+	}*/
 	
 
 	public static void register(Context context, List<IEvent_Base> events) {

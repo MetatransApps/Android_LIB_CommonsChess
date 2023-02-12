@@ -179,10 +179,6 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 
 			Events.handleGameEvents_OnStart(this, gameData);
 
-			Events.register(this,
-					Events.create(IEvent.MENU_OPERATION, IEvent.MENU_OPERATION_NEW_GAME,
-					"MENU_OPERATION", "NEW_GAME" ));
-
 			Application_Base_Ads.getInstance().openInterstitial();
 
 

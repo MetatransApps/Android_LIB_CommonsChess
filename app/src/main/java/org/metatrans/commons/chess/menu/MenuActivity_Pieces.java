@@ -21,6 +21,8 @@ import org.metatrans.commons.chess.events.Events;
 import org.metatrans.commons.chess.events.IEvent;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.utils.CachesBitmap;
+import org.metatrans.commons.events.Event_Base;
+import org.metatrans.commons.events.api.IEvent_Base;
 import org.metatrans.commons.ui.list.ListViewFactory;
 import org.metatrans.commons.ui.list.RowItem_CIdTD;
 import org.metatrans.commons.ui.utils.BitmapUtils;
@@ -113,14 +115,19 @@ public class MenuActivity_Pieces extends MenuActivity_Base {
 	
 	
 	public void changePieces(int uiPiecesCfgID) {
+
 		getUserSettings().uiPiecesID = uiPiecesCfgID;
 		getUserSettings().save();
 		
 		CachesBitmap.clearPiecesCache();
 		CachesBitmap.clearIconsCache_Promotion();
-		
+
+		IConfigurationPieces cfg_pieces = ConfigurationUtils_Pieces.getConfigByID(uiPiecesCfgID);
+
 		Events.register(this,
-				Events.create(IEvent.MENU_OPERATION, IEvent.MENU_OPERATION_CHANGE_PIECES, uiPiecesCfgID,
-				"MENU_OPERATION", "CHANGE_PIECES", "" + uiPiecesCfgID));
+				IEvent.EVENT_MENU_OPERATION_CHANGE_PIECES.createByVarianceInCategory3(
+						cfg_pieces.getID(), getString(cfg_pieces.getName())
+				)
+		);
 	}
 }

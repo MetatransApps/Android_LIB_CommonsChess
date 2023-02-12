@@ -152,7 +152,8 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 	
 	@Override
 	protected IEventsManager createEventsManager() {
-		return new EventsManager_Base(getExecutor(), getAnalytics());
+
+		return new EventsManager_Base(getExecutor());
 	}
 
 	
