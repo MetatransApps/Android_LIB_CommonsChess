@@ -1213,7 +1213,11 @@ public final class MoveGenerator {
 
 		@Override
 		public void clear() {
-			
+
+			//Allow GC to free memory
+			moves_piece_to = null;
+			counts = null;
+
 			moves_piece_to 	= new int[7][64];
 			counts 			= new long[7][64];
 			
