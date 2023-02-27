@@ -23,11 +23,8 @@ import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.cfg.IConfiguration;
-import org.metatrans.commons.chess.cfg.rules.IConfigurationRule;
 import org.metatrans.commons.chess.events.Events;
-import org.metatrans.commons.chess.events.IEvent;
 import org.metatrans.commons.chess.logic.BoardConstants;
-import org.metatrans.commons.chess.logic.board.BoardManager_AllRules;
 import org.metatrans.commons.chess.logic.game.GameDataUtils;
 import org.metatrans.commons.chess.logic.game.GameManager;
 import org.metatrans.commons.chess.logic.board.IBoardManager;
@@ -174,32 +171,27 @@ public abstract class MainActivity extends Activity_Base_Ads_Banner implements B
 			}
 
 
-			//Resume controller
-			gameController.resumeGame();
-
 			Events.handleGameEvents_OnStart(this, gameData);
 
-			Application_Base_Ads.getInstance().openInterstitial();
+			gameController.resumeGame();
 
+			System.out.println("MainActivity: createNewGame: game resumed");
+
+			boolean success = Application_Base_Ads.getInstance().openInterstitial();
+
+			System.out.println("MainActivity: createNewGame: interstitial open success=" + success);
+
+			if (success) {
+
+				gameController.pauseGame();
+
+				System.out.println("MainActivity: createNewGame: game paused");
+			}
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
-	}
-
-
-	@Override
-	public boolean openInterstitial() {
-
-		boolean success = super.openInterstitial();
-
-		if (success) {
-
-			gameController.pauseGame();
-		}
-
-		return success;
 	}
 
 

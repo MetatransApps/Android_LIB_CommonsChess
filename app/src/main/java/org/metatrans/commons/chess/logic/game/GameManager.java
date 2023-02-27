@@ -334,6 +334,10 @@ public class GameManager implements GlobalConstants {
 
 	public void pauseGame() {
 
+		System.out.println("GameManager.pauseGame: called");
+
+		//(new Exception()).printStackTrace(System.out);
+
 		stopThinking();
 
 		getTimeController().pauseAll();
@@ -343,6 +347,8 @@ public class GameManager implements GlobalConstants {
 	public void resumeGame() {
 
 		System.out.println("GameManager.resumeGame: called");
+
+		//(new Exception()).printStackTrace(System.out);
 
 		lock();
 
