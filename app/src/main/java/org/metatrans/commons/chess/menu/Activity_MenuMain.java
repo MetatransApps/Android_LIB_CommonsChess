@@ -102,7 +102,8 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 
 										Application_Base.getInstance().storeGameData();
 
-										//New
+										Events.handleGameEvents_OnStart(Activity_MenuMain.this, (GameData) Application_Base.getInstance().getGameData());
+
 										Activity_MenuMain.this.finish();
 
 										Intent intent = new Intent(getApplicationContext(), getMainActivityClass());
