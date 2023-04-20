@@ -19,7 +19,7 @@ import bagaturchess.bitboard.impl.utils.VarStatistic;
 
 public final class MoveGenerator {
 	
-	
+
 	public static final int MOVE_SCORE_SCALE 					= 100;
 	
 	
@@ -54,6 +54,8 @@ public final class MoveGenerator {
 	private static final boolean CLEAR_TABLES_ON_NEW_SEARCH 	= false;
 	private final IBetaCutoffMoves[][] KILLER_MOVES 			= new IBetaCutoffMoves[2][EngineConstants.MAX_PLIES];
 	private final IBetaCutoffMoves[][][] COUNTER_MOVES_LASTIN	= new IBetaCutoffMoves[2][7][64];
+
+	public static boolean USE_COUNTER_MOVES_COUNTS 				= false;
 	private final IBetaCutoffMoves[][][] COUNTER_MOVES_COUNTS	= new IBetaCutoffMoves[2][7][64];
 	
 	private final long[][] HH_MOVES 							= new long[2][64 * 64];
@@ -68,8 +70,11 @@ public final class MoveGenerator {
 	private final ContinuationHistory[] BF_ContinuationHistory 	= new ContinuationHistory[2];
 	
 	
+	private long counter_sorting;
+	
 	private Random randomizer = new Random();
-	private long randomizer_counter;
+	
+	private int root_search_first_move_index;
 	
 	
 	public MoveGenerator() {
@@ -94,14 +99,16 @@ public final class MoveGenerator {
 			}
 		}
 		
-		
-		for (int i = 0; i < COUNTER_MOVES_COUNTS.length; i++) {
-			
-			for (int j = 0; j < COUNTER_MOVES_COUNTS[i].length; j++) {
-				
-				for (int k = 0; k < COUNTER_MOVES_COUNTS[i][j].length; k++) {
-					
-					COUNTER_MOVES_COUNTS[i][j][k] = new BetaCutoffMoves_Counts();
+		if (USE_COUNTER_MOVES_COUNTS) {
+
+			for (int i = 0; i < COUNTER_MOVES_COUNTS.length; i++) {
+
+				for (int j = 0; j < COUNTER_MOVES_COUNTS[i].length; j++) {
+
+					for (int k = 0; k < COUNTER_MOVES_COUNTS[i][j].length; k++) {
+
+						COUNTER_MOVES_COUNTS[i][j][k] = new BetaCutoffMoves_Counts();
+					}
 				}
 			}
 		}
@@ -125,6 +132,7 @@ public final class MoveGenerator {
 		
 		
 		clearHistoryHeuristics();
+		
 		
 	}
 	
@@ -180,14 +188,17 @@ public final class MoveGenerator {
 					}
 				}
 			}
-			
-			for (int i = 0; i < COUNTER_MOVES_COUNTS.length; i++) {
-				
-				for (int j = 0; j < COUNTER_MOVES_COUNTS[i].length; j++) {
-					
-					for (int k = 0; k < COUNTER_MOVES_COUNTS[i][j].length; k++) {
-						
-						COUNTER_MOVES_COUNTS[i][j][k].clear();
+
+			if (USE_COUNTER_MOVES_COUNTS) {
+
+				for (int i = 0; i < COUNTER_MOVES_COUNTS.length; i++) {
+
+					for (int j = 0; j < COUNTER_MOVES_COUNTS[i].length; j++) {
+
+						for (int k = 0; k < COUNTER_MOVES_COUNTS[i][j].length; k++) {
+
+							COUNTER_MOVES_COUNTS[i][j][k].clear();
+						}
 					}
 				}
 			}
@@ -224,6 +235,12 @@ public final class MoveGenerator {
 		
 		
 		currentPly = 0;
+	}
+	
+	
+	public void setRootSearchFirstMoveIndex(int _root_search_first_move_index) {
+		
+		root_search_first_move_index = _root_search_first_move_index;
 	}
 	
 	
@@ -467,7 +484,11 @@ public final class MoveGenerator {
 		if (EngineConstants.ENABLE_COUNTER_MOVES) {
 			
 			COUNTER_MOVES_LASTIN[color][MoveUtil.getSourcePieceIndex(parentMove)][MoveUtil.getToIndex(parentMove)].addMove(counterMove);
-			COUNTER_MOVES_COUNTS[color][MoveUtil.getSourcePieceIndex(parentMove)][MoveUtil.getToIndex(parentMove)].addMove(counterMove);
+
+			if (USE_COUNTER_MOVES_COUNTS) {
+
+				COUNTER_MOVES_COUNTS[color][MoveUtil.getSourcePieceIndex(parentMove)][MoveUtil.getToIndex(parentMove)].addMove(counterMove);
+			}
 		}
 	}
 	
@@ -480,7 +501,12 @@ public final class MoveGenerator {
 	
 	
 	public int getCounter2(final int color, final int parentMove) {
-		
+
+		if (!USE_COUNTER_MOVES_COUNTS) {
+
+			return 0;
+		}
+
 		return COUNTER_MOVES_COUNTS[color][MoveUtil.getSourcePieceIndex(parentMove)][MoveUtil.getToIndex(parentMove)].getBest1();
 		//return COUNTER_MOVES_LASTIN[color][MoveUtil.getSourcePieceIndex(parentMove)][MoveUtil.getToIndex(parentMove)].getBest1();
 	}
@@ -544,7 +570,7 @@ public final class MoveGenerator {
 
 	public void setMVVLVAScores(final ChessBoard cb) {
 		for (int j = nextToMove[currentPly]; j < nextToGenerate[currentPly]; j++) {
-			moveScores[j] = MoveUtil.getAttackedPieceIndex(moves[j]) * 6 - MoveUtil.getSourcePieceIndex(moves[j]);
+			moveScores[j] = 100 * (MoveUtil.getAttackedPieceIndex(moves[j]) * 6 - MoveUtil.getSourcePieceIndex(moves[j]));
 		}
 	}
 	
@@ -622,16 +648,41 @@ public final class MoveGenerator {
 	}
 	
 	
-	public void setRootScores(final ChessBoard cb, final int parentMove, final int ttMove) {
+	public void setRootScores(final ChessBoard cb, final int parentMove, final int ttMove, final int ply) {
+		
+		int killer1Move = getKiller1(cb.colorToMove, ply);
+		int killer2Move = getKiller2(cb.colorToMove, ply);
+		int counterMove1 = getCounter1(cb.colorToMove, parentMove);
+		//int counterMove2 = getCounter2(cb.colorToMove, parentMove);
+		
 		for (int j = nextToMove[currentPly]; j < nextToGenerate[currentPly]; j++) {
-			if (ttMove == moves[j]) {
-				moveScores[j] = 10000;
-			} else if (!MoveUtil.isQuiet(moves[j])) {
-				moveScores[j] = 1000 + SEEUtil.getSeeCaptureScore(cb, moves[j]);
+			
+			int cur_move = moves[j];
+			
+			if (ttMove == cur_move) {
+				
+				moveScores[j] = 10000 * 100;
+			
+			} else if (killer1Move == cur_move) {
+				
+				moveScores[j] = 5000 * 100;
+				
+			} else if (killer2Move == cur_move) {
+				
+				moveScores[j] = 4000 * 100;
+				
+			} else if (counterMove1 == cur_move) {
+				
+				moveScores[j] = 3000 * 100;
+				
+			} else if (MoveUtil.isQuiet(cur_move)) {
+				
+				moveScores[j] = getHHScore(cb.colorToMove, MoveUtil.getFromToIndex(cur_move), MoveUtil.getSourcePieceIndex(cur_move), MoveUtil.getToIndex(cur_move), parentMove);
+				
 			} else {
-				moveScores[j] = getHHScore(cb.colorToMove, MoveUtil.getFromToIndex(moves[j]), MoveUtil.getSourcePieceIndex(moves[j]), MoveUtil.getToIndex(moves[j]), parentMove);
+				
+				moveScores[j] = 100 * (MoveUtil.getAttackedPieceIndex(cur_move) * 6 - MoveUtil.getSourcePieceIndex(cur_move));
 			}
-			//System.out.println("moveScores[j]=" + moveScores[j]);
 		}
 	}
 	
@@ -658,26 +709,60 @@ public final class MoveGenerator {
 	
 	public void sort() {
 		
-		final int left = nextToMove[currentPly];
 		
-		randomizer_counter++;
-		if (randomizer_counter % 10 == 0) {
-			randomize(moveScores, moves, left, nextToGenerate[currentPly] - 1);
+		final int start_index = nextToMove[currentPly];
+		final int end_index = nextToGenerate[currentPly] - 1;
+		
+		//Randomize each 3 sortings
+		//In order to increase the effect of nondeterminism, ensure first ordering is randomized.
+		if (counter_sorting == 0 || counter_sorting % 5 == 0) {
+				
+			randomize(moveScores, moves, start_index, end_index);
 		}
 		
-		for (int i = left, j = i; i < nextToGenerate[currentPly] - 1; j = ++i) {
+		
+		for (int i = start_index, j = i; i < end_index; j = ++i) {
 			final long score = moveScores[i + 1];
 			final int move = moves[i + 1];
 			while (score > moveScores[j]) {
 				moveScores[j + 1] = moveScores[j];
 				moves[j + 1] = moves[j];
-				if (j-- == left) {
+				if (j-- == start_index) {
 					break;
 				}
 			}
 			moveScores[j + 1] = score;
 			moves[j + 1] = move;
 		}
+		
+		
+		//The ELO is smaller with this code enabled. It looks like it is better when all threads start searching the TT move.
+		//My explanation is that, they do enough randomization (in this method: randomize(...) before sorting) of the moves with the same scores, so they work in different sub-trees anyway and 
+		//as the TT move is most probably the best one, the SMP version goes a few moves deeper for the same time.
+		if (false && currentPly == 1) {
+		
+			//Lazy SMP logic
+			//currentPly == 1 (not 0), because first we make currentPly++ and then call sort method
+			
+			int current_moves_count = (end_index - start_index + 1);
+			
+			if (current_moves_count >= 2) {
+				
+				int index_to_swap = root_search_first_move_index % current_moves_count;
+				
+				long score 									= moveScores[start_index + index_to_swap];
+				int move 									= moves[start_index + index_to_swap];
+				
+				moveScores[start_index + index_to_swap] 	= moveScores[start_index];
+				moves[start_index + index_to_swap] 			= moves[start_index];
+				
+				moveScores[start_index] 					= score;
+				moves[start_index] 							= move;
+			}
+		}
+		
+		
+		counter_sorting++;
 	}
 	
 	
@@ -1213,11 +1298,11 @@ public final class MoveGenerator {
 
 		@Override
 		public void clear() {
-
-			//Allow GC to free memory
+			
+			//Allow GC to free up the used memory
 			moves_piece_to = null;
 			counts = null;
-
+			
 			moves_piece_to 	= new int[7][64];
 			counts 			= new long[7][64];
 			
