@@ -37,7 +37,8 @@ public class EditBoardChangeHandler {
 		
 		System.out.println("EditBoardChangeHandler FEN is " + fen);
 		
-		String message = BoardUtils.validateBoard(fen);
+		String message = BoardUtils.validateBoard(fen, 2);
+
 		if (message == null) {
 					
 			editBoardData.fen = fen;
@@ -66,7 +67,8 @@ public class EditBoardChangeHandler {
 		
 		System.out.println("EditBoardChangeHandler FEN is " + fen);
 		
-		String message = BoardUtils.validateBoard(fen);
+		String message = BoardUtils.validateBoard(fen, 2);
+
 		if (message == null) {
 			
 			editBoardData.fen = fen;
@@ -87,15 +89,15 @@ public class EditBoardChangeHandler {
 	
 	
 	public void handleBoardChange(EditBoardData editBoardData, String fen) {
-		
-		int[][] board = boardView.getData();
-		
+
 		System.out.println("EditBoardChangeHandler FEN is " + fen);
+
+		//int[][] board = boardView.getData();
 		
 		editBoardData.fen = fen;
 		((EditBoardActivity)boardView.getContext()).createBoardManager(editBoardData.fen, "processimage");
-		
-		board = ((EditBoardActivity)boardView.getContext()).getBoardManager().getBoard_WithoutHided();
+
+		int[][] board = ((EditBoardActivity)boardView.getContext()).getBoardManager().getBoard_WithoutHided();
 		boardView.setData(board);
 		
 		boardView.invalidate();

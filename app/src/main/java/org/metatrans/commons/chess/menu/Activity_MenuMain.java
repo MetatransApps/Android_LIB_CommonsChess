@@ -376,7 +376,7 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 						if (fen != null) {
 
 							try {
-								String validationMessage = BoardUtils.validateBoard(fen);
+								String validationMessage = BoardUtils.validateBoard(fen, 1);
 
 								System.out.println("validationMessage is " + validationMessage);
 

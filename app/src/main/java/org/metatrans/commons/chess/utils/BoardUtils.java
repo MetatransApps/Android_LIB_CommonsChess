@@ -44,7 +44,7 @@ public class BoardUtils {
 	}
 	
 	
-	public static String validateBoard(String fen) {
+	public static String validateBoard(String fen, int max_kings_count) {
 		
 		String[] fenArray = fen.split(" ");
 		int[][] piecesData = buildCountsMap(fenArray[0]);
@@ -54,11 +54,11 @@ public class BoardUtils {
 		String message = null;
 		if (piecesCounts[Constants.PID_W_KING] == 0) {
 			message = "There is no white king";
-		} else if (piecesCounts[Constants.PID_W_KING] > 2) {
+		} else if (piecesCounts[Constants.PID_W_KING] > max_kings_count) {
 			message = "Too much white kings";
 		} else if (piecesCounts[Constants.PID_B_KING] == 0) {
 			message = "There is no black king";
-		} else if (piecesCounts[Constants.PID_B_KING] > 2) {
+		} else if (piecesCounts[Constants.PID_B_KING] > max_kings_count) {
 			message = "Too much black kings";
 		} else if (piecesCounts[Constants.PID_W_PAWN] > 12 || piecesCounts[Constants.PID_B_PAWN] > 12) {
 			message = "There are more than 12 pawns";

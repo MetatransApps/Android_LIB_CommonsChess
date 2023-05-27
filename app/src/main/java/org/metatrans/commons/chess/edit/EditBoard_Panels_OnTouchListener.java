@@ -198,11 +198,20 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 
 							public void onClick(DialogInterface dialog, int which) {
 
-								Application_Base.getInstance().storeGameData(((EditBoardActivity) panelsView.getContext()).getBoardManager().getGameData());
+								String message = BoardUtils.validateBoard(editBoardData.fen, 1);
 
-								((EditBoardActivity) panelsView.getContext()).finish();
+								if (message == null) {
 
-								((EditBoardActivity) panelsView.getContext()).processButton2();
+									Application_Base.getInstance().storeGameData(((EditBoardActivity) panelsView.getContext()).getBoardManager().getGameData());
+
+									((EditBoardActivity) panelsView.getContext()).finish();
+
+									((EditBoardActivity) panelsView.getContext()).processButton2();
+
+								} else {
+
+									MessageUtils.showOkDialog("Not valid board: " + message, (Activity) panelsView.getContext());
+								}
 							}
 						});
 

@@ -1,6 +1,7 @@
 package org.metatrans.commons.chess.edit;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Window;
@@ -28,6 +29,17 @@ import org.metatrans.commons.chess.model.EditBoardData;
 import org.metatrans.commons.chess.model.GameData;
 import org.metatrans.commons.chess.model.UserSettings;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+
 
 public abstract class EditBoardActivity extends Activity_Base_Ads_Banner implements IBoardViewActivity {
 	
@@ -38,7 +50,9 @@ public abstract class EditBoardActivity extends Activity_Base_Ads_Banner impleme
 
     private IBoardManager boardManager;
     
-    
+    private GameData gamedata_original;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         
@@ -59,13 +73,15 @@ public abstract class EditBoardActivity extends Activity_Base_Ads_Banner impleme
     	
         super.onResume();
 
+		String caller = "analyse";
+
     	String fen = ((Application_Chess_BaseImpl) Application_Base.getInstance()).getEditBoardData().fen;
 
-        String caller = getIntent().getStringExtra("caller");
+        String caller_extra = getIntent().getStringExtra("caller");
 
-        if (caller == null) {
-        	//throw new IllegalStateException("caller is null");
-        	caller = "analyse";
+        if (caller_extra != null) {
+
+        	caller = caller_extra;
         }
     	
 		createBoardManager(fen, caller);
@@ -73,12 +89,34 @@ public abstract class EditBoardActivity extends Activity_Base_Ads_Banner impleme
         editBoardView = createView();
 
         editBoardView.setOnTouchListener(new EditBoard_OnTouchListener(editBoardView));
-        
+
         editBoardView.getBoardView().setData(boardManager.getBoard_WithoutHided());
         
         LayoutParams previewLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         
         mLayout.addView(editBoardView, previewLayoutParams);
+
+		try {
+
+			ByteArrayOutputStream os_array 	= new ByteArrayOutputStream();
+			OutputStream os_buffer 			= new BufferedOutputStream(os_array);
+
+			ObjectOutputStream output 		= new ObjectOutputStream(os_buffer);
+
+			output.writeObject(Application_Base.getInstance().getGameData());
+
+			output.flush();
+
+			InputStream is_array 			= new ByteArrayInputStream(os_array.toByteArray());
+			InputStream is_buffer 			= new BufferedInputStream(is_array);
+			ObjectInputStream input 		= new ObjectInputStream(is_buffer);
+
+			gamedata_original = (GameData) input.readObject();
+
+		} catch(Exception e) {
+
+			e.printStackTrace();
+		}
     }
     
     
@@ -91,6 +129,21 @@ public abstract class EditBoardActivity extends Activity_Base_Ads_Banner impleme
 
         editBoardView = null;
     }
+
+
+	@Override
+	public void onBackPressed() {
+
+		//The GameData is already overrided with the last validated board data in the EditBoardHandler.
+		//This is why we need copy of the original gamedata object in order to use it for restore on back pressed.
+
+		if (gamedata_original != null) {
+
+			Application_Base.getInstance().storeGameData(gamedata_original);
+		}
+
+		finish();
+	}
 
 
 	protected abstract EditBoardView createView();
