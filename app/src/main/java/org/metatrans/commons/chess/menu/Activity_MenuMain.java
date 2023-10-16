@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
+import org.metatrans.commons.ads.api.IAdsConfiguration;
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.menu.Config_MenuMain_Base;
 import org.metatrans.commons.cfg.menu.IConfigurationMenu_Main;
@@ -53,7 +54,13 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 
 	protected abstract Class<?> getEditBoardActivityClass();
 
-	
+
+	protected String getRewardedVideoName() {
+
+		return IAdsConfiguration.AD_ID_REWARDED_VIDEO1;
+	}
+
+
 	@Override
 	protected List<IConfigurationMenu_Main> getEntries() {
 
@@ -126,54 +133,6 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 
 
 		result.add(new Config_MenuMain_Base() {
-
-			@Override
-			public int getName() {
-				return R.string.new_stopads_title;
-			}
-
-			@Override
-			public int getIconResID() {
-				return R.drawable.ic_action_tv;
-			}
-
-			@Override
-			public int getID() {
-				return CFG_MENU_STOP_ADS;
-			}
-
-			@Override
-			public String getDescription_String() {
-				return getString(R.string.new_stopads_desc);
-			}
-
-			@Override
-			public Runnable getAction() {
-
-				return new Runnable() {
-
-					@Override
-					public void run() {
-
-						AlertDialog.Builder adb = Alerts.createAlertDialog_LoseGame(Activity_MenuMain.this,
-
-								new DialogInterface.OnClickListener() {
-
-									public void onClick(DialogInterface dialog, int which) {
-
-										openRewardedVideo();
-									}
-								});
-
-						adb.show();
-
-					}
-				};
-			}
-		});
-
-
-		result.add(new Config_MenuMain_Base() {
 			
 			@Override
 			public int getName() {
@@ -204,6 +163,43 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 
 						finish();
 						
+					}
+				};
+			}
+		});
+
+
+		result.add(new Config_MenuMain_Base() {
+
+			@Override
+			public int getName() {
+				return R.string.new_stopads_title;
+			}
+
+			@Override
+			public int getIconResID() {
+				return R.drawable.ic_action_tv;
+			}
+
+			@Override
+			public int getID() {
+				return CFG_MENU_STOP_ADS;
+			}
+
+			@Override
+			public String getDescription_String() {
+				return getString(R.string.new_stopads_desc);
+			}
+
+			@Override
+			public Runnable getAction() {
+
+				return new Runnable() {
+
+					@Override
+					public void run() {
+
+						Activity_MenuMain.this.openRewardedVideo();
 					}
 				};
 			}
