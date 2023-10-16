@@ -7,6 +7,7 @@ import android.view.View;
 import org.metatrans.commons.Activity_Base;
 import org.metatrans.commons.ads.api.IAdsConfiguration;
 import org.metatrans.commons.app.Application_Base;
+import org.metatrans.commons.app.Application_Base_Ads;
 import org.metatrans.commons.cfg.colours.ConfigurationUtils_Colours;
 import org.metatrans.commons.cfg.colours.IConfigurationColours;
 import org.metatrans.commons.chess.R;
@@ -24,6 +25,12 @@ public class Activity_Loading extends org.metatrans.commons.loading.Activity_Loa
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
+
+		//Initialize Ads SDKs, including getting Consent where necessary.
+		if (Application_Base.getInstance() instanceof Application_Base_Ads) {
+
+			Application_Base_Ads.getInstance().getAdsManager().requestConsentInfoUpdate(this);
+		}
 	}
 
 	
