@@ -45,6 +45,8 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 	public static int CFG_MENU_COPY_FEN 				= 33;
 	public static int CFG_MENU_PASTE_FEN 				= 34;
 
+	public static int CFG_MENU_STOP_ADS		 			= 35;
+
 
 	protected abstract Class<?> getMainActivityClass();
 
@@ -112,6 +114,54 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 
 										startActivity(intent);
 
+									}
+								});
+
+						adb.show();
+
+					}
+				};
+			}
+		});
+
+
+		result.add(new Config_MenuMain_Base() {
+
+			@Override
+			public int getName() {
+				return R.string.new_stopads_title;
+			}
+
+			@Override
+			public int getIconResID() {
+				return R.drawable.ic_action_tv;
+			}
+
+			@Override
+			public int getID() {
+				return CFG_MENU_STOP_ADS;
+			}
+
+			@Override
+			public String getDescription_String() {
+				return getString(R.string.new_stopads_desc);
+			}
+
+			@Override
+			public Runnable getAction() {
+
+				return new Runnable() {
+
+					@Override
+					public void run() {
+
+						AlertDialog.Builder adb = Alerts.createAlertDialog_LoseGame(Activity_MenuMain.this,
+
+								new DialogInterface.OnClickListener() {
+
+									public void onClick(DialogInterface dialog, int which) {
+
+										openRewardedVideo();
 									}
 								});
 
