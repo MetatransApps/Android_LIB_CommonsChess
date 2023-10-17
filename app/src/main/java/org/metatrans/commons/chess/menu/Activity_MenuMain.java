@@ -169,41 +169,43 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 		});
 
 
-		result.add(new Config_MenuMain_Base() {
+		if (!Application_Base.getInstance().getApp_Me().isPaid()) {
+			result.add(new Config_MenuMain_Base() {
 
-			@Override
-			public int getName() {
-				return R.string.new_stopads_title;
-			}
+				@Override
+				public int getName() {
+					return R.string.new_stopads_title;
+				}
 
-			@Override
-			public int getIconResID() {
-				return R.drawable.ic_action_tv;
-			}
+				@Override
+				public int getIconResID() {
+					return R.drawable.ic_action_tv;
+				}
 
-			@Override
-			public int getID() {
-				return CFG_MENU_STOP_ADS;
-			}
+				@Override
+				public int getID() {
+					return CFG_MENU_STOP_ADS;
+				}
 
-			@Override
-			public String getDescription_String() {
-				return getString(R.string.new_stopads_desc);
-			}
+				@Override
+				public String getDescription_String() {
+					return getString(R.string.new_stopads_desc);
+				}
 
-			@Override
-			public Runnable getAction() {
+				@Override
+				public Runnable getAction() {
 
-				return new Runnable() {
+					return new Runnable() {
 
-					@Override
-					public void run() {
+						@Override
+						public void run() {
 
-						Activity_MenuMain.this.openRewardedVideo();
-					}
-				};
-			}
-		});
+							Activity_MenuMain.this.openRewardedVideo();
+						}
+					};
+				}
+			});
+		}
 
 
 		result.add(new Config_MenuMain_Base() {
