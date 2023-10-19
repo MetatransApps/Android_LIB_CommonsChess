@@ -55,12 +55,6 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 	protected abstract Class<?> getEditBoardActivityClass();
 
 
-	protected String getRewardedVideoName() {
-
-		return IAdsConfiguration.AD_ID_REWARDED_VIDEO1;
-	}
-
-
 	@Override
 	protected List<IConfigurationMenu_Main> getEntries() {
 
@@ -168,8 +162,8 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 			}
 		});
 
-
-		if (!Application_Base.getInstance().getApp_Me().isPaid()) {
+		
+		if (getRewardedVideoName() != null) {
 			result.add(new Config_MenuMain_Base() {
 
 				@Override
