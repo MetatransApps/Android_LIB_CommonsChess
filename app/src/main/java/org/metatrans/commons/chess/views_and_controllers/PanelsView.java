@@ -766,12 +766,16 @@ public abstract class PanelsView extends SearchInfoView implements IPanelsVisual
 
 			if (isOverButtonMenu(x, y)) {
 
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				deselectButtonMenu();
 
 				Intent i = new Intent((Context) activity, activity.getMainMenuClass());
 				activity.startActivity(i);
 
 			} else if (isOverButtonAutoTop(x, y)) {
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
 				textarea_switch_colors.deselect();
 
@@ -789,6 +793,8 @@ public abstract class PanelsView extends SearchInfoView implements IPanelsVisual
 
 
 			} else if (isOverButtonInfo(x, y)) {
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
 				textarea_info.deselect();
 
@@ -811,13 +817,19 @@ public abstract class PanelsView extends SearchInfoView implements IPanelsVisual
 
 			} else if (isOverButtonHelpTop(x, y)) {
 
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				deselectButtonHelpTop();
 
 			} else if (isOverButtonHelpBottom(x, y)) {
 
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				deselectButtonHelpBottom();
 
 			} else if (isOverBlackPlayerButton(x, y)) {
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
 				textarea_black_player.deselect();
 
@@ -849,6 +861,8 @@ public abstract class PanelsView extends SearchInfoView implements IPanelsVisual
 				activity.getMainView().requestLayout();
 
 			} else if (isOverWhitePlayerButton(x, y)) {
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
 				textarea_white_player.deselect();
 

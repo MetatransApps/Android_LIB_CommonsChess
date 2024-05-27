@@ -10,12 +10,14 @@ import android.view.View.OnTouchListener;
 
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.chess.Alerts;
+import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.logic.BoardConstants;
 import org.metatrans.commons.chess.model.EditBoardData;
 import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.BoardUtils;
 import org.metatrans.commons.chess.utils.MessageUtils;
+import org.metatrans.commons.model.UserData_Base;
 
 import bagaturchess.bitboard.impl.Constants;
 
@@ -55,7 +57,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 			String castling = BoardUtils.getCorrectCastlingAfterScan(editBoardData.fen);
 			
 			if (panelsView.rectf_castling_K.contains(x, y)){
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				if (!castling.contains("K") && !editBoardData.castling_K) {
 					MessageUtils.showOkDialog("White O-O castling is not possible. King or rook is moved.", (Activity) panelsView.getContext());
 				} else {
@@ -64,7 +68,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 				}
 				
 			} else if (panelsView.rectf_castling_Q.contains(x, y)) {
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				if (!castling.contains("Q") && !editBoardData.castling_Q) {
 					MessageUtils.showOkDialog("White O-O-O castling is not possible. King or rook is moved.", (Activity) panelsView.getContext());
 				} else {
@@ -73,7 +79,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 				}
 				
 			} else if (panelsView.rectf_castling_k.contains(x, y)) {
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				if (!castling.contains("k") && !editBoardData.castling_k) {
 					MessageUtils.showOkDialog("Black O-O castling is not possible. King or rook is moved.", (Activity) panelsView.getContext());
 				} else {
@@ -82,7 +90,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 				}
 				
 			} else if (panelsView.rectf_castling_q.contains(x, y)) {
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				if (!castling.contains("q") && !editBoardData.castling_q) {
 					MessageUtils.showOkDialog("Black O-O-O castling is not possible. King or rook is moved.", (Activity) panelsView.getContext());
 				} else {
@@ -95,39 +105,53 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 		} else if (panelsView.rectf_left.contains(x, y)) {
 			
 			if (panelsView.rectf_w_p.contains(x, y)){
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_PAWN) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_W_PAWN;
 			} else if (panelsView.rectf_w_n.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_KNIGHT) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_W_KNIGHT;
 			} else if (panelsView.rectf_w_b.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_BISHOP) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_W_BISHOP;
 			} else if (panelsView.rectf_w_r.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_ROOK) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_W_ROOK;
 			} else if (panelsView.rectf_w_q.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_QUEEN) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_W_QUEEN;
 			} else if (panelsView.rectf_w_k.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_W_KING) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_W_KING;
 			}
 			
 		} else if (panelsView.rectf_right.contains(x, y)) {
 			
 			if (panelsView.rectf_b_p.contains(x, y)){
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_PAWN) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_B_PAWN;
 			} else if (panelsView.rectf_b_n.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_KNIGHT) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_B_KNIGHT;
 			} else if (panelsView.rectf_b_b.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_BISHOP) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_B_BISHOP;
 			} else if (panelsView.rectf_b_r.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_ROOK) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_B_ROOK;
 			} else if (panelsView.rectf_b_q.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_QUEEN) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_B_QUEEN;
 			} else if (panelsView.rectf_b_k.contains(x, y)) {
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 				editBoardData.selectedPID = (editBoardData.selectedPID == BoardConstants.ID_PIECE_B_KING) ? BoardConstants.ID_PIECE_NONE : BoardConstants.ID_PIECE_B_KING;
 			}
 			
 		} else if (panelsView.rectf_bottom.contains(x, y)) {
 			
 			if (panelsView.rectf_white_to_move.contains(x, y)){
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				if (!editBoardData.move_W) {
 					editBoardData.move_W = !editBoardData.move_W;
 					editBoardData.move_B = !editBoardData.move_B;
@@ -135,7 +159,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 				}
 				
 			} else if (panelsView.rectf_black_to_move.contains(x, y)) {
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				if (!editBoardData.move_B) {
 					editBoardData.move_W = !editBoardData.move_W;
 					editBoardData.move_B = !editBoardData.move_B;
@@ -145,7 +171,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 		} else if (panelsView.rectf_bottom2.contains(x, y)) {
 			
 			if (panelsView.rectf_clear.contains(x, y)) {
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.clear_board.select();
 				
 				editBoardData.castling_K = false;
@@ -159,7 +187,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 				handler.handleBoardChange(editBoardData, editBoardData.fen);
 				
 			} else if (panelsView.rectf_new.contains(x, y)) {
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.new_board.select();
 				
 				editBoardData.castling_K = true;
@@ -173,7 +203,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 				handler.handleBoardChange(editBoardData, editBoardData.fen);
 				
 			} else if (panelsView.rectf_rotate.contains(x, y)) {
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.rotate_board.select();
 				
 				((UserSettings)Application_Base.getInstance().getUserSettings()).rotatedboard = !((UserSettings)Application_Base.getInstance().getUserSettings()).rotatedboard;
@@ -181,7 +213,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 				mainView.requestLayout();
 				
 			} else if (panelsView.rectf_goto_picture.contains(x, y)) {
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.goto_picture.select();
 				
 				((Activity) panelsView.getContext()).finish();
@@ -189,7 +223,9 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 				((EditBoardActivity)panelsView.getContext()).processButton1();
 				
 			} else if (panelsView.rectf_goto_analyse.contains(x, y)){
-				
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.goto_analyse.select();
 
 				AlertDialog.Builder adb = Alerts.createAlertDialog_LoseGame(panelsView.getContext(),
@@ -267,25 +303,34 @@ public class EditBoard_Panels_OnTouchListener implements OnTouchListener {
 		if (panelsView.rectf_bottom2.contains(x, y)) {
 			
 			if (panelsView.rectf_clear.contains(x, y)) {
-				
+
+				//Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.clear_board.deselect();
 				
 			} else if (panelsView.rectf_new.contains(x, y)) {
-				
+
+				//Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.new_board.deselect();
 				
 			} else if (panelsView.rectf_rotate.contains(x, y)) {
-				
+
+				//Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.rotate_board.deselect();
 				
 			} else if (panelsView.rectf_goto_picture.contains(x, y)) {
-				
+
+				//Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.goto_picture.deselect();
 				
 			} else if (panelsView.rectf_goto_analyse.contains(x, y)){
-				
+
+				//Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				panelsView.goto_analyse.deselect();
-				
 			}
 		}
 	}

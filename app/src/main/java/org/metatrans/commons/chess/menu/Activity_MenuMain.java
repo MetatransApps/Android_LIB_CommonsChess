@@ -13,6 +13,7 @@ import org.metatrans.commons.ads.api.IAdsConfiguration;
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.menu.Config_MenuMain_Base;
 import org.metatrans.commons.cfg.menu.IConfigurationMenu_Main;
+import org.metatrans.commons.cfg.sound.Config_MenuMain_Sound;
 import org.metatrans.commons.chess.Alerts;
 import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
@@ -200,6 +201,9 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 				}
 			});
 		}
+
+
+		result.add(new Config_MenuMain_Sound());
 
 
 		result.add(new Config_MenuMain_Base() {

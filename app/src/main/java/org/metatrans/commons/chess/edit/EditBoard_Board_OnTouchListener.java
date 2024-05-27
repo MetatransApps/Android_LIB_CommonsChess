@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 
 import org.metatrans.commons.app.Application_Base;
+import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.app.Application_Chess_BaseImpl;
 import org.metatrans.commons.chess.model.EditBoardData;
 
@@ -37,7 +38,7 @@ public class EditBoard_Board_OnTouchListener implements OnTouchListener {
 		EditBoardData editBoardData = ((Application_Chess_BaseImpl)Application_Base.getInstance()).getEditBoardData();
 		
 		if (boardView.rectangleBoard.contains(x, y)) {
-			
+
 			handler.handleBoardChange(editBoardData, boardView.getLetter(x), boardView.getDigit(y));
 			
 		}

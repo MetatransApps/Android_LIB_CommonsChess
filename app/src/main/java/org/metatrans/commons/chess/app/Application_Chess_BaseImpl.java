@@ -71,8 +71,26 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 
 		ChannelManager.setChannel(new Channel_Console(System.in, System.out, System.out));
 
+		getSFXManager().loadSounds(this,
+				new int[]{
+						org.metatrans.commons.R.raw.sfx_button_pressed_1,
+						org.metatrans.commons.R.raw.sfx_button_pressed_2,
+						org.metatrans.commons.R.raw.sfx_button_pressed_3,
+						R.raw.sfx_selected_correctly,
+						R.raw.sfx_selected_wrongly
+				}
+		);
+
+
 		System.out.println("Application_Bagatur: onCreate finished " + System.currentTimeMillis());
 	}
+
+
+	/*@Override
+	public boolean supportMelodies() {
+
+		return true;
+	}*/
 
 
 	public IBoardManager createBoardManager(GameData gamedata) {

@@ -121,6 +121,8 @@ public class MenuActivity_Promotion extends MenuActivity_Base implements GlobalC
 			
 			System.out.println("MenuActivity_Promotion: selection=" + position);
 
+			Application_Base.getInstance().getSFXManager().playSound(org.metatrans.commons.R.raw.sfx_button_pressed_2);
+
 			GameData gamedata = (GameData) Application_Base.getInstance().getGameData();
 
 			MovingPiece movingPiece = gamedata.getMovingPiece();

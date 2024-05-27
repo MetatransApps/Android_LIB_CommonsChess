@@ -102,7 +102,9 @@ public class MenuActivity_Pieces extends MenuActivity_Base {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			
 			//System.out.println("PiecesSelection POS=" + position + ", id=" + id);
-			
+
+			Application_Base.getInstance().getSFXManager().playSound(org.metatrans.commons.R.raw.sfx_button_pressed_2);
+
 			int currOrderNumber = ConfigurationUtils_Pieces.getOrderNumber(getUserSettings().uiPiecesID);
 			if (position != currOrderNumber) {
 				int newCfgID = ConfigurationUtils_Pieces.getID(position);

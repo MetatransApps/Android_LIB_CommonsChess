@@ -1,6 +1,8 @@
 package org.metatrans.commons.chess.edit;
 
 
+import org.metatrans.commons.app.Application_Base;
+import org.metatrans.commons.chess.R;
 import org.metatrans.commons.chess.model.EditBoardData;
 import org.metatrans.commons.chess.utils.BoardUtils;
 import org.metatrans.commons.chess.utils.MessageUtils;
@@ -40,7 +42,9 @@ public class EditBoardChangeHandler {
 		String message = BoardUtils.validateBoard(fen, 2);
 
 		if (message == null) {
-					
+
+			Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_2);
+
 			editBoardData.fen = fen;
 			((EditBoardActivity)boardView.getContext()).createBoardManager(editBoardData.fen, "processimage");
 			
@@ -51,7 +55,9 @@ public class EditBoardChangeHandler {
 			panelsView.invalidate();
 			
 		} else {
-			
+
+			Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_selected_wrongly);
+
 			board[file][rank] = pid_backup;
 			
 			MessageUtils.showOkDialog("Not valid board: " + message, (Activity) panelsView.getContext());

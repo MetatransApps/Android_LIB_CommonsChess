@@ -45,7 +45,10 @@ import org.metatrans.commons.ui.utils.DrawingUtils;
 
 public class BoardView extends BaseView implements BoardConstants, IBoardVisualization {
 	
-	
+
+	private static final int SFX_selection_correct = R.raw.sfx_button_pressed_2;
+	private static final int SFX_selection_wrong = R.raw.sfx_selected_wrongly;
+
 	protected Paint blackPaint1;
 	protected Paint whitePaint1;
 	protected Paint blackPaint2;
@@ -1370,6 +1373,8 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 					if (letter == movingPiece.initial_letter
 							&& digit == movingPiece.initial_digit) {
 
+						Application_Base.getInstance().getSFXManager().playSound(SFX_selection_correct);
+
 						//Re-selection of the same moving piece
 						movingPiece.dragging = true;
 						pieceDeSelected();
@@ -1377,7 +1382,7 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 					} else {
 
 						//Target square clicked
-						//May be selection of other piece?
+						//May be selection of another piece?
 
 						//overField(letter, digit);
 
@@ -1385,8 +1390,10 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 
 						if (pieceID != ID_PIECE_NONE) {
 
-							//selection of other piece
+							//selection of another piece
 							if (activity.getBoardManager().isReSelectionAllowed(movingPiece.pieceID, pieceID)) {
+
+								Application_Base.getInstance().getSFXManager().playSound(SFX_selection_correct);
 
 								movingPiece.dragging = false;
 
@@ -1395,6 +1402,8 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 								pieceSelected(x, y, letter, digit, pieceID);
 
 							} else {
+
+								Application_Base.getInstance().getSFXManager().playSound(SFX_selection_correct);
 
 								boardVisualization.makeMovingPiece_OnInvalidSquare();
 							}
@@ -1413,16 +1422,22 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 
 						if (activity.getBoardManager().isSelectionAllowed(pieceID)) {
 
+							Application_Base.getInstance().getSFXManager().playSound(SFX_selection_correct);
+
 							//Selection of piece
 							pieceSelected(x, y, letter, digit, pieceID);
 
 						} else {
+
+							Application_Base.getInstance().getSFXManager().playSound(SFX_selection_wrong);
 
 							//selection of piece of side, which is not on move
 							boardVisualization.invalidSelection_Temp_Square(letter, digit);
 						}
 
 					} else {
+
+						Application_Base.getInstance().getSFXManager().playSound(SFX_selection_wrong);
 
 						//Selection of empty square
 
@@ -1509,6 +1524,8 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 
 							if (activity.getBoardManager().isPromotion(movingPiece.pieceID, digit)) {
 
+								Application_Base.getInstance().getSFXManager().playSound(SFX_selection_correct);
+
 								movingPiece.promotion_letter = letter;
 								movingPiece.promotion_digit = digit;
 
@@ -1533,12 +1550,16 @@ public class BoardView extends BaseView implements BoardConstants, IBoardVisuali
 									}
 								}
 
+								Application_Base.getInstance().getSFXManager().playSound(SFX_selection_correct);
+
 								//Will call start animation code a bit later in the stack
 								activity.getGameController().acceptNewMove(move, last_search_info);
 
 							}
 
 						} else {
+
+							Application_Base.getInstance().getSFXManager().playSound(SFX_selection_wrong);
 
 							//Not valid move
 							boardVisualization.invalidSelection_Temp_Square(letter, digit);
