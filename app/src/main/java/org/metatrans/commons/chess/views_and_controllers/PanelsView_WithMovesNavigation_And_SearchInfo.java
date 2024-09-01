@@ -425,6 +425,8 @@ public class PanelsView_WithMovesNavigation_And_SearchInfo extends SearchInfoVie
 
 			if (rectf_play_first.contains(x, y)) {
 
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				GameData gamedata = activity.getBoardManager().getGameData();
 
 				if (gamedata.isOnTheFirstMove()) {
@@ -466,6 +468,8 @@ public class PanelsView_WithMovesNavigation_And_SearchInfo extends SearchInfoVie
 				return true;
 
 			} else if (rectf_play_prev.contains(x, y)) {
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
 				GameData gamedata = activity.getBoardManager().getGameData();
 
@@ -516,6 +520,8 @@ public class PanelsView_WithMovesNavigation_And_SearchInfo extends SearchInfoVie
 				return true;
 
 			} else if (rectf_play_next.contains(x, y)) {
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
 				GameData gamedata = activity.getBoardManager().getGameData();
 
@@ -579,6 +585,8 @@ public class PanelsView_WithMovesNavigation_And_SearchInfo extends SearchInfoVie
 
 			} else if (rectf_play_last.contains(x, y)) {
 
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
+
 				GameData gamedata = activity.getBoardManager().getGameData();
 
 				if (gamedata.isOnTheLastMove()) {
@@ -633,6 +641,8 @@ public class PanelsView_WithMovesNavigation_And_SearchInfo extends SearchInfoVie
 				return true;
 
 			} else if (rectangle_area_info.contains(x, y)) {
+
+				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
 				activity.getUserSettings().infoEnabled = !activity.getUserSettings().infoEnabled;
 

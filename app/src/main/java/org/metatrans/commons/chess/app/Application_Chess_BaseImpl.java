@@ -72,7 +72,7 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 		ChannelManager.setChannel(new Channel_Console(System.in, System.out, System.out));
 
 		getSFXManager().loadSounds(this,
-				new int[]{
+				new int[] {
 						org.metatrans.commons.R.raw.sfx_button_pressed_1,
 						org.metatrans.commons.R.raw.sfx_button_pressed_2,
 						org.metatrans.commons.R.raw.sfx_button_pressed_3,

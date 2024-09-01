@@ -87,7 +87,9 @@ public class MenuActivity_Animation extends MenuActivity_Base {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			
 			//System.out.println("MenuActivity_Difficulty: selection=" + position);
-			
+
+			Application_Base.getInstance().getSFXManager().playSound(org.metatrans.commons.R.raw.sfx_button_pressed_2);
+
 			int currOrderNumber = ConfigurationUtils_Animation.getInstance().getOrderNumber(getUserSettings().moveAnimationID);
 			if (position != currOrderNumber) {
 				int newCfgID = ConfigurationUtils_Animation.getInstance().getID(position);

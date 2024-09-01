@@ -817,11 +817,15 @@ public abstract class PanelsView extends SearchInfoView implements IPanelsVisual
 
 			} else if (isOverButtonHelpTop(x, y)) {
 
+				//System.out.println("PanelsView.isOverButtonHelpTop");
+
 				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
 				deselectButtonHelpTop();
 
 			} else if (isOverButtonHelpBottom(x, y)) {
+
+				//System.out.println("PanelsView.isOverButtonHelpBottom");
 
 				Application_Base.getInstance().getSFXManager().playSound(R.raw.sfx_button_pressed_1);
 
@@ -835,7 +839,7 @@ public abstract class PanelsView extends SearchInfoView implements IPanelsVisual
 
 				UserSettings settings = activity.getUserSettings();
 
-				System.out.println("PanelsView.isOverBlackPlayerButton: clicked settings.auto_player_enabled_black=" + settings.auto_player_enabled_black);
+				//System.out.println("PanelsView.isOverBlackPlayerButton: clicked settings.auto_player_enabled_black=" + settings.auto_player_enabled_black);
 
 				if (!settings.auto_player_enabled_black) {
 
@@ -868,7 +872,7 @@ public abstract class PanelsView extends SearchInfoView implements IPanelsVisual
 
 				UserSettings settings = activity.getUserSettings();
 
-				System.out.println("PanelsView.isOverWhitePlayerButton: clicked settings.auto_player_enabled_white=" + settings.auto_player_enabled_white);
+				//System.out.println("PanelsView.isOverWhitePlayerButton: clicked settings.auto_player_enabled_white=" + settings.auto_player_enabled_white);
 
 				if (!settings.auto_player_enabled_white) {
 
