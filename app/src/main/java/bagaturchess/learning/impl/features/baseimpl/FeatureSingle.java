@@ -31,7 +31,7 @@ public class FeatureSingle extends Feature {
 	
 	
 	@Override
-	public String toJavaCode() {
+	public String toJavaCode(String suffix) {
 		String o = "public static final double " + getName().replace('.', '_') + "_O	=	" + openning + ";";
 		String e = "public static final double " + getName().replace('.', '_') + "_E	=	" + endgame + ";";
 		
@@ -111,6 +111,14 @@ public class FeatureSingle extends Feature {
 		
 		throw new UnsupportedOperationException();
 	}
+	
+	
+	@Override
+	public double getWeight(int index) {
+
+		throw new UnsupportedOperationException();
+	}
+	
 	
 	private double getWeight(double openningPart) {
 		return openningPart * openning.getWeight() + (1 - openningPart) * endgame.getWeight();

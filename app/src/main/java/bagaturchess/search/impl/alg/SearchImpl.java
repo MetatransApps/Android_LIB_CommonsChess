@@ -25,7 +25,7 @@ package bagaturchess.search.impl.alg;
 
 import bagaturchess.bitboard.api.IBitBoard;
 import bagaturchess.bitboard.api.IGameStatus;
-import bagaturchess.search.api.IEngineConfig;
+import bagaturchess.bitboard.impl1.internal.ChessBoard;
 import bagaturchess.search.api.IEvaluator;
 import bagaturchess.search.api.ISearchConfig_AB;
 import bagaturchess.search.api.internal.IRootWindow;
@@ -38,7 +38,6 @@ import bagaturchess.search.impl.env.SharedData;
 import bagaturchess.search.impl.history.IHistoryTable;
 import bagaturchess.search.impl.tpt.ITTEntry;
 import bagaturchess.search.impl.tpt.TTEntry_BaseImpl;
-import bagaturchess.uci.api.ChannelManager;
 
 
 public abstract class SearchImpl implements ISearch {
@@ -59,6 +58,9 @@ public abstract class SearchImpl implements ISearch {
 	
 	protected int[] gtb_probe_result 			= new int[2];
 	
+	//Used for Lazy SMP
+	protected int root_search_first_move_index = 0;
+
 	
 	public void setup(IBitBoard bitboardForSetup) {
 		
@@ -71,6 +73,12 @@ public abstract class SearchImpl implements ISearch {
 			
 			env.getBitboard().makeMoveForward(moves[i]);
 		}
+	}
+	
+	
+	public void setRootSearchFirstMoveIndex(int _root_search_first_move_index) {
+		
+		root_search_first_move_index = _root_search_first_move_index;
 	}
 	
 	
@@ -216,6 +224,30 @@ public abstract class SearchImpl implements ISearch {
 	protected int root_search(ISearchMediator mediator, ISearchInfo info,
 			int maxdepth, int depth, int alpha_org, int beta, int[] prevPV, int rootColour, boolean useMateDistancePrunning) {
 		throw new IllegalStateException();
+	}
+	
+	
+	protected long getHashkeyTPT(ChessBoard cb) {
+		
+		long hashkey;
+		
+		if (useTPTKeyWithMoveCounter()) {
+			
+			//hashkey = cb.zobristKey ^ getEnv().getBitboard().getPlayedMovesCount();
+			hashkey = cb.zobristKey ^ ((long) getEnv().getBitboard().getPlayedMovesCount());
+			
+		} else {
+			
+			hashkey = cb.zobristKey;
+		}
+		
+		return hashkey;
+	}
+	
+	
+	protected boolean useTPTKeyWithMoveCounter() {
+		
+		return false;
 	}
 	
 	

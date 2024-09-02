@@ -33,6 +33,7 @@ import bagaturchess.search.api.internal.ISearch;
 import bagaturchess.search.api.internal.ISearchInfo;
 import bagaturchess.search.api.internal.ISearchMediator;
 import bagaturchess.search.impl.alg.SearchUtils;
+import bagaturchess.search.impl.utils.DEBUGSearch;
 
 
 public class SearchManager {
@@ -168,7 +169,7 @@ public class SearchManager {
 			//TODO: Consider
 			//int beta_fix = betasGen.getLowerBound() + (betasGen.getUpperBound() - betasGen.getLowerBound()) / 2;
 			
-			mediator.dump("Search instability with distribution: " + this);
+			if (DEBUGSearch.DEBUG_MODE) mediator.dump("Search instability with distribution: " + this);
 			
 			/*mediator.dump("THREAD DUMP 1");
 			dumpStacks();
@@ -183,9 +184,9 @@ public class SearchManager {
 			mediator.dump("THREAD DUMP 2");
 			dumpStacks();
 			*/
-			mediator.dump("Betagen obj: " + betasGen);
+			if (DEBUGSearch.DEBUG_MODE) mediator.dump("Betagen obj: " + betasGen);
 			updateBetas();
-			mediator.dump("The new betas are:" + betas);
+			if (DEBUGSearch.DEBUG_MODE) mediator.dump("The new betas are:" + betas);
 					
 			//throw new IllegalStateException(toString());
 		}
@@ -338,17 +339,17 @@ public class SearchManager {
 				/*+ (((IRootSearchConfig_SMP)sharedData.getEngineConfiguration()).getThreadsCount() - 1)*/ >= betasGen.getUpperBound();
 				
 		if (!last) {
-			if (betasGen.getLowerBound() >= ISearch.MAX_MAT_INTERVAL
+			if (betasGen.getLowerBound() >= ISearch.MAX_MATERIAL_INTERVAL
 					&& SearchUtils.isMateVal(betasGen.getLowerBound())
-					&& (betasGen.getUpperBound() - betasGen.getLowerBound() < ISearch.MAX_MAT_INTERVAL)
+					&& (betasGen.getUpperBound() - betasGen.getLowerBound() < ISearch.MAX_MATERIAL_INTERVAL)
 				) {
 				//Mate found
 				last = true;
 			}
 			
-			if (betasGen.getUpperBound() <= -ISearch.MAX_MAT_INTERVAL
+			if (betasGen.getUpperBound() <= -ISearch.MAX_MATERIAL_INTERVAL
 					&& SearchUtils.isMateVal(betasGen.getUpperBound())
-					&& (betasGen.getUpperBound() - betasGen.getLowerBound() < ISearch.MAX_MAT_INTERVAL)
+					&& (betasGen.getUpperBound() - betasGen.getLowerBound() < ISearch.MAX_MATERIAL_INTERVAL)
 				) {
 				//Mate found
 				last = true;

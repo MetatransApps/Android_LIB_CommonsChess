@@ -49,7 +49,6 @@ import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.bitboard.impl.Fields;
 import bagaturchess.bitboard.impl.Figures;
 import bagaturchess.bitboard.impl.eval.pawns.model.PawnsModelEval;
-import bagaturchess.bitboard.impl.movegen.MoveInt;
 import bagaturchess.bitboard.impl.movelist.BaseMoveList;
 import bagaturchess.bitboard.impl.movelist.IMoveList;
 import bagaturchess.bitboard.impl.state.PiecesList;
@@ -84,7 +83,7 @@ public class BoardImpl implements IBitBoard {
 	
 	private NNUE_Input nnue_input;
 	
-	private boolean enable_NNUE_Input = true;
+	private boolean enable_NNUE_Input = false;
 	
 	protected IBoard.CastlingType[] castledByColour;
 	
@@ -166,7 +165,7 @@ public class BoardImpl implements IBitBoard {
 	}
 	
 	
-	private void addMoveListener(MoveListener listener) {
+	public void addMoveListener(MoveListener listener) {
 		MoveListener[] oldMoveListeners = moveListeners;
 		MoveListener[] newMoveListeners = new MoveListener[moveListeners.length + 1];
 		if (oldMoveListeners.length > 0) {
@@ -230,6 +229,16 @@ public class BoardImpl implements IBitBoard {
 			if (!isPossible(cur_move)) {
 				continue;
 			}
+			/*int type = getMoveOps().getCapturedFigureType(cur_move);
+			if (type == Figures.TYPE_KING) {
+				continue;
+			}
+			makeMoveForward(cur_move);
+			if (isInCheck(chessBoard.colorToMoveInverse)) {
+				makeMoveBackward(cur_move);
+				continue;
+			}
+			makeMoveBackward(cur_move);*/
 			list.reserved_add(cur_move);
 			counter++;
 		}
@@ -683,10 +692,7 @@ public class BoardImpl implements IBitBoard {
 		 */
 		if (Utils.countBits(bishops) == 1 && Utils.countBits(knights) == 1) {
 			
-			if ((bishops & Fields.ALL_WHITE_FIELDS) != 0 && (bishops & Fields.ALL_BLACK_FIELDS) != 0) {
-				
-				return true;
-			}
+			return true;
 		}
 		
 		
@@ -747,7 +753,7 @@ public class BoardImpl implements IBitBoard {
 	@Override
 	public synchronized boolean hasMoveInCheck() {
 		hasMovesList.clear();
-		genAllMoves(hasMovesList);
+		genKingEscapes(hasMovesList);
 		return hasMovesList.reserved_getCurrentSize() > 0;
 	}
 	
@@ -812,7 +818,7 @@ public class BoardImpl implements IBitBoard {
 		int colourToMove = getColourToMove();
 		
 		
-		if (getStateRepetition() >= 2) {
+		if (getStateRepetition() >= 3) {
 			//3 states repetition draw
 			return IGameStatus.DRAW_3_STATES_REPETITION;
 		}

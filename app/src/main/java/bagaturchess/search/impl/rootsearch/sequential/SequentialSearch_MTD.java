@@ -41,6 +41,7 @@ import bagaturchess.search.impl.rootsearch.multipv.MultiPVMediator;
 import bagaturchess.search.impl.rootsearch.sequential.mtd.Mediator_AlphaAndBestMoveWindow;
 import bagaturchess.search.impl.rootsearch.sequential.mtd.NullwinSearchTask;
 import bagaturchess.search.impl.rootsearch.sequential.mtd.SearchManager;
+import bagaturchess.search.impl.tpt.ITTable;
 import bagaturchess.search.impl.uci_adaptor.timemanagement.ITimeController;
 import bagaturchess.search.impl.utils.DEBUGSearch;
 import bagaturchess.uci.api.ChannelManager;
@@ -56,6 +57,9 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 	
 	private PVManager pvman;
 	
+	//Used for Lazy SMP
+	private int root_search_first_move_index = 0;
+	
 	
 	public SequentialSearch_MTD(Object[] args) {
 		
@@ -64,6 +68,12 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 		executor = Executors.newFixedThreadPool(1);
 		
 		pvman = new PVManager(ISearch.MAX_DEPTH);
+	}
+	
+	
+	public void setRootSearchFirstMoveIndex(int _root_search_first_move_index) {
+		
+		root_search_first_move_index = _root_search_first_move_index;
 	}
 	
 	
@@ -93,6 +103,8 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 						
 						new Object[] {getBitboardForSetup(),  getRootSearchConfig(), getSharedData()}
 					);
+		
+		searcher.setRootSearchFirstMoveIndex(root_search_first_move_index);
 	}
 	
 	
@@ -251,6 +263,13 @@ public class SequentialSearch_MTD extends RootSearch_BaseImpl {
 	}
 
 
+	@Override
+	public ITTable getTPT() {
+		
+		return searcher.getEnv().getTPT();
+	}
+	
+	
 	@Override
 	public void decreaseTPTDepths(int reduction) {
 		

@@ -5,6 +5,7 @@ package bagaturchess.learning.impl.features.advanced;
 
 import bagaturchess.bitboard.impl.utils.StringUtils;
 import bagaturchess.learning.api.ISignal;
+import bagaturchess.learning.impl.features.baseimpl.Weight;
 import bagaturchess.learning.impl.signals.SingleSignal;
 
 
@@ -91,9 +92,16 @@ public class AdjustableFeatureSingle extends AdjustableFeature {
 	
 	
 	@Override
+	public double getWeight(int index) {
+
+		throw new UnsupportedOperationException();
+	}
+	
+	
+	@Override
 	public double getLearningSpeed() {
 		
-		return weight.getLearningSpeed();
+		throw new UnsupportedOperationException();
 	}
 	
 	
@@ -111,8 +119,10 @@ public class AdjustableFeatureSingle extends AdjustableFeature {
 
 
 	@Override
-	public String toJavaCode() {
+	public String toJavaCode(String suffix) {
 		
-		return "public static final double " + getName().replace('.', '_') + "	=	" + weight.getWeight() + ";" + "\r\n";
+		return "public static final double " + getName().replace('.', '_') + suffix + "	=	"
+				+ (weight.getWeight()) + ";" + "\r\n";
+		
 	}
 }

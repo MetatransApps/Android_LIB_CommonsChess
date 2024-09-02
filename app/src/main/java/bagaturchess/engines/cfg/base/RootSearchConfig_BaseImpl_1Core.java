@@ -19,15 +19,6 @@ public class RootSearchConfig_BaseImpl_1Core extends RootSearchConfig_BaseImpl i
 				}
 			);
 	
-	/*public static final IRootSearchConfig NNUE = new RootSearchConfig_BaseImpl_1Core(
-			
-			new String[] {
-							bagaturchess.search.impl.alg.impl1.Search_PVS_NWS.class.getName(),
-							bagaturchess.engines.cfg.base.SearchConfigImpl_AB_NNTraining.class.getName(),
-							bagaturchess.learning.goldmiddle.impl4.cfg.BoardConfigImpl_V20.class.getName(),
-							bagaturchess.deeplearning.impl_nnue.eval.EvaluationConfig.class.getName(),
-				}
-			);
 	
 	public static final IRootSearchConfig EVALIMPL4_NNUE = new RootSearchConfig_BaseImpl_1Core(
 			
@@ -38,17 +29,8 @@ public class RootSearchConfig_BaseImpl_1Core extends RootSearchConfig_BaseImpl i
 							bagaturchess.learning.goldmiddle.impl4.cfg.EvaluationConfig_V20_NNTraining.class.getName(),
 				}
 			);
-
-	public static final IRootSearchConfig EVALIMPL4_TUNING = new RootSearchConfig_BaseImpl_1Core(
-			
-			new String[] {
-							bagaturchess.search.impl.alg.impl1.Search_PVS_NWS.class.getName(),
-							bagaturchess.engines.cfg.base.SearchConfigImpl_AB_NNTraining.class.getName(),
-							bagaturchess.learning.goldmiddle.impl4.cfg.BoardConfigImpl_V20.class.getName(),
-							bagaturchess.deeplearning.impl4_v20.eval.EvaluationConfig_NNTraining.class.getName(),
-				}
-			);
-
+	
+	
 	public static final IRootSearchConfig EVALIMPL4_TUNING_GOLDENMIDDEL = new RootSearchConfig_BaseImpl_1Core(
 			
 			new String[] {
@@ -58,17 +40,17 @@ public class RootSearchConfig_BaseImpl_1Core extends RootSearchConfig_BaseImpl i
 							bagaturchess.learning.goldmiddle.impl4.cfg.EvaluationConfig_V20_GOLDENMIDDLE_Train.class.getName(),
 				}
 			);
-	*/
+	
 	
 	
 	public RootSearchConfig_BaseImpl_1Core(String[] args) {
 		super(args);
 	}
 
-
+	
 	@Override
-	public boolean useGlobalTPT() {
+	public int getTPTsCount() {
 		
-		return true;
+		return 1;
 	}
 }

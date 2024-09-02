@@ -97,7 +97,7 @@ public class StateManager extends Protocol implements BestMoveSender {
 				if (fromGUILine == null) {
 					
 					channel.sendLogToGUI("StateManager: System.exit(0), because the end of stream is reached");
-					Thread.sleep(111);//Wait to write the log
+					Thread.sleep(20);//Wait to write the log
 					System.exit(0);
 					
 					return;
@@ -176,7 +176,7 @@ public class StateManager extends Protocol implements BestMoveSender {
 							
 							channel.sendLogToGUI("StateManager: System.exit(0), because of QUIT command");
 							
-							Thread.sleep(111); //Wait to write the log
+							Thread.sleep(20); //Wait to write the log
 							
 							System.exit(0);
 							
@@ -196,7 +196,7 @@ public class StateManager extends Protocol implements BestMoveSender {
 				
 				channel.sendLogToGUI("StateManager: Error: " + t.getMessage());
 				
-				Thread.sleep(111);
+				Thread.sleep(11); //Wait to write the log
 			}
 		}
 	}
@@ -281,11 +281,12 @@ public class StateManager extends Protocol implements BestMoveSender {
 		String result = "\r\n\r\n";
 		result += "***************************************************************************";
 		result += "\r\n";
-		result += "* Copyright (C) 2005-2022 Krasimir I. Topchiyski (k_topchiyski@yahoo.com) *";
+		result += "* Copyright (C) 2005-2024 Krasimir I. Topchiyski (k_topchiyski@yahoo.com) *";
 		result += "\r\n";
 		result += "*                                                                         *";
 		result += "\r\n";
-		result += "* Welcome to Bagatur UCI engine, version " + COMMAND_TO_GUI_ID_VERSION_STR + "                              *";
+		result += "* Welcome to " + COMMAND_TO_GUI_ID_NAME
+				+ " UCI engine, version " + COMMAND_TO_GUI_ID_VERSION_STR + "                              " + (COMMAND_TO_GUI_ID_NAME.equals("JFish") ? "  " : "") + "*";
 		result += "\r\n";
 		result += "*                                                                         *";
 		result += "\r\n";
@@ -309,7 +310,7 @@ public class StateManager extends Protocol implements BestMoveSender {
 	
 	private void sendEngineID() throws IOException {
 		String id_name = COMMAND_TO_GUI_ID_STR + IChannel.WHITE_SPACE;
-		id_name += COMMAND_TO_GUI_ID_NAME_STR + IChannel.WHITE_SPACE + "Bagatur " + COMMAND_TO_GUI_ID_VERSION_STR;
+		id_name += COMMAND_TO_GUI_ID_NAME_STR + IChannel.WHITE_SPACE + COMMAND_TO_GUI_ID_NAME + IChannel.WHITE_SPACE + COMMAND_TO_GUI_ID_VERSION_STR;
 		channel.sendCommandToGUI(id_name);
 		
 		String id_author = COMMAND_TO_GUI_ID_STR + IChannel.WHITE_SPACE;

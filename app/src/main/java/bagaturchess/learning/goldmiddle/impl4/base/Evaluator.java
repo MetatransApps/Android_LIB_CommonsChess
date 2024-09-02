@@ -9,11 +9,11 @@ import static bagaturchess.bitboard.impl1.internal.ChessConstants.PAWN;
 import static bagaturchess.bitboard.impl1.internal.ChessConstants.QUEEN;
 import static bagaturchess.bitboard.impl1.internal.ChessConstants.ROOK;
 import static bagaturchess.bitboard.impl1.internal.ChessConstants.WHITE;
-import static bagaturchess.learning.goldmiddle.impl4.base.IEvalComponentsProcessor.EVAL_PHASE_ID_1;
-import static bagaturchess.learning.goldmiddle.impl4.base.IEvalComponentsProcessor.EVAL_PHASE_ID_2;
-import static bagaturchess.learning.goldmiddle.impl4.base.IEvalComponentsProcessor.EVAL_PHASE_ID_3;
-import static bagaturchess.learning.goldmiddle.impl4.base.IEvalComponentsProcessor.EVAL_PHASE_ID_4;
-import static bagaturchess.learning.goldmiddle.impl4.base.IEvalComponentsProcessor.EVAL_PHASE_ID_5;
+import static bagaturchess.learning.goldmiddle.api.IEvalComponentsProcessor.EVAL_PHASE_ID_1;
+import static bagaturchess.learning.goldmiddle.api.IEvalComponentsProcessor.EVAL_PHASE_ID_2;
+import static bagaturchess.learning.goldmiddle.api.IEvalComponentsProcessor.EVAL_PHASE_ID_3;
+import static bagaturchess.learning.goldmiddle.api.IEvalComponentsProcessor.EVAL_PHASE_ID_4;
+import static bagaturchess.learning.goldmiddle.api.IEvalComponentsProcessor.EVAL_PHASE_ID_5;
 
 import bagaturchess.bitboard.api.IBoardConfig;
 import bagaturchess.bitboard.impl1.internal.Bitboard;
@@ -23,8 +23,8 @@ import bagaturchess.bitboard.impl1.internal.EvalConstants;
 import bagaturchess.bitboard.impl1.internal.MagicUtil;
 import bagaturchess.bitboard.impl1.internal.StaticMoves;
 import bagaturchess.bitboard.impl1.internal.Util;
+import bagaturchess.learning.goldmiddle.api.IEvalComponentsProcessor;
 import bagaturchess.learning.goldmiddle.impl4.filler.Bagatur_V20_FeaturesConstants;
-import bagaturchess.search.api.IEvalConfig;
 
 
 public class Evaluator implements Bagatur_V20_FeaturesConstants, FeatureWeights {
@@ -33,15 +33,12 @@ public class Evaluator implements Bagatur_V20_FeaturesConstants, FeatureWeights 
 	private static final int MAX_MATERIAL_FACTOR = 4 * EvalConstants.PHASE[NIGHT] + 4 * EvalConstants.PHASE[BISHOP] + 4 * EvalConstants.PHASE[ROOK] + 2 * EvalConstants.PHASE[QUEEN];
 	
 	
-	public static int eval1(boolean calculateMaterial, IBoardConfig boardConfig, final ChessBoard cb, final EvalInfo evalInfo, final IEvalComponentsProcessor evalComponentsProcessor) {
+	public static int eval1(IBoardConfig boardConfig, final ChessBoard cb, final EvalInfo evalInfo, final IEvalComponentsProcessor evalComponentsProcessor) {
 		
 		evalComponentsProcessor.addEvalComponent(EVAL_PHASE_ID_1, FEATURE_ID_PIECE_SQUARE_TABLE,
 				cb.psqtScore_mg, cb.psqtScore_eg, PIECE_SQUARE_TABLE_O, PIECE_SQUARE_TABLE_E);
 		
-		if (calculateMaterial) {
-			
-			calculateMaterialScore(boardConfig, evalInfo, evalComponentsProcessor);
-		}
+		calculateMaterialScore(boardConfig, evalInfo, evalComponentsProcessor);
 		
 		calculateImbalances(evalInfo, evalComponentsProcessor);
 		
@@ -900,7 +897,7 @@ public class Evaluator implements Bagatur_V20_FeaturesConstants, FeatureWeights 
 			score -= Long.bitCount(cb.castlingRights & 3) * EvalConstants.OTHER_SCORES[EvalConstants.IX_CASTLING];
 			evalComponentsProcessor.addEvalComponent(EVAL_PHASE_ID_5, FEATURE_ID_OTHERS_CASTLING,
 					score,
-					score,
+					0,
 					OTHERS_CASTLING_O, OTHERS_CASTLING_E);
 		}
 	}
@@ -1226,12 +1223,12 @@ public class Evaluator implements Bagatur_V20_FeaturesConstants, FeatureWeights 
 
 		if (whitePromotionDistance < blackPromotionDistance - 1) {
 			evalComponentsProcessor.addEvalComponent(EVAL_PHASE_ID_4, FEATURE_ID_PAWN_PASSED_UNSTOPPABLE,
-					+350,
+					0,
 					+350,
 					PAWN_PASSED_UNSTOPPABLE_O, PAWN_PASSED_UNSTOPPABLE_E);
 		} else if (whitePromotionDistance > blackPromotionDistance + 1) {
 			evalComponentsProcessor.addEvalComponent(EVAL_PHASE_ID_4, FEATURE_ID_PAWN_PASSED_UNSTOPPABLE,
-					-350,
+					0,
 					-350,
 					PAWN_PASSED_UNSTOPPABLE_O, PAWN_PASSED_UNSTOPPABLE_E);
 		}
@@ -1300,13 +1297,13 @@ public class Evaluator implements Bagatur_V20_FeaturesConstants, FeatureWeights 
 	private static int getBlackPromotionDistance(final int index, final EvalInfo evalInfo) {
 		// check if it cannot be stopped
 		int promotionDistance = index >>> 3;
-		if (promotionDistance == 1 && evalInfo.colorToMove == BLACK) {
+		/*if (promotionDistance == 1 && evalInfo.colorToMove == BLACK) {
 			if ((Util.POWER_LOOKUP[index - 8] & (evalInfo.attacksAll[WHITE] | evalInfo.bb_all)) == 0) {
 				if ((Util.POWER_LOOKUP[index] & evalInfo.attacksAll[WHITE]) == 0) {
 					return 1;
 				}
 			}
-		} else if (MaterialUtil.onlyWhitePawnsOrOneNightOrBishop(evalInfo.materialKey)) {
+		} else*/ if (!MaterialUtil.hasWhiteNonPawnPieces(evalInfo.materialKey)) {
 
 			// check if it is my turn
 			if (evalInfo.colorToMove == WHITE) {
@@ -1351,13 +1348,13 @@ public class Evaluator implements Bagatur_V20_FeaturesConstants, FeatureWeights 
 	private static int getWhitePromotionDistance(final int index, final EvalInfo evalInfo) {
 		// check if it cannot be stopped
 		int promotionDistance = 7 - index / 8;
-		if (promotionDistance == 1 && evalInfo.colorToMove == WHITE) {
+		/*if (promotionDistance == 1 && evalInfo.colorToMove == WHITE) {
 			if ((Util.POWER_LOOKUP[index + 8] & (evalInfo.attacksAll[BLACK] | evalInfo.bb_all)) == 0) {
 				if ((Util.POWER_LOOKUP[index] & evalInfo.attacksAll[BLACK]) == 0) {
 					return 1;
 				}
 			}
-		} else if (MaterialUtil.onlyBlackPawnsOrOneNightOrBishop(evalInfo.materialKey)) {
+		} else*/ if (!MaterialUtil.hasBlackNonPawnPieces(evalInfo.materialKey)) {
 
 			// check if it is my turn
 			if (evalInfo.colorToMove == BLACK) {

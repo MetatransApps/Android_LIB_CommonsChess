@@ -77,16 +77,16 @@ public class EvalInfo {
 	public long passedPawnsAndOutposts;
 	
 	
-	public double eval_o_part1;
-	public double eval_e_part1;
-	public double eval_o_part2;
-	public double eval_e_part2;
-	public double eval_o_part3;
-	public double eval_e_part3;
-	public double eval_o_part4;
-	public double eval_e_part4;
-	public double eval_o_part5;
-	public double eval_e_part5;
+	public int eval_o_part1;
+	public int eval_e_part1;
+	public int eval_o_part2;
+	public int eval_e_part2;
+	public int eval_o_part3;
+	public int eval_e_part3;
+	public int eval_o_part4;
+	public int eval_e_part4;
+	public int eval_o_part5;
+	public int eval_e_part5;
 	
 	
 	public final void clearEvals() {
@@ -151,13 +151,13 @@ public class EvalInfo {
 	}
 	
 	
-	public void updatePawnAttacks() {
+	public final void updatePawnAttacks() {
 		updatePawnAttacks(Bitboard.getWhitePawnAttacks(getPieces(WHITE, PAWN) & ~pinnedPieces), WHITE);
 		updatePawnAttacks(Bitboard.getBlackPawnAttacks(getPieces(BLACK, PAWN) & ~pinnedPieces), BLACK);
 	}
 	
 	
-	private void updatePawnAttacks(final long pawnAttacks, final int color) {
+	private final void updatePawnAttacks(final long pawnAttacks, final int color) {
 		attacks[color][PAWN] = pawnAttacks;
 		if ((pawnAttacks & ChessConstants.KING_AREA[1 - color][kingIndex[1 - color]]) != 0) {
 			kingAttackersFlag[color] = FLAG_PAWN;
@@ -172,7 +172,7 @@ public class EvalInfo {
 	}
 	
 	
-	public void updateAttacks(final long moves, final int piece, final int color, final long kingArea) {
+	public final void updateAttacks(final long moves, final int piece, final int color, final long kingArea) {
 		if ((moves & kingArea) != 0) {
 			kingAttackersFlag[color] |= FLAGS[piece];
 		}

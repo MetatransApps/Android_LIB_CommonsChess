@@ -34,19 +34,21 @@ import bagaturchess.search.impl.pv.PVManager;
 public interface ISearch {
 	
 	
-	public static int PLY 						= ISearchConfig_AB.PLY;
+	public static int PLY 							= ISearchConfig_AB.PLY;
 	
-	public static final int MAX_MAT_INTERVAL 	= IEvaluator.MAX_EVAL;
+	public static final int MAX_DEPTH 				= 128;
 	
-	public static final int MAX_DEPTH 			= 128;
+	public static final int MAX_MATERIAL_INTERVAL 	= IEvaluator.MAX_EVAL;
 	
-	public static final int MAX 				= ISearch.MAX_MAT_INTERVAL * ISearch.MAX_DEPTH; //+MATE in 1 move
+	public static final int MAX_MATE_INTERVAL 		= MAX_MATERIAL_INTERVAL * MAX_DEPTH;
 	
-	public static final int MIN 				= -MAX; //-MATE in 1 move
+	public static final int MAX 					= MAX_MATE_INTERVAL + MAX_MATERIAL_INTERVAL; //+MATE in 1 move
 	
-	public static final int DRAW_SCORE_O 		= 0;
+	public static final int MIN 					= -MAX; //-MATE in 1 move
 	
-	public static final int DRAW_SCORE_E 		= 0;
+	public static final int DRAW_SCORE_O 			= 0;
+	
+	public static final int DRAW_SCORE_E 			= 0;
 	
 	
 	public void newGame();
@@ -66,4 +68,6 @@ public interface ISearch {
 			int maxdepth, int depth, int beta,
 			boolean prevNullMove, int prevbest, int prevprevbest, int[] prevPV, int rootColour, int totalLMReduction, int materialGain, boolean inNullMove, int mateMove,
 			boolean useMateDistancePrunning);
+	
+	public void setRootSearchFirstMoveIndex(int _root_search_first_move_index);
 }

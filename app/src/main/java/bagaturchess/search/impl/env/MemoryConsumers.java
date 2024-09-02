@@ -4,6 +4,7 @@ package bagaturchess.search.impl.env;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -15,7 +16,6 @@ import bagaturchess.search.impl.eval.cache.EvalCache_Impl2;
 import bagaturchess.search.impl.eval.cache.IEvalCache;
 import bagaturchess.search.impl.tpt.ITTable;
 import bagaturchess.search.impl.tpt.TTable_Impl2;
-import bagaturchess.search.impl.tpt.TTable_StaticArrays;
 import bagaturchess.uci.api.ChannelManager;
 import bagaturchess.uci.api.IChannel;
 
@@ -235,17 +235,13 @@ public class MemoryConsumers {
 		
 		int THREADS_COUNT 				= engineConfiguration.getThreadsCount();
 		
-		int TRANSPOSITION_TABLES_COUNT 	= 1; //Math.max(1, THREADS_COUNT / 32);
-		
 		if (ChannelManager.getChannel() != null) {
 			
 			ChannelManager.getChannel().dump("Threads are " + THREADS_COUNT);
 			
-			//ChannelManager.getChannel().dump(TRANSPOSITION_TABLES_COUNT + " Transposition Table will be created.");
+			ChannelManager.getChannel().dump("engineConfiguration.getTPTsCount()=" + engineConfiguration.getTPTsCount());
 			
 			ChannelManager.getChannel().dump("engineConfiguration.useTPT()=" + engineConfiguration.useTPT());
-			
-			ChannelManager.getChannel().dump("engineConfiguration.useGlobalTPT()=" + engineConfiguration.useGlobalTPT());
 			
 			ChannelManager.getChannel().dump("engineConfiguration.useEvalCache()=" + engineConfiguration.useEvalCache());
 			
@@ -256,15 +252,31 @@ public class MemoryConsumers {
 		/**
 		 * Initialize caches
 		 */
-		long size_tpt 			= Math.max(SIZE_MIN_ENTRIES_TPT, (long) ((engineConfiguration.getTPTUsagePercent() * availableMemoryInBytes) / TRANSPOSITION_TABLES_COUNT));
+		long size_tpt 			= Math.max(SIZE_MIN_ENTRIES_TPT, (long) ((engineConfiguration.getTPTUsagePercent() * availableMemoryInBytes)));
 		
 		long size_ec 			= Math.max(SIZE_MIN_ENTRIES_EC, (long) ((engineConfiguration.getEvalCacheUsagePercent() * availableMemoryInBytes) / THREADS_COUNT));
 		
 		long syzygy_ec 			= Math.max(SIZE_MIN_ENTRIES_EC, (long) ((MEM_USAGE_SYZYGY_DTZ_CACHE * availableMemoryInBytes) / THREADS_COUNT));
 		
 		
-		//ITTable global_ttable 	= engineConfiguration.useGlobalTPT() ? new TTable_Impl2(size_tpt) : null;
-		ITTable global_ttable 	= engineConfiguration.useGlobalTPT() ? new TTable_StaticArrays(size_tpt) : null;
+		//Create and use TT carefully as SMP version doesn't scale, because of many reads/writes in the arrays
+		//We create more tables in order to minimize reads/writes in the same arrays, as this is an issue for Java and performance of the SMP search goes down up to 10 times.
+		List<ITTable> global_ttables 	= new ArrayList<ITTable>();
+		
+		if (engineConfiguration.useTPT()) {
+			
+			int count_TTs = engineConfiguration.getTPTsCount();
+			
+			if (count_TTs < 1) {
+				
+				throw new IllegalStateException("Transposition Tables count is less than 1");
+			}
+			
+			for (int i = 0; i < count_TTs; i++) {
+				
+				global_ttables.add(new TTable_Impl2(size_tpt / count_TTs));
+			}
+		}
 		
 		ttable_provider 		= new Vector<ITTable>();
 		
@@ -275,7 +287,14 @@ public class MemoryConsumers {
 		
 		for (int i = 0; i < THREADS_COUNT; i++) {
 			
-			ttable_provider.add(engineConfiguration.useTPT() ? (engineConfiguration.useGlobalTPT() ? global_ttable : new TTable_Impl2(size_tpt / THREADS_COUNT)) : null);
+			if (engineConfiguration.useTPT()) {
+				
+				ttable_provider.add(global_ttables.get(i %  global_ttables.size()));
+				
+			} else {
+				
+				ttable_provider.add(null);
+			}
 			
 			evalCache.add(engineConfiguration.useEvalCache() ? new EvalCache_Impl2(size_ec) : null);
 			

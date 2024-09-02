@@ -9,6 +9,7 @@ import bagaturchess.bitboard.api.IInternalMoveList;
 import bagaturchess.bitboard.api.IMoveOps;
 import bagaturchess.bitboard.api.IPlayerAttacks;
 import bagaturchess.bitboard.api.PawnsEvalCache;
+import bagaturchess.bitboard.common.MoveListener;
 import bagaturchess.bitboard.impl.Constants;
 import bagaturchess.bitboard.impl.Fields;
 import bagaturchess.bitboard.impl.Figures;
@@ -257,5 +258,12 @@ public class Board3_Adapter extends Board3 implements IBitBoard {
 	public CastlingConfig getCastlingConfig() {
 		
 		throw new UnsupportedOperationException();
+	}
+
+
+	@Override
+	public void addMoveListener(MoveListener listener) {
+		
+		//throw new UnsupportedOperationException();
 	}
 }

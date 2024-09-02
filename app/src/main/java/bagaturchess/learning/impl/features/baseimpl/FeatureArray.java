@@ -39,7 +39,7 @@ public class FeatureArray extends Feature {
 	}
 	
 	@Override
-	public String toJavaCode() {
+	public String toJavaCode(String suffix) {
 		String o = "public static final double " + getName().replace('.', '_') + "_O	=	";
 		String e = "public static final double " + getName().replace('.', '_') + "_E	=	";
 		
@@ -161,6 +161,13 @@ public class FeatureArray extends Feature {
 	@Override
 	public double getWeight() {
 		
+		throw new UnsupportedOperationException();
+	}
+	
+	
+	@Override
+	public double getWeight(int index) {
+
 		throw new UnsupportedOperationException();
 	}
 	

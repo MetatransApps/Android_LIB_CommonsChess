@@ -26,16 +26,16 @@ import bagaturchess.bitboard.impl1.internal.ChessBoard;
 import bagaturchess.learning.api.IFeatureComplexity;
 import bagaturchess.learning.api.ISignalFiller;
 import bagaturchess.learning.api.ISignals;
+import bagaturchess.learning.goldmiddle.api.IEvalComponentsProcessor;
 import bagaturchess.learning.goldmiddle.impl4.base.EvalInfo;
 import bagaturchess.learning.goldmiddle.impl4.base.Evaluator;
-import bagaturchess.learning.goldmiddle.impl4.base.IEvalComponentsProcessor;
 import bagaturchess.search.api.IEvalConfig;
 
 
 public class Bagatur_V20_SignalFiller implements ISignalFiller {
 	
 	
-	public static final IEvalConfig eval_config = null; //new bagaturchess.learning.goldmiddle.impl4.cfg.EvaluationConfig_V20_GOLDENMIDDLE_Train();
+	public static final IEvalConfig eval_config = new bagaturchess.learning.goldmiddle.impl4.cfg.EvaluationConfig_V20_GOLDENMIDDLE_Train();
 	
 	
 	private final IBitBoard bitboard;
@@ -64,7 +64,7 @@ public class Bagatur_V20_SignalFiller implements ISignalFiller {
 		
 		IEvalComponentsProcessor evalComponentsProcessor = new EvalComponentsProcessor(signals);
 		
-		Evaluator.eval1(true, bitboard.getBoardConfig(), board, evalInfo, evalComponentsProcessor);
+		Evaluator.eval1(bitboard.getBoardConfig(), board, evalInfo, evalComponentsProcessor);
 		Evaluator.eval2(board, evalInfo, evalComponentsProcessor);
 		Evaluator.eval3(board, evalInfo, evalComponentsProcessor);
 		Evaluator.eval4(board, evalInfo, evalComponentsProcessor);
@@ -75,19 +75,19 @@ public class Bagatur_V20_SignalFiller implements ISignalFiller {
 	@Override
 	public void fillByComplexity(int complexity, ISignals signals) {
 		switch(complexity) {
-			case IFeatureComplexity.STANDARD:
+			case IFeatureComplexity.GROUP1:
 				fill(signals);
 				return;
-			case IFeatureComplexity.PAWNS_STRUCTURE:
+			case IFeatureComplexity.GROUP2:
 				//fillPawnSignals(signals);
 				return;
-			case IFeatureComplexity.PIECES_ITERATION:
+			case IFeatureComplexity.GROUP3:
 				//fillPiecesIterationSignals(signals);
 				return;
-			case IFeatureComplexity.MOVES_ITERATION:
+			case IFeatureComplexity.GROUP4:
 				//fillMovesIterationSignals(signals);
 				return;
-			case IFeatureComplexity.FIELDS_STATES_ITERATION:
+			case IFeatureComplexity.GROUP5:
 				//throw new UnsupportedOperationException("FIELDS_STATES_ITERATION");
 				return;
 			default:
@@ -110,14 +110,38 @@ public class Bagatur_V20_SignalFiller implements ISignalFiller {
 		@Override
 		public void addEvalComponent(int evalPhaseID, int componentID, int value_o, int value_e, double weight_o, double weight_e) {
 			
-			signals.getSignal(componentID).addStrength(value_o, -1);
+			int total_factor = Math.min(63, bitboard.getMaterialFactor().getTotalFactor());
+			
+			int features_index = total_factor / 32;
+			
+			if (features_index == 0) {
+				
+				signals.getSignal(componentID).addStrength(value_e, -1);
+				
+			} else if (features_index == 1) {
+				
+				signals.getSignal(componentID).addStrength(value_o, -1);
+				
+			} else {
+				
+				throw new IllegalStateException("features_index=" + features_index);
+			}
 			
 			//signals.getSignal(componentID + 1000).addStrength(value_e, -1);
 		}
 
 
 		@Override
-		public void setEvalInfo(EvalInfo evalinfo) {
+		public void addEvalComponent(int evalPhaseID, int componentID,
+				int fieldID, int value_o, int value_e, double weight_o,
+				double weight_e) {
+
+			throw new UnsupportedOperationException();
+		}
+		
+		
+		@Override
+		public void setEvalInfo(Object evalinfo) {
 			
 			throw new UnsupportedOperationException();
 		}

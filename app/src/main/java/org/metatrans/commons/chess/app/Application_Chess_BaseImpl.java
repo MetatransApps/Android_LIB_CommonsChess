@@ -66,8 +66,8 @@ public abstract class Application_Chess_BaseImpl extends Application_Base_Ads {
 		EngineClient_LocalImpl.STATIC_JVM_MEMORY 	= 0;
 		//Meaning: use 50% of the available memory
 		//EngineClient_LocalImpl.MEMORY_USAGE_PERCENT = 0.50;
-		MoveGenerator.USE_ContinuationHistory 	= false;
-		MoveGenerator.USE_COUNTER_MOVES_COUNTS 	= false;
+		//MoveGenerator.USE_ContinuationHistory 	= false;
+		//MoveGenerator.USE_COUNTER_MOVES_COUNTS 	= false;
 
 		ChannelManager.setChannel(new Channel_Console(System.in, System.out, System.out));
 

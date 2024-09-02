@@ -22,63 +22,78 @@ public class SearchersInfo {
 	private int cur_depth;
 	private double nextDepthThreshold;
 	
-	private Map<IRootSearch, ISearchInfo> searchersNodesInfo;
+	private Map<IRootSearch, Long> searchers_searched_nodes_count;
+	private Map<IRootSearch, Long> searchers_tb_hits;
 	
 	
 	public SearchersInfo(int startDepth, double _nextDepthThreshold) {
+		
 		searchersInfo = new HashMap<IRootSearch, SearcherInfo>();
 		cur_depth = startDepth;
 		nextDepthThreshold = _nextDepthThreshold;
 		
-		searchersNodesInfo = new HashMap<IRootSearch, ISearchInfo>();
+		searchers_searched_nodes_count = new HashMap<IRootSearch, Long>();
+		searchers_tb_hits = new HashMap<IRootSearch, Long>();
+		
+		ChannelManager.getChannel().dump("SearchersInfo.init(...): nextDepthThreshold=" + nextDepthThreshold);
 	}
 	
 	
 	public int getCurrentDepth() {
+		
 		return cur_depth;
 	}
 	
 	
-	public void updateNodesCount(IRootSearch searcher, ISearchInfo info) {
-		ISearchInfo oldInfo = searchersNodesInfo.get(searcher);
-		if (oldInfo == null)  {
-			searchersNodesInfo.put(searcher, info);
-		} else {
-			if (info.getSearchedNodes() > oldInfo.getSearchedNodes()) {
-				searchersNodesInfo.put(searcher, info);
-			}
-		}
+	public void setNodesCountAndTBHits(IRootSearch searcher, long searched_nodes_count, long tb_hits_count) {
+		
+		searchers_searched_nodes_count.put(searcher, searched_nodes_count);
+		searchers_tb_hits.put(searcher, tb_hits_count);
 	}
 	
 	
 	private long getNodesCount() {
+		
 		long nodes = 0;
-		for (IRootSearch searcher: searchersNodesInfo.keySet()) {
-			ISearchInfo info = searchersNodesInfo.get(searcher);
-			if (info != null) {
-				nodes += info.getSearchedNodes();
+		
+		for (IRootSearch searcher: searchers_searched_nodes_count.keySet()) {
+			
+			Long searched_nodes_count = searchers_searched_nodes_count.get(searcher);
+			
+			if (searched_nodes_count != null) {
+				
+				nodes += searched_nodes_count;
 			}
 		}
+		
 		return nodes;
 	}
 	
 	
 	private long getTBHits() {
-		long hits = 0;
-		for (IRootSearch searcher: searchersNodesInfo.keySet()) {
-			ISearchInfo info = searchersNodesInfo.get(searcher);
-			if (info != null) {
-				hits += info.getTBhits();
+		
+		long tb_hits = 0;
+		
+		for (IRootSearch searcher: searchers_tb_hits.keySet()) {
+			
+			Long tb_hits_count = searchers_tb_hits.get(searcher);
+			
+			if (tb_hits_count != null) {
+				
+				tb_hits += tb_hits_count;
 			}
 		}
-		return hits;
+		
+		return tb_hits;
 	}
 	
 	
 	public void updateMajor(IRootSearch searcher, ISearchInfo info) {
 		
+		
 		//Skip infos without PV and best move
 		if (info.isUpperBound()) {
+			
 			return;
 		}
 		
@@ -87,15 +102,20 @@ public class SearchersInfo {
 				|| info.getPV().length < 1
 				|| info.getBestMove() == 0
 				) {
-			//throw new IllegalStateException();
+			
 			return;
 		}
 		
+		
 		if (DEBUGSearch.DEBUG_MODE) ChannelManager.getChannel().dump("SearchersInfo: update info=" + info + ", info.getDepth()=" + info.getDepth() + ", info.getPV().length=" + info.getPV().length);
 		
+		
 		SearcherInfo searcherinfo = searchersInfo.get(searcher);
+		
 		if (searcherinfo == null) {
+			
 			searcherinfo = new SearcherInfo();
+			
 			searchersInfo.put(searcher, searcherinfo);
 		}
 		
@@ -103,23 +123,49 @@ public class SearchersInfo {
 	}
 	
 	
+	public boolean needRestart(IRootSearch searcher) {
+		
+		SearcherInfo searcherinfo = searchersInfo.get(searcher);
+		
+		if (searcherinfo != null && searcherinfo.getMaxDepth() < cur_depth) {
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
 	//Result can be null
+	//It should be used only for starting new searchers with the PV from the info, and of course only when the seacrhers are configured be restraed at all.
 	public ISearchInfo getDeepestBestInfo() {
 		
+		
 		ISearchInfo deepest_last_info = null;
+		
+		
 		for (IRootSearch cur_searcher: searchersInfo.keySet()) {
 			
 			SearcherInfo cur_searcher_infos = searchersInfo.get(cur_searcher);
+			
 			ISearchInfo cur_deepest_last_info = cur_searcher_infos.getLastSearchInfo(cur_searcher_infos.getMaxDepth());
 			
 			if (cur_deepest_last_info != null) {
+				
 				if (deepest_last_info == null) {
+					
 					deepest_last_info = cur_deepest_last_info;
+					
 				} else {
+					
 					if (cur_deepest_last_info.getDepth() > deepest_last_info.getDepth()) {
+						
 						deepest_last_info = cur_deepest_last_info;
+						
 					} else if (cur_deepest_last_info.getDepth() == deepest_last_info.getDepth()) {
+						
 						if (cur_deepest_last_info.getEval() > deepest_last_info.getEval()) {
+							
 							deepest_last_info = cur_deepest_last_info;
 						}
 					}
@@ -127,18 +173,8 @@ public class SearchersInfo {
 			}
 		}
 		
+		
 		return deepest_last_info;
-	}
-	
-	
-	public boolean needRestart(IRootSearch searcher) {
-		
-		SearcherInfo searcherinfo = searchersInfo.get(searcher);
-		if (searcherinfo != null && searcherinfo.getMaxDepth() < cur_depth) {
-			return true;
-		}
-		
-		return false;
 	}
 	
 	
@@ -157,6 +193,30 @@ public class SearchersInfo {
 	}
 	
 	
+	private boolean hasDepthInfo(int depth) {
+		
+		
+		int countResponded = 0;
+		
+		
+		for (IRootSearch cur_searcher: searchersInfo.keySet()) {
+			
+			SearcherInfo cur_searcher_infos = searchersInfo.get(cur_searcher);
+			
+			if (cur_searcher_infos != null) {
+				
+				if (cur_searcher_infos.getLastSearchInfo(depth) != null) {
+					
+					countResponded++;
+				}
+			}
+		}
+		
+		
+		return (countResponded / (double) searchersInfo.size() >= nextDepthThreshold);
+	}
+	
+	
 	//Result can be null
 	private ISearchInfo getAccumulatedInfo(int depth) {
 		
@@ -165,6 +225,7 @@ public class SearchersInfo {
 		for (IRootSearch cur_searcher: searchersInfo.keySet()) {
 			
 			SearcherInfo cur_searcher_infos = searchersInfo.get(cur_searcher);
+			
 			ISearchInfo cur_last_info = cur_searcher_infos.getLastSearchInfo(depth);
 			
 			if (cur_last_info != null) {
@@ -208,6 +269,7 @@ public class SearchersInfo {
 		}
 		
 		ISearchInfo info_to_send = SearchInfoFactory.getFactory().createSearchInfo();
+		
 		info_to_send.setDepth(bestMoveInfo.best_info.getDepth());
 		info_to_send.setSelDepth(bestMoveInfo.best_info.getSelDepth());
 		info_to_send.setEval(bestMoveInfo.getEval());
@@ -216,22 +278,8 @@ public class SearchersInfo {
 		info_to_send.setSearchedNodes(getNodesCount());
 		info_to_send.setTBhits(getTBHits());
 		
-		return info_to_send;
-	}
-	
-	
-	private boolean hasDepthInfo(int depth) {
 		
-		int countResponded = 0;
-		for (IRootSearch cur_searcher: searchersInfo.keySet()) {
-			SearcherInfo cur_searcher_infos = searchersInfo.get(cur_searcher);
-			if (cur_searcher_infos != null) {
-				if (cur_searcher_infos.getLastSearchInfo(depth) != null) {
-					countResponded++;
-				}
-			}
-		}
-		return (countResponded / (double) searchersInfo.size() >= nextDepthThreshold);
+		return info_to_send;
 	}
 	
 	
@@ -242,14 +290,32 @@ public class SearchersInfo {
 		
 		
 		public SearcherInfo() {
+			
 			depthsInfo = new HashMap<Integer, SearchersInfo.SearcherInfo.SearcherDepthInfo>();
 		}
 
 
 		public void update(ISearchInfo info) {
-			SearcherDepthInfo searcherDepthInfo = depthsInfo.get(info.getDepth());
+			
+			int info_depth = info.getDepth();
+			
+			updateSearcherDepth(info, info_depth);
+			
+			//Influence the current depth - move and evaluation. This should help:
+			//1. The time for the search could be extended in case of eval fluctuations.
+			//2. The previous depth, from which still evals and moves are send to the UCI, will be sooner visible in the produced PVs in GUI or logs.
+			updateSearcherDepth(info, info_depth - 1);
+		}
+
+
+		private void updateSearcherDepth(ISearchInfo info, int info_depth) {
+			
+			SearcherDepthInfo searcherDepthInfo = depthsInfo.get(info_depth);
+			
 			if (searcherDepthInfo == null) {
+				
 				searcherDepthInfo = new SearcherDepthInfo();
+				
 				depthsInfo.put(info.getDepth(), searcherDepthInfo);
 			}
 			
@@ -285,21 +351,27 @@ public class SearchersInfo {
 			private List<ISearchInfo> infos;
 			
 			
-			public SearcherDepthInfo() { 
+			public SearcherDepthInfo() {
+				
 				infos = new ArrayList<ISearchInfo>();
 			}
 			
 			
 			void update(ISearchInfo info) {
+				
 				infos.add(info);
 			}
 			
 			
 			public ISearchInfo getLastSearchInfo() {
+				
 				int last_index = infos.size() - 1;
+				
 				if (last_index < 0) {
+					
 					return null;
 				}
+				
 				return infos.get(last_index);
 			}
 		}
@@ -309,16 +381,20 @@ public class SearchersInfo {
 	private class MoveInfo {
 		
 		
-		int sum;
-		int cnt;
-		int best_eval;
-		ISearchInfo best_info;
-		boolean hasMate;
+		private int best_eval;
+		private int sum;
+		private int cnt;
+		
+		private boolean is_mate;
+		private int mate_val;
+		
+		private ISearchInfo best_info;
 		
 		
 		MoveInfo(ISearchInfo first_info) {
 			
 			best_eval = ISearch.MIN;
+			mate_val = ISearch.MIN;
 			
 			addInfo(first_info);
 		}
@@ -328,13 +404,13 @@ public class SearchersInfo {
 			
 			int new_eval = info.getEval();
 			
-			if (hasMate) {
+			if (is_mate) {
 				
 				if (SearchUtils.isMateVal(new_eval)) {
 					
-					if (new_eval > best_eval) {
+					if (new_eval > mate_val) {
 						
-						best_eval = new_eval;
+						mate_val = new_eval;
 						best_info = info;
 					}
 				}
@@ -343,34 +419,40 @@ public class SearchersInfo {
 				
 				if (SearchUtils.isMateVal(new_eval)) {
 					
-					hasMate = true;
+					is_mate = true;
 					
-					best_eval = new_eval;
+					mate_val = new_eval;
 					best_info = info;
 					
 				} else {
 					
 					if (new_eval > best_eval) {
-						
 						best_eval = new_eval;
 						best_info = info;
 					}
 					
 					sum += new_eval;
-					cnt += 1;
 				}
 			}
+			
+			cnt += 1;
 		}
 		
 		
 		int getEval() {
 			
-			if (hasMate) {
+			if (is_mate) {
 				
-				return best_eval;
+				return mate_val;
 			}
 			
 			return sum / cnt;
+		}
+		
+		
+		int getCount() {
+			
+			return cnt;
 		}
 	}
 }

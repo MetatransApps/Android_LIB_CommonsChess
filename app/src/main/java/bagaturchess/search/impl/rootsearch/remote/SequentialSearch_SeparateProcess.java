@@ -41,6 +41,7 @@ import bagaturchess.search.api.internal.ISearchInfo;
 import bagaturchess.search.api.internal.ISearchMediator;
 import bagaturchess.search.impl.info.SearchInfoFactory;
 import bagaturchess.search.impl.rootsearch.RootSearch_BaseImpl;
+import bagaturchess.search.impl.tpt.ITTable;
 import bagaturchess.search.impl.uci_adaptor.timemanagement.ITimeController;
 import bagaturchess.search.impl.utils.DEBUGSearch;
 import bagaturchess.uci.api.ChannelManager;
@@ -253,7 +254,7 @@ public class SequentialSearch_SeparateProcess extends RootSearch_BaseImpl {
 							
 							if (!isStopped()) {// If the exit already happened in the InboundQueueProcessor below than the engine should not be stopped again
 								
-								ChannelManager.getChannel().dump(Thread.currentThread().getName() + " " + "SequentialSearch_SeparateProcess: OutboundQueueProcessor - stopping engine and exit the queue");
+								if (DEBUGSearch.DEBUG_MODE) ChannelManager.getChannel().dump(Thread.currentThread().getName() + " " + "SequentialSearch_SeparateProcess: OutboundQueueProcessor - stopping engine and exit the queue");
 								
 								runner.stopEngines();
 								//runner.enable();	
@@ -364,7 +365,7 @@ public class SequentialSearch_SeparateProcess extends RootSearch_BaseImpl {
 
 							if (!isStopped()) {//Not stopped from the UI. Otherwise the best move is already send from the InboundQueueProcessor above
 								
-								ChannelManager.getChannel().dump("SequentialSearch_SeparateProcess: InboundQueueProcessor - stopping search and exit the queue");
+								if (DEBUGSearch.DEBUG_MODE) ChannelManager.getChannel().dump("SequentialSearch_SeparateProcess: InboundQueueProcessor - stopping search and exit the queue");
 								
 								//runner.stopEngines();//Engine has stopped itself already (got out of the getInfoLines blocking call)
 								//runner.enable();
@@ -373,7 +374,7 @@ public class SequentialSearch_SeparateProcess extends RootSearch_BaseImpl {
 								stopper = null;
 								
 								if (multiPVCallback == null) {//Non multiPV search
-									ChannelManager.getChannel().dump(Thread.currentThread().getName() + " " + "SequentialSearch_SeparateProcess: InboundQueueProcessor - call final_mediator.getBestMoveSender().sendBestMove()");
+									if (DEBUGSearch.DEBUG_MODE) ChannelManager.getChannel().dump(Thread.currentThread().getName() + " " + "SequentialSearch_SeparateProcess: InboundQueueProcessor - call final_mediator.getBestMoveSender().sendBestMove()");
 									final_mediator.getBestMoveSender().sendBestMove();
 								} else {
 									//MultiPV search
@@ -398,6 +399,13 @@ public class SequentialSearch_SeparateProcess extends RootSearch_BaseImpl {
 	@Override
 	public int getTPTUsagePercent() {
 		return hashfull;
+	}
+	
+	
+	@Override
+	public ITTable getTPT() {
+		
+		throw new UnsupportedOperationException();
 	}
 	
 	

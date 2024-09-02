@@ -14,7 +14,6 @@ import bagaturchess.learning.api.IFeatureComplexity;
 import bagaturchess.learning.api.ISignalFiller;
 import bagaturchess.learning.api.ISignals;
 import bagaturchess.learning.impl.features.baseimpl.Features_Splitter;
-import bagaturchess.learning.impl.signals.Signals;
 import bagaturchess.search.api.FullEvalFlag;
 import bagaturchess.search.api.IEvaluator;
 import bagaturchess.search.impl.eval.cache.IEvalCache;
@@ -76,7 +75,7 @@ public class FeaturesEvaluator implements IEvaluator {
 		IFeature[] features = features_splitter.getFeatures(bitboard);
 		
 		
-		filler.fillByComplexity(IFeatureComplexity.STANDARD, signals);
+		filler.fillByComplexity(IFeatureComplexity.GROUP1, signals);
 		
 		double eval = 0;
 		
@@ -107,11 +106,5 @@ public class FeaturesEvaluator implements IEvaluator {
 			
 			return (int) -eval;
 		}
-	}
-	
-	
-	public void fillSignal(Signals signals, int rootColour) {
-		
-		throw new UnsupportedOperationException();
 	}
 }
