@@ -127,8 +127,8 @@ public class EngineClient_LocalImpl implements IEngineClient {
 						bagaturchess.search.impl.alg.impl1.Search_PVS_NWS.class.getName(),
 						bagaturchess.engines.cfg.base.SearchConfigImpl_AB.class.getName(),
 						bagaturchess.learning.goldmiddle.impl4.cfg.BoardConfigImpl_V20.class.getName(),
-						bagaturchess.deeplearning.impl_nnue_v3.EvaluationConfig.class.getName(),
-						//bagaturchess.learning.goldmiddle.impl4.cfg.EvaluationConfig_V20.class.getName()
+						//bagaturchess.deeplearning.impl_nnue_v3.EvaluationConfig.class.getName(),
+						bagaturchess.learning.goldmiddle.impl4.cfg.EvaluationConfig_V20.class.getName()
 				});
 		
 		bitboardForSetup = BoardUtils.createBoard_WithPawnsCache(initialBoard.toEPD(),
