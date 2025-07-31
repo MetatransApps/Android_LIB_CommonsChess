@@ -6,6 +6,8 @@ plugins {
 
 android {
 
+    namespace "org.metatrans.commons.chess"
+
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
