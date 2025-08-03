@@ -58,10 +58,6 @@ public abstract class EditBoardActivity extends Activity_Base_Ads_Banner impleme
         
     	super.onCreate(savedInstanceState);
         
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
         mLayout = new FrameLayout(this);
 
         setContentView(mLayout);
