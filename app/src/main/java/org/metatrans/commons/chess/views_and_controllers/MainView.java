@@ -14,6 +14,7 @@ import org.metatrans.commons.cfg.colours.IConfigurationColours;
 import org.metatrans.commons.chess.GlobalConstants;
 import org.metatrans.commons.chess.main.MainActivity;
 import org.metatrans.commons.ui.utils.DrawingUtils;
+import org.metatrans.commons.ui.utils.ScreenUtils;
 
 
 public abstract class MainView extends View implements IMainView {
@@ -107,10 +108,10 @@ public abstract class MainView extends View implements IMainView {
 	
 	
 	private void initializeDimensions() {
-		
-		//int[] screen_size = ScreenUtils.getScreenSize(getMainActivity());
-		int main_width = getMeasuredWidth();
-		int main_height = getMeasuredHeight();
+
+		int[] screen_size = ScreenUtils.getScreenSize(getMainActivity());
+		int main_width = screen_size[0]; //getMeasuredWidth();
+		int main_height = screen_size[1]; //getMeasuredHeight();
 
 		panel_border = 10;
 		

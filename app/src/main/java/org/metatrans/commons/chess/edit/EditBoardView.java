@@ -9,6 +9,7 @@ import android.view.View;
 
 import org.metatrans.commons.chess.views_and_controllers.IBoardViewActivity;
 import org.metatrans.commons.ui.utils.DrawingUtils;
+import org.metatrans.commons.ui.utils.ScreenUtils;
 
 
 public class EditBoardView extends View {
@@ -79,9 +80,10 @@ public class EditBoardView extends View {
 	
 	
 	private void initializeDimensions() {
-		
-		int main_width = getMeasuredWidth();
-		int main_height = getMeasuredHeight();
+
+		int[] screen_size = ScreenUtils.getScreenSize(getContext());
+		int main_width = screen_size[0]; //getMeasuredWidth();
+		int main_height = screen_size[1]; //getMeasuredHeight();
 		
 		if (main_width > main_height) {
 			
