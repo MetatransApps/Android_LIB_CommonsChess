@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
+import org.metatrans.commons.Activity_Base_Ads_Banner;
+import org.metatrans.commons.IEarnedRewardCallback;
 import org.metatrans.commons.ads.api.IAdsConfiguration;
 import org.metatrans.commons.app.Application_Base;
 import org.metatrans.commons.cfg.menu.Config_MenuMain_Base;
@@ -28,6 +30,7 @@ import org.metatrans.commons.chess.model.UserSettings;
 import org.metatrans.commons.chess.utils.BoardUtils;
 import org.metatrans.commons.chess.utils.MessageUtils;
 import org.metatrans.commons.menu.Activity_Menu_Main_Base;
+import org.metatrans.commons.ui.Toast_Base;
 import org.metatrans.commons.web.Activity_WebView_StatePreservingImpl_With_VideoPlayer;
 
 import java.util.ArrayList;
@@ -195,7 +198,15 @@ public abstract class Activity_MenuMain extends Activity_Menu_Main_Base {
 						@Override
 						public void run() {
 
-							Activity_MenuMain.this.openRewardedVideo();
+							Activity_MenuMain.this.openRewardedVideo(new IEarnedRewardCallback() {
+								@Override
+								public void onEarnedReward() {
+
+									Activity_Base_Ads_Banner.timestamp_last_rewarded_ad_opening = System.currentTimeMillis();
+
+									Toast_Base.showToast_InCenter_Short(Activity_MenuMain.this, "Reward earned");
+								}
+							});
 						}
 					};
 				}
